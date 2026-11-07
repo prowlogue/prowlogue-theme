@@ -1,0 +1,216 @@
+/*
+ * Home (Modern layout): the rows sit on a frosted panel over the Spotlight hero. Rounded 30pt top corners,
+ * a 4pt white @ 40 % inside stroke, and behind the rows the spotlight, blurred σ20 and opaque.
+ *
+ * The blur: CSS can't copy the hero's <img> into another layer. So on a desktop with a fine pointer, and on
+ * phones, the hero's backdrop stays on screen and the panel blurs it live with backdrop-filter: the one
+ * full-screen live blur in the theme, as the rows scroll over it. Engines without backdrop-filter, Reduce
+ * transparency and a touch-only desktop get an opaque grey panel instead.
+ *
+ * Only while Media Bar's stage is on screen: without a hero the rows stay as they are. Both Media Bars
+ * remove every .slide the moment they leave Home, so `body:has(> #slides-container > .slide)` says
+ * that without reading the inline display: an attribute inside a :has() on body would re-check it on
+ * every style change on the page. Media Bar already makes the rows container
+ * `position: relative; z-index: 6` and pushes it below the hero (margin-top from --slideshow-content-
+ * top), so the panel layers live in its stacking context: the surface (::before) under the rows, the
+ * stroke (::after) over them, so cards scrolling sideways pass under the edge. The rows container
+ * stays a flex column: Home Screen Sections and KefinTweaks interleave rows with inline order.
+ *
+ * Bottom of the page: stock's #homeTab (.pageTabContent) and #indexPage (.page) each keep 5em + the safe
+ * area for the now-playing bar (styles/site.scss, with !important, so !important here too), 150px of
+ * nothing on top of the last row's own margin, even with nothing playing. Here the page keeps that room
+ * once, and only while the bar shows (jellyfin marks it .nowPlayingBar-hidden otherwise). The panel's
+ * surface and stroke reach the page end by the same token.
+ *
+ * Row spacing: three spacings stack up between rows, 60px on a desktop: the cards' 1.8em bottom margin
+ * (cardBox-bottompadded, card.scss), KefinTweaks' 1rem row gap (homeScreen.css) and the title's 1.25em top
+ * padding (librarybrowser.scss). Only the card margin stays, and the rows start the same distance below
+ * the panel edge, so the edge sits where a row above would end. The rows container stays a flex column.
+ *
+ * Row alignment: titles, posters and the ‹ › buttons sit on the hero's own inset instead of jellyfin's
+ * 3.3 %, so everything shares one left edge. The space between posters is the card's 1.2em right margin
+ * inside a fixed card width, so a larger margin would shrink the poster; the difference to --pl-gap goes
+ * on the flex row instead, and posters keep jellyfin's size. KefinTweaks' gapless rows are left alone.
+ */
+
+#reactRoot > div > main #homeTab :is(.padded-left, .emby-scroller) {
+    padding-inline-start: max(var(--pl-inset), env(safe-area-inset-left, 0px));
+}
+
+#reactRoot > div > main #homeTab :is(.padded-right, .emby-scroller) {
+    padding-inline-end: max(var(--pl-inset), env(safe-area-inset-right, 0px));
+}
+
+#reactRoot > div > main #homeTab .itemsContainer:not([data-gapless="true"]) {
+    column-gap: calc(var(--pl-gap) - 1.2em);
+}
+
+#reactRoot > div > main #homeTab > .homeSectionsContainer {
+    gap: 0;
+    padding-top: var(--pl-row-spacing);
+}
+
+/* Home eases in, in order: the panel, then the rows, each a quick fade, with the right row on top. Home Screen
+   Sections lays out a hidden placeholder for each row, in order, and every fetch reveals its own, while
+   KefinTweaks' rows arrive on their own. So rows paint in finish order, on every visit, because Home is rebuilt
+   each time.
+   Every row fades in as it appears. While the top row is pending, the rows after it (all of them:
+   placeholders are in order and KefinTweaks appends its rows) get that fade delayed, so they wait at opacity
+   0. When the top row lands the delay goes, it fades in, and rows that had been waiting are shown; those
+   sit below the fold when Home opens, but for the second row on an upright phone (--pl-next-row-shown). Only
+   the top row is waited for, so an account with an empty Next Up pays nothing.
+   The delay is the limit: an empty row stays .hide for good and can't be waited for, so an account with an
+   empty top row waits that long on each visit. It can't leave Home blank, because a delay always runs out.
+   Layout runs as normal, so nothing moves. The top row is found by data-page because KefinTweaks puts a
+   sentinel ahead of the rows. `of` is newer than the gate (Chrome 111): older engines drop only the delay. */
+@keyframes pl-home-fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+#reactRoot > div > main #homeTab > .homeSectionsContainer > .verticalSection {
+    animation: pl-home-fade-in var(--pl-home-fade) backwards;
+}
+
+#reactRoot > div > main #homeTab > .homeSectionsContainer > :nth-child(1 of [data-page]).hide ~ .verticalSection {
+    animation-delay: var(--pl-home-hold-limit), 0s;
+}
+
+/* A row's fade above runs when it lands, which is off screen for every row but the top one, and posters fade or
+   don't depending on whether their art beats the scroll. So a row's content also waits below the screen and fades
+   as it comes on. A view() timeline alone would tie that fade to the scroll, and a fast one would skip it, so the
+   timeline only sets a state and a plain transition does the fade, in time. The timeline sits on the row because a
+   value animated on an element can't start a transition on that same element. It covers a sliver of the row's
+   entry, so nothing is sampled while a row is on screen, and inherits: false keeps each change from restyling
+   every card in the row. With no timeline the property stays 0, so nothing can stay hidden. Firefox has none and
+   keeps the fades above, and Safari keeps them too: its timeline runs, but `inherit` doesn't pass an animated
+   value on. Rows above the screen stay as they are, so scrolling back up shows them straight away.
+   animation-trigger is made for this, but it isn't stable enough to rely on. */
+@supports (animation-timeline: view()) {
+    @property --pl-row-off {
+        syntax: "<number>";
+        inherits: false;
+        initial-value: 0;
+    }
+
+    @keyframes pl-row-below-screen {
+        from {
+            --pl-row-off: 1;
+        }
+    }
+
+    #reactRoot > div > main #homeTab > .homeSectionsContainer > .verticalSection {
+        animation: pl-home-fade-in var(--pl-home-fade) backwards, pl-row-below-screen linear both;
+        animation-timeline: auto, view();
+        animation-range: normal, entry 0% entry 1%;
+    }
+
+    #reactRoot > div > main #homeTab > .homeSectionsContainer > .verticalSection > .sectionTitleContainer,
+    #reactRoot > div > main #homeTab > .homeSectionsContainer > .verticalSection > .emby-scroller {
+        --pl-row-off: inherit;
+        opacity: calc(1 - var(--pl-row-off));
+        transition: opacity var(--pl-home-fade);
+    }
+}
+
+/* A title that's a link sits in an <a>, and stock spaces those by structure, not by intent: 0.5em above the text and
+   the chevron on a phone, because the h2's parent isn't the container, and 0.35em below on a desktop
+   (librarybrowser.scss). So Next Up and any other linked Home Screen Sections row stand apart. KefinTweaks
+   resets the same two on its own rows. */
+#reactRoot > div > main #homeTab > .homeSectionsContainer .sectionTitleContainer-cards,
+#reactRoot > div > main #homeTab > .homeSectionsContainer .sectionTitleTextButton > .sectionTitle-cards,
+#reactRoot > div > main #homeTab > .homeSectionsContainer .sectionTitleTextButton > .material-icons {
+    margin-block: 0;
+    padding-top: 0;
+}
+
+html:has(> body > .appfooter > .nowPlayingBar:not(.nowPlayingBar-hidden)) {
+    --pl-page-room: calc(env(safe-area-inset-bottom, 0px) + 5em);
+}
+
+/* On a phone the bar floats on its surface and margins (src/pages/now-playing.css), about 108px tall where stock's is
+   4.2em, so the page's last row would end behind it. */
+html:has(> body > .appfooter > .nowPlayingBar:not(.nowPlayingBar-hidden)):where(.layout-mobile) {
+    --pl-page-room: calc(max(var(--pl-osd-margin), env(safe-area-inset-bottom, 0px)) + 104px);
+}
+
+#reactRoot > div > main #homeTab {
+    padding-bottom: 0 !important;
+}
+
+#reactRoot > div > main #indexPage {
+    padding-bottom: var(--pl-page-room) !important;
+}
+
+/* The ‹ › row buttons hang off the row's top edge with their own padding (emby-scrollbuttons.scss), which
+   only lines up with a padded title. As tall as the title line, they centre on it (align-items). */
+#reactRoot > div > main #homeTab > .homeSectionsContainer .emby-scrollbuttons {
+    height: var(--pl-row-title-line);
+    min-height: 0;
+    padding-top: 0;
+}
+
+/* The panel doesn't wait for the rows, so it needs height of its own: with none it's only its padding tall,
+   its top and bottom edges together. A screen's height puts the bottom edge off screen from the start. */
+body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer {
+    min-height: 100vh;
+    border-radius: var(--pl-radius-panel) var(--pl-radius-panel) 0 0;
+}
+
+body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 calc(-1 * var(--pl-page-room));
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--pl-bg-app);
+    pointer-events: none;
+    animation: pl-home-fade-in var(--pl-home-fade);
+}
+
+body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 calc(-1 * var(--pl-page-room));
+    z-index: 1;
+    border: var(--pl-frost-border);
+    border-radius: inherit;
+    pointer-events: none;
+    animation: pl-home-fade-in var(--pl-home-fade);
+}
+
+/* Desktop with a fine pointer: the panel frosts the pinned spotlight. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    @media (hover: hover) and (pointer: fine) {
+        .layout-desktop body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before {
+            background: transparent;
+            -webkit-backdrop-filter: blur(var(--pl-frost-blur));
+            backdrop-filter: blur(var(--pl-frost-blur));
+        }
+    }
+}
+
+/* Phones: the panel frosts the pinned spotlight too. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .layout-mobile body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before {
+        background: transparent;
+        -webkit-backdrop-filter: blur(var(--pl-frost-blur));
+        backdrop-filter: blur(var(--pl-frost-blur));
+    }
+}
+
+/* Same selectors as the rules above, later, so they win there; elsewhere the panel is opaque already. */
+@media (prefers-reduced-transparency: reduce) {
+    .layout-desktop body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before {
+        background: var(--pl-bg-app);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+
+    .layout-mobile body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before {
+        background: var(--pl-bg-app);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}

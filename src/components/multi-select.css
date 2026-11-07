@@ -1,0 +1,67 @@
+/*
+ * Multi-select (Modern layout), kept quiet. Stock on the white accent is a solid white bar across the top,
+ * and a dim and a hard frame over every poster and its caption.
+ *
+ * Bar: the frosted top bar's look (src/shell/nav-bar.css), and the real bar steps aside while it's up, so
+ * the top bar seems to swap its contents rather than be covered. Only its first row: a library's toolbar
+ * row stays usable below it. Same height and 8px button corners.
+ * Posters: no dim and no frame, so the art stays as it was. A selected poster takes the hover's white
+ * ring and glow (src/components/card-hover.css). The checkbox sits inside the poster's corner on the dark
+ * square the poster buttons use, with 8px corners; checked is white with a black tick (src/base/accent.css).
+ *
+ * .itemSelectionPanel covers the whole .cardBox and is added to every card once selection starts; the
+ * bar is a child of <body> only while it's up (components/multiSelect/multiSelect.js).
+ */
+
+/* !important: _theme.scss forces the bar's colour with !important. */
+body:has(> #reactRoot > div > main) > .selectionCommandsPanel {
+    min-height: var(--pl-appbar-height);
+    padding-block: env(safe-area-inset-top, 0px) 0;
+    box-sizing: border-box;
+    background: var(--pl-nav-tint);
+    color: var(--pl-text) !important;
+    -webkit-backdrop-filter: blur(var(--pl-nav-blur));
+    backdrop-filter: blur(var(--pl-nav-blur));
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    body:has(> #reactRoot > div > main) > .selectionCommandsPanel {
+        background: var(--pl-nav-solid);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}
+
+body:has(> .selectionCommandsPanel) > #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child {
+    visibility: hidden;
+}
+
+body:has(> #reactRoot > div > main) > .selectionCommandsPanel :is(.btnCloseSelectionPanel, .btnSelectionPanelOptions):not(:disabled) {
+    border-radius: var(--pl-rounding);
+    color: var(--pl-text);
+}
+
+body:has(> #reactRoot > div > main) .itemSelectionCount {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+#reactRoot > div > main .itemSelectionPanel {
+    padding: var(--pl-rounding);
+    border: 0;
+    background: none;
+}
+
+/* !important: multiSelect.scss sets the outline's radius with !important. */
+#reactRoot > div > main .multiSelectCheckboxOutline {
+    border-color: var(--pl-text);
+    border-radius: var(--pl-rounding) !important;
+}
+
+#reactRoot > div > main .emby-checkbox:not(:checked) + span + .multiSelectCheckboxOutline {
+    background: var(--pl-card-button-glass);
+}
+
+#reactRoot > div > main .withMultiSelect > .cardScalable:has(~ .itemSelectionPanel .chkItemSelect:checked)::after {
+    opacity: 1;
+}

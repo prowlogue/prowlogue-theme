@@ -1,0 +1,194 @@
+/*
+ * Top navigation bar (Modern layout), on 12's MUI app bar.
+ *   - The bar is transparent and frosts what scrolls under it (8px blur), all the time. Stock Modern is
+ *     transparent only at the top and turns solid #202020 with a shadow once the page scrolls
+ *     (components/OffsetAppBar.tsx: color 'transparent' → 'default', elevation 0 → 1).
+ *   - From 65em the library links sit centred in the bar between the server button and the right-hand
+ *     buttons (stock Modern lines them up on the left).
+ *   - Links: 110 % size, semibold, no hover fill. Round buttons get 8px corners. Everything in the bar is
+ *     full white, disabled controls included; solid white buttons keep their black label.
+ *   - When KefinTweaks' Desktop Hamburger Menu is in the bar, Jellyfin's Favorites and library links
+ *     leave it (they're all in that menu's drawer); plugin pages (KefinTweaks' Custom Menu Links such
+ *     as Watchlist) stay, centred like the links.
+ * Below MUI's md breakpoint (900px) Modern swaps the links for a drawer button; the bar keeps the frost.
+ *
+ * DOM (apps/modern/AppLayout.tsx, components/OffsetAppBar.tsx, components/toolbar/AppToolbar.tsx,
+ * apps/modern/components/AppToolbar/*): #reactRoot > div.MuiBox-root > header.MuiAppBar-root >
+ * .MuiToolbar-root (back/drawer .MuiIconButton-root, .MuiStack-root [server a.MuiButton-root,
+ * library links .MuiButton-root…], .MuiBox-root [SyncPlay, remote play, search], .MuiBox-root [user])
+ * + on library pages a second .MuiToolbar-root (LibraryToolbar). Only MUI's stable Mui* classes are
+ * used; never the hashed css-* ones.
+ */
+
+/* ── Transparent, frosted bar, in both of Modern's states (at the top and scrolled) ── */
+#reactRoot > div > header.MuiAppBar-root {
+    background-color: transparent;
+    background-image: none;
+    box-shadow: none;
+    color: var(--pl-text);
+}
+
+/* Phones: MUI's bar doesn't reserve the status bar, so where the page runs under it (the iOS app, a saved home screen
+   icon) the buttons would sit behind the clock and the notch. In a browser tab the inset is 0. A margin on the first row,
+   not padding on the bar: jellyfin sizes the bar's spacer from its content box (components/OffsetAppBar.tsx), which leaves
+   padding out, so the page would stay under the bar. */
+.layout-mobile #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child {
+    margin-top: env(safe-area-inset-top, 0px);
+}
+
+/* The library toolbar's buttons are 28-30px tall on a phone, MUI's small size, in a row with room around them: their tap area
+   takes that room without moving anything. */
+.layout-mobile #reactRoot > div > header.MuiAppBar-root .MuiButtonGroup-root > .MuiButton-root::after {
+    content: "";
+    position: absolute;
+    inset: -7px 0;
+}
+
+/* The alphabet picker hangs from a fixed height for the bar it expects (AlphabetPicker.tsx). */
+.layout-mobile #reactRoot > div > main .alphaPicker-fixed-right {
+    margin-top: env(safe-area-inset-top, 0px);
+}
+
+/* The frost sits on a layer behind the bar, not on the bar: a backdrop-filter on the header would make it a
+   backdrop root, and nothing inside it, such as KefinTweaks' breadcrumb dropdown, could see the page. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    #reactRoot > div > header.MuiAppBar-root::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        -webkit-backdrop-filter: blur(var(--pl-nav-blur));
+        backdrop-filter: blur(var(--pl-nav-blur));
+        pointer-events: none;
+    }
+}
+
+/* The Home panel's stroke as a hairline. A layer, not a border or a shadow: a border would change the
+   height the bar's spacer measures, and an inset shadow goes soft on a display scaled to a fraction,
+   where a box snaps to whole pixels. */
+#reactRoot > div > header.MuiAppBar-root::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background: var(--pl-frost-stroke);
+    pointer-events: none;
+}
+
+/* Engines without backdrop-filter: a light tint keeps the bar readable over posters. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    #reactRoot > div > header.MuiAppBar-root {
+        background-color: var(--pl-nav-tint);
+    }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    #reactRoot > div > header.MuiAppBar-root {
+        background-color: var(--pl-nav-solid);
+    }
+
+    #reactRoot > div > header.MuiAppBar-root::before {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}
+
+/* ── Library links centred from 65em. The link group shares its Stack with the server button, so the
+   Stack steps aside (display: contents) and auto margins centre the links between the server button
+   and the right-hand buttons. ── */
+@media (min-width: 65em) {
+    #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root > .MuiStack-root {
+        display: contents;
+    }
+
+    #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root > .MuiStack-root > .MuiButton-root:first-child {
+        margin-right: auto;
+    }
+
+    #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root > .MuiStack-root + .MuiBox-root {
+        flex-grow: 0;
+        margin-left: auto;
+    }
+}
+
+/* ── Library links (everything in the Stack after the server button). They take jellyfin's 70 % page
+   colour otherwise; the current one is the primary colour, white anyway. MUI gives every link a hover
+   fill. ── */
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root > .MuiStack-root > .MuiButton-root:not(:first-child) {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--pl-text);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root > .MuiStack-root > .MuiButton-root:not(:first-child):hover {
+        background-color: transparent;
+    }
+}
+
+/* MUI dims disabled controls to 30 %: Search on the search page, the first page's back arrow in the
+   library toolbar. Solid white buttons (.MuiButton-contained, "Play All") keep their black label. */
+#reactRoot > div > header.MuiAppBar-root :is(.MuiIconButton-root, .MuiButton-root:not(.MuiButton-contained)).Mui-disabled {
+    color: var(--pl-text);
+}
+
+/* ── Jellyfin's own links hidden behind KefinTweaks' Desktop Hamburger Menu. Modern has no desktop
+   drawer (900px+); that KefinTweaks feature adds one, listing Home, Favorites and every library, and
+   inserts its button as the toolbar's first child with data-kefin-desktop-hamburger
+   (scripts/hamburgerMenu.js). Keyed on that button, so the links stay wherever it's absent (feature
+   off, script not loaded yet) and are never unreachable.
+   Only what the drawer lists leaves the bar: Favorites (#/home?tab=1) and the library links, by the
+   URLs appRouter.getRouteUrl gives a library (topParentId=…, Live TV's #/livetv?collectionType=, a
+   plain folder's #/list?parentId=). Plugin pages stay: KefinTweaks' Custom Menu Links (Watchlist…)
+   clone a native link and mark it data-kefin-custom-menu-top-link, and anything unrecognised is left
+   alone. display: none keeps the links in the DOM, where KefinTweaks finds the toolbar by its
+   Favorites link. ── */
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:has(> [data-kefin-desktop-hamburger]) > .MuiStack-root > a.MuiButton-root:not([data-kefin-custom-menu-top-link]):is([href="#/home?tab=1"], [href*="topParentId="], [href^="#/livetv?collectionType="], [href^="#/list?parentId="]) {
+    display: none;
+}
+
+/* Jellyfin's "More" (the libraries past 3/5/8 links at md/lg/xl, all in the drawer too). KefinTweaks'
+   own "More", which only holds its collapsed custom links, stays. Collapsed custom links or config.json
+   menu links that land in Jellyfin's "More" (only below 1200px) go with it. */
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:has(> [data-kefin-desktop-hamburger]) > .MuiStack-root > button.MuiButton-root[aria-controls="user-view-overflow-menu"]:not([data-kefin-custom-menu-more]) {
+    display: none;
+}
+
+/* KefinTweaks' divider between Jellyfin's links and its own; with Jellyfin's gone it would stand alone. */
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:has(> [data-kefin-desktop-hamburger]) > .MuiStack-root > [data-kefin-custom-menu-top-divider] {
+    display: none;
+}
+
+/* ── Round buttons (drawer, back, SyncPlay, remote play, search, user): 8px corners; the avatar takes
+   the same corners. ── */
+#reactRoot > div > header.MuiAppBar-root .MuiIconButton-root {
+    border-radius: var(--pl-nav-rounding);
+}
+
+/* The press answers at once. KefinTweaks strips this button's ripple, and fetches the library list before its
+   drawer exists, so nothing else on screen can move yet. */
+#reactRoot > div > header.MuiAppBar-root [data-kefin-desktop-hamburger]:active {
+    background-color: var(--pl-glass-tint);
+    transition: none;
+}
+
+#reactRoot > div > header.MuiAppBar-root .MuiIconButton-root .MuiAvatar-root {
+    border-radius: var(--pl-nav-rounding);
+    animation: pl-home-fade-in var(--pl-home-fade);
+}
+
+/* jellyfin paints a tile behind a user's picture (components/UserAvatar.tsx), which shows through a transparent one.
+   With no picture MUI adds .MuiAvatar-colorDefault, and that tile stays: the icon sits on it. */
+#reactRoot > div > header.MuiAppBar-root .MuiIconButton-root .MuiAvatar-root:not(.MuiAvatar-colorDefault) {
+    background: none;
+}
+
+/* The user button's place is kept before it exists. It mounts once the user has loaded, after the other icons,
+   and landing at the far right it would push them all 40px left. While the icons are still the first toolbar's
+   last box they leave that room, and once the button arrives this stops matching. Only its width is
+   reserved, so any number of icons works, and plugins that prepend theirs move nothing anyway. A sign-in
+   page never gets the button, but has no icons to move. It can't reach the frames before this stylesheet
+   loads, so the icons settle as the page's colour arrives, instead of on their own a moment later. */
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root:last-child:not(.MuiBox-root + *) {
+    margin-inline-end: var(--pl-nav-user);
+}

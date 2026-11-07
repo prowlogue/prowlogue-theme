@@ -1,0 +1,83 @@
+/*
+ * Card hover (Modern layout, desktop): the hover overlay (dim, play button, the round action buttons)
+ * belongs to the poster, nothing else.
+ *
+ * Stock jellyfin-web keys the overlay on the whole card (components/cardbuilder/card.scss:
+ * `.card-hoverable:hover, .card-hoverable:focus-within` → .cardOverlayContainer opacity 1), and a card is
+ * more than its poster: the .cardBox margin around it (0.6em, 1.8em below on .cardBox-bottompadded) and
+ * the caption lines under it. So stock's overlay lights up in the gap under and between posters, on the
+ * "Series" / "S1:E2 - Title" caption links, and stays lit after a mouse click (the clicked button keeps
+ * focus) until focus moves elsewhere. The card itself also shows a hand cursor everywhere, though a
+ * click outside the poster and caption links does nothing on desktop (components/shortcuts.js acts on
+ * .itemAction, and the card is one only as a TV button).
+ *
+ * Here the overlay shows only while the pointer is on the poster (.cardScalable, the parent of the image
+ * link and the overlay in both of jellyfin's card builders: cardBuilder.js and Card/CardBox.tsx), or
+ * while keyboard focus is on the poster or one of its buttons (:focus-visible, so a mouse click doesn't
+ * latch it). Captions keep their own link hover (underline). One negated rule over jellyfin's own, so
+ * its 0.2s opacity fade still runs. card-hoverable is only set on the desktop layout (Card/useCard.ts,
+ * utils/builder.ts), so phones are untouched. Cards from plugins that don't share this structure keep
+ * the stock behaviour.
+ *
+ * Lift and glow: on the same trigger the poster rises slightly and takes a glow (three stacked shadows and
+ * a 2px border) on the white accent. Only transform and opacity animate: the glow is painted once on a
+ * pseudo-element and fades in, because animating box-shadow repaints every frame. A hanging progress
+ * bar is part of the poster block, so the ring goes round it too (--pl-card-bar, poster-progress.css).
+ * Cards give up jellyfin's paint containment, or it would clip the glow at the card's box, which is flush
+ * with the poster's left edge. Lifting it only on hover isn't enough: the clip would return the moment the
+ * pointer leaves, with the glow still fading. Posters keep their own contain: strict, and this is what
+ * jellyfin's .show-animation cards already use, so little is lost.
+ * A hovered card rises above its neighbours. Scrollers clip vertically; src/components/rows.css gives
+ * them room. The card-level rule stays on plain :hover: a :has() here would re-run on every pointer move.
+ */
+
+/* Hidden unless the pointer is on the poster or keyboard focus is in it. Nothing focused in the poster is
+   nearly every card, and that needs no :has(). Focus a mouse click left on the poster link comes before the
+   overlay; left inside the overlay, the :has() sits on the overlay and only runs behind :focus-within. On
+   .cardScalable it would put every overlay in the shared :has() set. */
+#reactRoot > div > main .card-hoverable .cardScalable:not(:hover):not(:focus-within) > .cardOverlayContainer,
+#reactRoot > div > main .card-hoverable .cardScalable:not(:hover) > :focus:not(:focus-visible) ~ .cardOverlayContainer,
+#reactRoot > div > main .card-hoverable .cardScalable:not(:hover) > .cardOverlayContainer:focus-within:has(:focus:not(:focus-visible)) {
+    opacity: 0;
+}
+
+/* The hand cursor only where a click does something: the poster (caption links are links already). */
+#reactRoot > div > main .card-hoverable {
+    cursor: auto;
+    contain: layout style;
+}
+
+#reactRoot > div > main .card-hoverable .cardScalable {
+    cursor: pointer;
+    transition: transform var(--pl-focus-poster);
+}
+
+/* jellyfin's own overlay and buttons fade at 0.2s (card.scss); same pace as the lift, so they arrive together. */
+#reactRoot > div > main .card-hoverable :is(.cardOverlayContainer, .cardOverlayButton-hover) {
+    transition-duration: var(--pl-card-hover);
+}
+
+#reactRoot > div > main .card-hoverable .cardScalable::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 calc(-1 * var(--pl-card-bar, 0px));
+    border: var(--pl-card-ring);
+    border-radius: inherit;
+    box-shadow: var(--pl-card-glow);
+    opacity: 0;
+    transition: opacity var(--pl-focus-poster);
+    pointer-events: none;
+}
+
+#reactRoot > div > main .card-hoverable .cardScalable:is(:hover, :focus-within:has(:focus-visible)) {
+    transform: scale(var(--pl-lift));
+}
+
+#reactRoot > div > main .card-hoverable .cardScalable:is(:hover, :focus-within:has(:focus-visible))::after {
+    opacity: 1;
+}
+
+#reactRoot > div > main .card-hoverable:is(:hover, :focus-within) {
+    position: relative;
+    z-index: 1;
+}

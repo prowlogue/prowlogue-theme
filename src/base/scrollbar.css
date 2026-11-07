@@ -1,0 +1,31 @@
+/*
+ * Page scrollbar (Modern layout): hidden on Home and details pages, and on every other page a thin
+ * translucent white thumb on no track, instead of jellyfin's opaque grey bar
+ * (themes/_base/_theme.scss `* { scrollbar-color }`).
+ *
+ * The page scrolls on the root element, so these go on <html>. scrollbar-width and scrollbar-color are the
+ * standard properties and win over the ::-webkit-scrollbar ones where both exist. The pseudo-element is only
+ * for engines before them (Chrome below 121, older Safari); others drop it as an unknown selector, so it
+ * keeps its own rule. Scrolling itself is untouched: wheel, keyboard and touch all still work.
+ * Cached pages stay in the DOM marked .hide, so only the page on screen counts.
+ */
+
+html:has(> body > #reactRoot > div > main) {
+    scrollbar-color: var(--pl-scrollbar);
+}
+
+/* jellyfin's `* { scrollbar-color }` gives every element a value of its own, and on the hundreds with `transition: all`
+   (posters, their buttons) Blink starts a transition from that colour to the same colour, on the main thread, whenever
+   a fade restyles them. Inheriting the value avoids that and changes nothing on screen: <main> keeps jellyfin's, so
+   everything inside it has the same colour. */
+#reactRoot > div > main * {
+    scrollbar-color: unset;
+}
+
+html:has(> body > #reactRoot > div > main > .skinBody > div > #indexPage:not(.hide), > body > #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.hide)) {
+    scrollbar-width: none;
+}
+
+html:has(> body > #reactRoot > div > main > .skinBody > div > #indexPage:not(.hide), > body > #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.hide))::-webkit-scrollbar {
+    display: none;
+}

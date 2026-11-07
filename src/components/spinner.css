@@ -1,0 +1,9 @@
+/*
+ * Loading spinner (Modern layout): the accent. jellyfin hard-codes its blue on each layer
+ * (components/loading/loading.scss), so the palette variables never reach it. The spinner is appended to
+ * <body>, where a rule on main can't see it (components/loading/loading.ts).
+ */
+
+body:has(> #reactRoot > div > main) > .docspinner .mdl-spinner__layer {
+    border-color: var(--pl-accent);
+}

@@ -1,0 +1,1238 @@
+/*
+ * Item details (Modern layout), built on jellyfin 12's details template.
+ *
+ * The look: the item's backdrop fills the screen, slightly blurred and barely veiled, and stays put while
+ * the page scrolls over it. On it, the logo and a ribbon (title, metadata, flat action buttons) in a right
+ * column, a poster pinned on the left, and two full-width glass panels stacked edge to edge, the lower one
+ * running to the end of the page: a dark tint, a white stroke, no blur.
+ *
+ * How the page is built:
+ *   - One grid on .detailPageWrapperContainer. Column 1 is the poster's; ribbon and panel content share
+ *     column 2's left edge. The poster is `position: sticky`, so it holds its place but stays in the flow
+ *     and can't collide with anything. Its size caps on very wide screens, so it always fits.
+ *   - No translate3d on the panels: with no backdrop-filter to serve, it would only make two page-sized
+ *     GPU layers.
+ *   - The backdrop layer is oversized a little, so its blur doesn't fade out at the screen edges.
+ *   - Ribbon text and icons get the Home hero's label shadow, or they wash out on bright art.
+ *   - The panels touch with no gap, each with its own stroke, so a double line runs between them. They take
+ *     the Home panel's corner and stroke, and the lower one ends flush with the page, as Home's does.
+ *   - Active ♥ / ✓ / bookmark take the state colours, as they do on posters. The veil is neutral, because
+ *     the accent is white.
+ *   - The Video / Audio / Subtitles pickers are the theme's: glass capsules that open the item menus' glass
+ *     panel, where the browser can style one (see "Track pickers" below).
+ *   - Episode thumbnails are true 16:9.
+ *   - Rows take overflow-x: clip on the scroller itself, so cards can't slide behind the poster and the
+ *     poster lift isn't cropped.
+ *
+ * The page keeps Home's rows: same left edge between title and poster, same gap between posters, same
+ * hover. The panels' content is in the page's normal flow, nothing is `display: contents` beyond the primary
+ * container, and plugin sections (Jellyfin Enhanced, KefinTweaks) land inside whichever block they join.
+ *
+ * The poster column is desktop only; phones keep jellyfin's stacked header, built up to the same look at the end of
+ * this file. Below 1000px a desktop window shows no backdrop at all (controllers/itemDetails/index.js renderBackdrop)
+ * and the panels sit on the navy, the base for a page with no art.
+ */
+
+/* ── Backdrop: fixed, jellyfin's own layer. These rules need "a details page is on screen", because that
+   layer sits outside the page, in #reactRoot; only these carry the extra :has(). filter on a fixed layer
+   is rasterized once. ── */
+body:has(> #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.hide)) .backdropImage {
+    filter: blur(var(--pl-detail-backdrop-blur));
+    transform: scale(var(--pl-detail-backdrop-oversize));
+}
+
+body:has(> #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.hide)) .backgroundContainer.withBackdrop {
+    opacity: 1;
+    background: var(--pl-detail-veil);
+}
+
+/* With Backdrops off in Display settings, jellyfin paints this wrapper opaque under the banner. */
+#reactRoot > div > main #itemDetailPage .detailPageWrapperContainer {
+    background: none;
+}
+
+/* ── Page bottom: the lower panel keeps the now-playing bar's room in its margin, once and only while the
+   bar shows, as on Home. !important: site.scss sets .page's padding with !important. ── */
+#reactRoot > div > main #itemDetailPage {
+    padding-bottom: 0 !important;
+}
+
+/* ── Banner: the top of the page, empty, so the backdrop shows; the logo hangs in its lower part. ── */
+.layout-desktop #reactRoot > div > main #itemDetailPage > #itemBackdrop {
+    height: var(--pl-detail-banner);
+}
+
+/* display: jellyfin hides the logo below 1100px; this keeps it at every desktop width. */
+.layout-desktop #reactRoot > div > main #itemDetailPage > .detailLogo {
+    display: block;
+    position: static;
+    width: min(var(--pl-detail-logo-w), 100% - var(--pl-detail-column) - var(--pl-inset));
+    height: var(--pl-detail-logo-h);
+    margin-block: calc(-1 * (var(--pl-detail-logo-h) + var(--pl-detail-logo-gap))) var(--pl-detail-logo-gap);
+    margin-inline-start: var(--pl-detail-column);
+    background-position: 0 50%;
+    filter: var(--pl-hero-logo-shadow);
+}
+
+.layout-desktop [dir="rtl"] #reactRoot > div > main #itemDetailPage > .detailLogo {
+    background-position: 100% 50%;
+}
+
+/* ── The grid: the ribbon, then the two panels. Desktop adds a first column for the poster, which spans the
+   rows; the panels span both columns and keep their content in the second with padding. The last
+   row takes any height left over, so a short page's lower panel still reaches the foot of the screen
+   and of the poster. ── */
+#reactRoot > div > main #itemDetailPage > .detailPageWrapperContainer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    margin: 0;
+}
+
+.layout-desktop #reactRoot > div > main #itemDetailPage > .detailPageWrapperContainer {
+    grid-template-columns: var(--pl-detail-column) minmax(0, 1fr);
+    min-height: calc(100vh - var(--pl-appbar-height) - var(--pl-detail-banner));
+}
+
+#reactRoot > div > main #itemDetailPage .detailPagePrimaryContainer {
+    display: contents;
+}
+
+/* The poster: its box starts a screen above the page, so sticky holds it from the first frame and it never moves.
+   No start worked out from the bar's height: KefinTweaks' breadcrumbs add a row to the bar on some pages only, so
+   such a start lands low there and the poster rises on the first scroll. */
+.layout-desktop #reactRoot > div > main #itemDetailPage .detailPagePrimaryContainer > .detailImageContainer {
+    grid-area: 1 / 1 / -1 / 2;
+    margin-block-start: -100vh;
+}
+
+.layout-desktop #reactRoot > div > main #itemDetailPage .detailPagePrimaryContainer > .detailImageContainer > .card {
+    position: sticky;
+    top: var(--pl-detail-poster-top);
+    left: auto;
+    float: none;
+    width: var(--pl-detail-poster);
+    max-width: none;
+    margin: 0;
+    margin-inline-start: var(--pl-inset);
+    contain: layout style;
+}
+
+.layout-desktop [dir="rtl"] #reactRoot > div > main #itemDetailPage .detailPagePrimaryContainer > .detailImageContainer > .card {
+    right: auto;
+    float: none;
+}
+
+.layout-desktop #reactRoot > div > main #itemDetailPage .detailPagePrimaryContainer > .detailImageContainer .cardScalable {
+    box-shadow: var(--pl-lift-shadow);
+}
+
+/* ── Ribbon: over the backdrop, in column 2. ── */
+.layout-desktop #reactRoot > div > main #itemDetailPage .detailRibbon {
+    grid-column: 2;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--pl-button-row-gap) var(--pl-gap);
+    height: auto;
+    min-height: var(--pl-detail-ribbon);
+    margin: 0;
+    padding-block: 0.5em var(--pl-detail-ribbon-foot);
+    padding-inline: 0 var(--pl-inset);
+}
+
+#reactRoot > div > main #itemDetailPage .detailRibbon {
+    grid-row: 1;
+    background: none;
+    color: var(--pl-text);
+    text-shadow: var(--pl-label-shadow);
+}
+
+.layout-desktop #reactRoot > div > main #itemDetailPage .detailRibbon > .infoWrapper {
+    flex: 1 1 var(--pl-detail-ribbon-info);
+}
+
+/* The logo stands for the title, the original one included; without a logo (and in the template's `.hide + …`
+   case) the names stay. */
+.layout-desktop #reactRoot > div > main #itemDetailPage > .detailLogo:not(.hide) + .detailPageWrapperContainer .itemName:is(.parentNameLast, .originalTitle) {
+    display: none;
+}
+
+/* Episodes and seasons name their show on a line of its own, and it's a link. The logo stands for that too: the
+   text goes and the link stays, laid over the logo, so the logo is what you click. The box is the logo's, and CSS
+   can't read an image's width, so beside a narrow logo it's still clickable. An artist line (.musicParentName)
+   isn't the logo's name, so it stays. */
+.layout-desktop #reactRoot > div > main #itemDetailPage > .detailLogo:not(.hide) + .detailPageWrapperContainer .parentName:not(.musicParentName) {
+    font-size: 0;
+}
+
+.layout-desktop #reactRoot > div > main #itemDetailPage > .detailLogo:not(.hide) + .detailPageWrapperContainer .parentName:not(.musicParentName) .itemAction {
+    position: absolute; /* from the ribbon, which starts where the logo does and ends its gap below it */
+    inset-block-start: calc(-1 * (var(--pl-detail-logo-h) + var(--pl-detail-logo-gap)));
+    inset-inline-start: 0;
+    width: min(var(--pl-detail-logo-w), 100% - var(--pl-inset));
+    height: var(--pl-detail-logo-h);
+}
+
+.layout-desktop #reactRoot > div > main #itemDetailPage > .detailLogo:not(.hide) + .detailPageWrapperContainer .parentName:not(.musicParentName) .itemAction:focus-visible {
+    border-radius: var(--pl-radius-button);
+    box-shadow: inset 0 0 0 calc(4 * var(--pl-pt)) var(--pl-focus-fill); /* no text left to show focus, and .emby-button forces its outline off */
+}
+
+#reactRoot > div > main #itemDetailPage .nameContainer .parentName {
+    margin: 0;
+}
+
+#reactRoot > div > main #itemDetailPage .nameContainer .itemName {
+    margin: 0.2em 0;
+    padding: 0;
+}
+
+#reactRoot > div > main #itemDetailPage .itemMiscInfo {
+    color: var(--pl-text);
+}
+
+#reactRoot > div > main #itemDetailPage .itemMiscInfo-primary .starRatingContainer {
+    display: none;
+}
+
+/* A quiet star where ratings stay: episode rows. Colour only means state. */
+#reactRoot > div > main #itemDetailPage .starIcon {
+    color: var(--pl-detail-star);
+}
+
+/* ── Action buttons: two rows. Top: five glass squares, ♥ bookmark eye trailer ⋮. Bottom: a wide Play, shortened
+   by a Restart square when the item can resume. One grid with order, because jellyfin's DOM has Play first and
+   KefinTweaks inserts its bookmark mid-row. Pages without Play (a person) keep a plain row. Shuffle is hidden.
+   Hover: Play stands alone, so it takes the solid white. The squares sit side by side, so theirs fades in fast
+   and out quickly, without a fill flash. Nothing here changes size: a lift feels odd under a mouse. ── */
+#reactRoot > div > main #itemDetailPage .mainDetailButtons {
+    display: grid;
+    flex: none;
+    grid-template-columns: repeat(5, var(--pl-button));
+    gap: var(--pl-button-row-gap) var(--pl-button-gap);
+    align-self: flex-end;
+    justify-content: center;
+    margin: 0;
+    reading-flow: grid-order; /* Tab follows the order on screen, where supported; others ignore it */
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons:not(:has(> .btnPlay:not(.hide))) {
+    display: flex;
+    gap: var(--pl-button-gap);
+}
+
+/* !important: librarybrowser.scss sets .detailButton's margin and padding with !important. */
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .detailButton {
+    position: relative;
+    order: 9;
+    display: flex;
+    flex-direction: row;
+    width: var(--pl-button);
+    height: var(--pl-button);
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: var(--pl-radius-button);
+    background: var(--pl-fill);
+    box-shadow: inset 0 0 0 max(1px, calc(1 * var(--pl-pt))) var(--pl-stroke);
+    color: var(--pl-action-idle);
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnUserRating {
+    order: 1;
+    --pl-action-image: var(--pl-icon-heart);
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .watchlist-icon {
+    order: 2;
+    --pl-action-image: var(--pl-icon-bookmark);
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnPlaystate {
+    order: 3;
+    --pl-action-image: var(--pl-icon-eye);
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnPlayTrailer {
+    order: 4;
+    --pl-action-image: var(--pl-icon-clapper);
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnMoreCommands {
+    order: 10;
+    --pl-action-image: var(--pl-icon-ellipsis);
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnShuffle {
+    display: none;
+}
+
+/* The glyph. Any other button a page brings (Instant Mix, Cancel Recording) keeps jellyfin's own. */
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .detailButton .detailButton-content {
+    filter: var(--pl-badge-shadow);
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .detailButton .detailButton-icon {
+    width: var(--pl-action-glyph);
+    height: var(--pl-action-glyph);
+    color: inherit;
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > :is(.btnUserRating, .watchlist-icon, .btnPlaystate, .btnPlayTrailer, .btnMoreCommands, .btnPlay, .btnReplay) .detailButton-icon::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: currentColor;
+    -webkit-mask: var(--pl-action-image) center / contain no-repeat;
+    mask: var(--pl-action-image) center / contain no-repeat;
+}
+
+/* "On": the solid state colour, filled glyph. The ring still shows over it. !important: KefinTweaks' green
+   and src/plugins/kefintweaks.css's blue, meant for its bare bookmark icon, both set colour with !important. */
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnUserRating.ratingbutton-withrating {
+    background: var(--pl-pink);
+    color: var(--pl-text);
+    --pl-action-image: var(--pl-icon-heart-fill);
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .watchlist-icon[data-active="true"] {
+    background: var(--pl-blue);
+    color: var(--pl-text) !important;
+    --pl-action-image: var(--pl-icon-bookmark-fill);
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnPlaystate.playstatebutton-played {
+    background: var(--pl-purple);
+    color: var(--pl-text);
+    --pl-action-image: var(--pl-icon-eye-fill);
+}
+
+/* The bookmark never leaves the row: only its look follows the watched state. !important: KefinTweaks
+   writes display inline, none on a watched item and block only once the server confirms it's unwatched, so
+   without this the square drops out on un-marking until that reply lands. Needing a visible Play keeps
+   KefinTweaks' own gate, which holds the bookmark back until Play is revealed. */
+#reactRoot > div > main #itemDetailPage .mainDetailButtons:has(> .btnPlay:not(.hide)) > .watchlist-icon {
+    display: flex !important;
+}
+
+/* A watched item can't be on the watchlist: the bookmark crosses out and stops toggling. */
+#reactRoot > div > main #itemDetailPage .mainDetailButtons:has(> .btnPlaystate.playstatebutton-played) > .watchlist-icon {
+    background: var(--pl-fill);
+    color: var(--pl-action-blocked) !important;
+    pointer-events: none;
+    --pl-action-image: var(--pl-icon-bookmark-slash);
+}
+
+/* No trailer: the square stays, dimmed, so the row always spans Play. jellyfin hides the button; a click on it
+   does nothing (playbackManager.playTrailers finds none). !important: .hide. Only on playable pages. */
+#reactRoot > div > main #itemDetailPage .mainDetailButtons:has(> .btnPlay:not(.hide)) > .btnPlayTrailer.hide {
+    display: flex !important;
+    color: var(--pl-action-blocked);
+    cursor: default;
+}
+
+/* The focus state: a white ring and a brighter fill on one layer, so only opacity animates. */
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .detailButton:not(.btnPlay)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--pl-action-focus-fill);
+    box-shadow: inset 0 0 0 var(--pl-ring) var(--pl-focus-fill);
+    opacity: 0;
+    transition: opacity var(--pl-osd-hover-out) ease-out;
+    pointer-events: none;
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > :is(.ratingbutton-withrating, .watchlist-icon[data-active="true"], .playstatebutton-played)::after {
+    background: none;
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .detailButton:not(.btnPlay):focus-visible::after {
+    opacity: 1;
+}
+
+/* Play and Restart: the label is the button's own title, so it's jellyfin's Play or Resume in any language. */
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnPlay {
+    grid-column: 1 / -1;
+    order: 20;
+    gap: calc(15 * var(--pl-pt));
+    width: auto;
+    background: var(--pl-fill-play);
+    box-shadow: inset 0 0 0 max(1px, calc(1 * var(--pl-pt))) var(--pl-stroke-play);
+    color: var(--pl-text);
+    font-size: var(--pl-action-label);
+    font-weight: 600;
+    --pl-action-image: var(--pl-icon-play);
+    --pl-action-glyph: var(--pl-action-play-glyph);
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnPlay::after {
+    content: attr(title);
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons:has(> .btnReplay:not(.hide)) > .btnPlay {
+    grid-column: span 4;
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnReplay {
+    order: 21;
+    --pl-action-image: var(--pl-icon-restart);
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnPlay:focus-visible {
+    background: var(--pl-focus-fill);
+    box-shadow: none;
+    color: var(--pl-focus-text);
+    text-shadow: none;
+}
+
+#reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnPlay:focus-visible .detailButton-content {
+    filter: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    #reactRoot > div > main #itemDetailPage .mainDetailButtons > .detailButton:not(.btnPlay):hover::after {
+        opacity: 1;
+        transition-duration: var(--pl-osd-hover-in);
+    }
+
+    #reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnPlay:hover {
+        background: var(--pl-focus-fill);
+        box-shadow: none;
+        color: var(--pl-focus-text);
+        text-shadow: none;
+    }
+
+    #reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnPlay:hover .detailButton-content {
+        filter: none;
+    }
+
+    /* A dead square says why under the pointer. */
+    #reactRoot > div > main #itemDetailPage .mainDetailButtons:has(> .btnPlay:not(.hide)) > .btnPlayTrailer.hide:hover::before {
+        content: "No Trailer Available";
+        position: absolute;
+        bottom: calc(100% + 6 * var(--pl-pt));
+        left: 50%;
+        padding: calc(5 * var(--pl-pt)) calc(14 * var(--pl-pt));
+        border-radius: var(--pl-radius-pill);
+        background: var(--pl-tooltip-bg);
+        color: var(--pl-text);
+        font-size: var(--pl-size-caption);
+        font-weight: 600;
+        text-shadow: none;
+        white-space: nowrap;
+        transform: translateX(-50%);
+        pointer-events: none;
+    }
+}
+
+/* The ⋮ menu opens to the left of its button, instead of centred over it. jellyfin
+   writes the sheet's position inline (actionSheet.ts), so left needs !important; its top stays, which
+   keeps the sheet on screen. Share is only offered by this menu (controllers/itemDetails/index.js
+   getContextMenuOptions), so poster menus on the page stay centred on their buttons. The container's
+   contain: strict would hide the button from anchor(), so it goes while this sheet is open. Browsers
+   without anchor positioning keep jellyfin's placement. */
+@supports (anchor-name: --pl-more) {
+    #reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnMoreCommands {
+        anchor-name: --pl-more;
+    }
+
+    .layout-desktop body:has(> #reactRoot > div > main) > .dialogContainer:has(.actionSheet [data-id="share"]) {
+        contain: none;
+    }
+
+    .layout-desktop body:has(> #reactRoot > div > main) .actionSheet:has([data-id="share"]) {
+        right: calc(anchor(--pl-more left, 0px) + var(--pl-button-gap));
+        left: auto !important;
+    }
+}
+
+/* Phones stack the ribbon: the rows get their own room under the metadata. A wrapping row rather than the grid: it
+   centres whatever's in it, where a grid leaves a gap at the end of the row when a square is missing. It's as wide
+   as five squares, so Play lines up with them. The buttons sit right on the art, so their white glass turns dark or
+   a bright backdrop swallows the icons; as tokens, so the pink, blue and purple "on" states are left alone. */
+.layout-mobile #reactRoot > div > main #itemDetailPage .mainDetailButtons {
+    --pl-fill: rgba(0, 0, 0, 0.35);
+    --pl-fill-play: rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-wrap: wrap;
+    box-sizing: content-box;
+    width: calc(5 * var(--pl-button) + 4 * var(--pl-button-gap));
+    max-width: 100%;
+    margin-block: 0.75rem 0.25rem;
+    margin-inline: auto;
+    padding-inline: 0;
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnPlay {
+    flex: 1 0 100%;
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage .mainDetailButtons:has(> .btnReplay:not(.hide)) > .btnPlay {
+    flex-basis: calc(100% - var(--pl-button) - var(--pl-button-gap));
+}
+
+/* Beside the metadata, the top row rises next to the logo, so the panel doesn't move down for it, and the block
+   sits in from the edge. 68.75em: below it the block can wrap under the metadata, where rising would cover it. */
+@media (min-width: 68.75em) {
+    .layout-desktop #reactRoot > div > main #itemDetailPage .mainDetailButtons {
+        margin-block-start: calc(-1 * (var(--pl-button) + var(--pl-button-row-gap)));
+        margin-inline-end: var(--pl-detail-actions-shift);
+    }
+}
+
+#reactRoot > div > main #itemDetailPage .ratingbutton-icon-withrating {
+    color: var(--pl-pink);
+}
+
+#reactRoot > div > main #itemDetailPage .playstatebutton-icon-played {
+    color: var(--pl-purple);
+}
+
+/* ── The two panels: edge to edge, each with its own stroke, so the double line between them stays. The
+   lower one ends flush with the page, as Home's does. Their content keeps to column 2, and the right
+   padding belongs to the rows, so a row of posters can run to the panel's edge. ── */
+#reactRoot > div > main #itemDetailPage :is(.detailPagePrimaryContent, .detailPageSecondaryContainer) {
+    border: var(--pl-frost-border);
+    background: var(--pl-detail-panel);
+    box-shadow: var(--pl-detail-panel-shadow);
+}
+
+#reactRoot > div > main #itemDetailPage .detailPagePrimaryContent {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    padding-block: var(--pl-detail-panel-pad);
+    border-radius: var(--pl-radius-panel);
+}
+
+/* Square at the foot, where it meets the page end. The last row's posters bring their own bottom margin;
+   the now-playing bar's room stays inside the panel. !important: .padded-bottom-page in site.scss. */
+#reactRoot > div > main #itemDetailPage .detailPageSecondaryContainer {
+    grid-row: 3;
+    grid-column: 1 / -1;
+    padding-block-start: var(--pl-detail-panel-pad);
+    border-radius: var(--pl-radius-panel) var(--pl-radius-panel) 0 0;
+    padding-block-end: calc(var(--pl-detail-panel-pad) - var(--pl-row-spacing) + var(--pl-page-room)) !important;
+}
+
+.layout-desktop #reactRoot > div > main #itemDetailPage :is(.detailPagePrimaryContent, .detailPageSecondaryContainer) {
+    padding-inline: var(--pl-detail-column) 0;
+}
+
+/* Phones: jellyfin's 5 % side padding on both panels, more where a camera needs it; rows run off the right edge. */
+.layout-mobile #reactRoot > div > main #itemDetailPage .detailPageSecondaryContainer {
+    padding-inline: max(5%, env(safe-area-inset-left, 0px)) 0;
+}
+
+#reactRoot > div > main #itemDetailPage .detailSection > .detailVerticalSection:last-child:has(.card) {
+    margin-block-end: calc(-1 * var(--pl-row-spacing));
+}
+
+/* No lower panel when nothing would show in it: the Collections row below doesn't count. */
+#reactRoot > div > main #itemDetailPage .detailPageSecondaryContainer:not(:has(> :not(.hide, #collectionsCollapsible))) {
+    display: none;
+}
+
+/* ── Inside the first panel: selects, tagline, overview. Hidden: the Director / Writer / Studios / Genres group,
+   external links and tags, and 12's Collections row (no jellyfin setting or plugin option does it, and 10.11 has
+   no such row). Media Bar hides every .tagline; here it shows. ── */
+#reactRoot > div > main #itemDetailPage :is(.itemDetailsGroup, .itemExternalLinks, .itemTags, #collectionsCollapsible) {
+    display: none;
+}
+
+.layout-desktop #reactRoot > div > main #itemDetailPage .detailSection > :is(.detailSectionContent, .trackSelections, .recordingFields) {
+    padding-inline-end: var(--pl-inset);
+}
+
+#reactRoot > div > main #itemDetailPage .detailSectionContent {
+    color: var(--pl-text);
+}
+
+#reactRoot > div > main #itemDetailPage .tagline:not(.hide) {
+    display: block;
+    margin: 0 0 0.5em;
+    font-size: 1.15em;
+}
+
+#reactRoot > div > main #itemDetailPage .overview {
+    margin: 0;
+}
+
+/* ── Track pickers: glass capsules, one to a line, on the theme's control language: a translucent white fill,
+   brighter under the pointer, solid white with black text on keyboard focus. A single choice is plain
+   text in line with the capsules' text, at the same height, so the three lines keep one rhythm. ── */
+#reactRoot > div > main #itemDetailPage .trackSelections {
+    display: grid;
+    row-gap: var(--pl-detail-track-gap);
+    margin-block-end: 1.25em;
+    max-width: none;
+    color: var(--pl-hero-overview);
+}
+
+/* !important: librarybrowser.scss sets this margin with !important. */
+#reactRoot > div > main #itemDetailPage .trackSelections .selectContainer {
+    align-items: center;
+    margin: 0 !important;
+}
+
+#reactRoot > div > main #itemDetailPage .trackSelections .selectContainer .selectLabel {
+    margin-block: 0;
+    text-shadow: var(--pl-label-shadow);
+}
+
+#reactRoot > div > main #itemDetailPage .trackSelections .selectContainer .detailTrackSelect {
+    height: var(--pl-detail-track);
+    padding-block: 0;
+    padding-inline: var(--pl-detail-track-pad) calc(var(--pl-detail-track-pad) * 2.5);
+    border-width: 1px;
+    overflow: hidden;
+    border-radius: var(--pl-radius-pill);
+    font-weight: 500;
+    line-height: calc(var(--pl-detail-track) - 2px); /* centres the text in a base-select too, whose text can't take flex alignment and still truncate */
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect:not(:disabled) {
+    border-color: var(--pl-stroke);
+    background: var(--pl-fill);
+    color: var(--pl-text);
+    cursor: pointer;
+}
+
+/* A click leaves the select focused; jellyfin's white focus border (with !important) would stay lit. */
+#reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect:focus:not(:focus-visible) {
+    border-color: var(--pl-stroke) !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    #reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect:not(:disabled):hover {
+        background: var(--pl-fill-focus);
+    }
+}
+
+#reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect:not(:disabled):focus-visible {
+    background: var(--pl-focus-fill);
+    color: var(--pl-focus-text);
+}
+
+#reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect:focus-visible + .selectArrowContainer {
+    color: var(--pl-focus-text);
+}
+
+/* jellyfin fades a single choice to 70 % on top of its grey text. */
+#reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect:disabled {
+    padding-inline-end: 0;
+    opacity: 1;
+    text-shadow: var(--pl-label-shadow);
+}
+
+#reactRoot > div > main #itemDetailPage .trackSelections .selectArrowContainer {
+    inset-inline-end: var(--pl-detail-track-pad);
+    top: 50%;
+    color: var(--pl-text);
+    transform: translateY(-50%);
+}
+
+#reactRoot > div > main #itemDetailPage .trackSelections .selectContainer .selectArrowContainer .selectArrow {
+    display: block;
+    font-size: 1.25em;
+    transition: transform var(--pl-focus-button);
+}
+
+/* Browsers without a stylable list keep their own: at least a dark one. */
+#reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect > option {
+    background: var(--pl-nav-solid);
+}
+
+/* The open list. On desktop jellyfin leaves these to the browser (emby-select.js enableNativeMenu), and
+   the list a native select opens can't be styled. appearance: base-select (Chrome 135+) makes it a real
+   element, so here it's the item menus' panel and pill rows (src/components/menus.css), with
+   no JavaScript: it's still the same select, so jellyfin's change events and keyboard handling are
+   untouched. Everything else keeps the native list. */
+@supports (appearance: base-select) {
+    #reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect:not(:disabled) {
+        appearance: base-select;
+
+        /* The text is in the browser's own inner box, out of text-overflow's reach, so a long name is cut
+           at the padding, clear of the chevron. */
+        overflow: clip;
+        overflow-clip-margin: content-box;
+    }
+
+    /* jellyfin's own chevron stays: it follows the focus colours above. */
+    #reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect::picker-icon {
+        display: none;
+    }
+
+    #reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect:open {
+        background: var(--pl-fill-focus);
+    }
+
+    #reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect:open + .selectArrowContainer .selectArrow {
+        transform: rotate(180deg);
+    }
+
+    #reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect::picker(select) {
+        appearance: base-select;
+        position-try-order: normal; /* below the field when it fits; browsers default to the roomier side */
+        box-sizing: border-box;
+        max-width: var(--pl-detail-track-list);
+        max-height: 60vh;
+        margin-block: var(--pl-detail-track-gap);
+        padding: var(--pl-menu-padding);
+        border: 0;
+        border-radius: var(--pl-radius-menu);
+        background: var(--pl-surface);
+        box-shadow: var(--pl-menu-ring), var(--pl-banner-shadow);
+        color: var(--pl-text);
+        scrollbar-width: thin;
+        -webkit-backdrop-filter: var(--pl-menu-filter);
+        backdrop-filter: var(--pl-menu-filter);
+        animation: pl-track-list var(--pl-focus-button);
+    }
+
+    #reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect > option {
+        min-height: var(--pl-sheet-row);
+        padding-block: 0;
+        padding-inline: var(--pl-menu-row-pad);
+        border-radius: var(--pl-radius-pill);
+        background: none;
+        color: var(--pl-text);
+        font-weight: 500;
+    }
+
+    #reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect > option:is(:hover, :focus-visible) {
+        outline: 0; /* the white capsule is the focus mark */
+        background: var(--pl-focus-fill);
+        color: var(--pl-focus-text);
+    }
+}
+
+@keyframes pl-track-list {
+    from {
+        opacity: 0;
+        transform: translateY(calc(-1 * var(--pl-detail-track-gap)));
+    }
+}
+
+/* ── Rows, on Home's rhythm: the only space between rows is the cards' own bottom margin, titles and
+   posters share one left edge, 20px between posters, and posters run to the panel's right edge.
+   Scrollers reach a little past the left edge, for the poster lift and glow. ── */
+#reactRoot > div > main #itemDetailPage .detailVerticalSection {
+    margin: 0;
+}
+
+#reactRoot > div > main #itemDetailPage .detailVerticalSection .sectionTitle-cards {
+    margin: 0;
+    padding-block: 0;
+    padding-inline: 0 var(--pl-inset);
+}
+
+.layout-desktop #reactRoot > div > main #itemDetailPage :is(.detailVerticalSection, .series-episodes-section) .emby-scroller {
+    margin-inline-start: calc(-1 * var(--pl-detail-row-bleed));
+    padding-inline: var(--pl-detail-row-bleed) var(--pl-inset);
+}
+
+/* With a fine pointer jellyfin scrolls rows by moving .scrollSlider with a transform, and nothing clips it, so
+   posters would slide behind the pinned poster. clip rather than hidden: the row's height stays visible, so the
+   lift isn't cut. Coarse pointers scroll natively (.scrollX, lib/scroller), which clips by itself and needs its
+   overflow-x: auto. */
+.layout-desktop #reactRoot > div > main #itemDetailPage :is(.detailVerticalSection, .series-episodes-section) .emby-scroller:not(.scrollX) {
+    overflow-x: clip;
+}
+
+/* A collection's rows carry jellyfin's own side padding and title gap. */
+#reactRoot > div > main #itemDetailPage .collectionItems .sectionTitleContainer-cards {
+    padding-block-start: 0;
+}
+
+.layout-desktop #reactRoot > div > main #itemDetailPage .collectionItems .padded-left {
+    padding-inline-start: 0;
+}
+
+/* The cards' 1.2em right margin is part of the inset, so the last poster lands on it. */
+.layout-desktop #reactRoot > div > main #itemDetailPage .collectionItems .padded-right {
+    padding-inline-end: calc(var(--pl-inset) - 1.2em);
+}
+
+/* The panel sets a collection's columns. .portraitCard's width is a share of the row, picked from the
+   window as if the row filled the screen, so beside the poster its columns come out narrower than the four
+   hover buttons, and the gap below wraps the last one. auto-fill rather than auto-fit, so a lone Series
+   poster stays the size of the Movies above it. */
+.layout-desktop #reactRoot > div > main #itemDetailPage .collectionItemsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--pl-collection-card), 1fr));
+}
+
+.layout-desktop #reactRoot > div > main #itemDetailPage .collectionItemsContainer > .card {
+    width: auto;
+}
+
+/* The page eases in like Home. Until the item arrives the panels would stand empty and everything would land on
+   one frame. .nameContainer is the one thing every item fills, whatever it is: a person with no picture leaves the
+   poster's container empty. Waiting is an animation with a limit, so nothing can leave the page blank, and the fade
+   starts as the name lands because that changes the animation's name. A page Back restores keeps its content, so
+   it takes the fade alone. */
+@keyframes pl-detail-wait {
+    from, to {
+        opacity: 0;
+    }
+}
+
+#reactRoot > div > main #itemDetailPage > .detailPageWrapperContainer {
+    animation: pl-home-fade-in var(--pl-home-fade);
+}
+
+#reactRoot > div > main #itemDetailPage > .detailPageWrapperContainer:has(> .detailPagePrimaryContainer > .detailRibbon > .infoWrapper > .nameContainer:empty) {
+    animation: pl-detail-wait var(--pl-detail-wait-limit);
+}
+
+/* Rows answer in any order and each pushes the ones under it: on a series Cast can show, then Seasons takes its
+   place, then the next row takes that. Each waits a moment at 0 after it lands, so that happens out of sight. */
+#reactRoot > div > main #itemDetailPage .verticalSection {
+    animation: pl-home-fade-in var(--pl-home-fade) var(--pl-detail-hold) backwards;
+}
+
+/* A collection eases in like Home, its rows and then its art, but with a transition on the art. KefinTweaks' sort
+   takes every card off the page and puts it back, up to three times on a first visit, even with the order already
+   right (scripts/collections.js). That restarts an animation, so art that has landed would fall to nothing and come
+   back, a flicker that shows only when the art beats the sort. Home's fade would make it longer. A transition
+   doesn't restart: one the sort catches just ends early, which never dims a poster. Art waits at 0 from the start
+   because a cached image can land before its .lazy-hidden is ever drawn, which would leave a transition nothing to
+   start from. Rows wait a moment, so art the sort ends early does that out of sight. */
+#reactRoot > div > main #itemDetailPage .collectionItems > .verticalSection {
+    animation: pl-home-fade-in var(--pl-fade-in) var(--pl-collection-hold) backwards;
+}
+
+#reactRoot > div > main #itemDetailPage .collectionItems .cardImageContainer {
+    transition: opacity var(--pl-fade-in);
+}
+
+#reactRoot > div > main #itemDetailPage .collectionItems .cardImageContainer[data-src] {
+    opacity: 0;
+}
+
+/* jellyfin hides the blurhash on animationend, so the landing keeps an animation, with nothing in it. */
+@keyframes pl-art-landed {
+}
+
+#reactRoot > div > main #itemDetailPage .collectionItems :is(.lazy-image-fadein-fast, .lazy-image-fadein) {
+    animation: pl-art-landed var(--pl-fade-in-time);
+}
+
+/* KefinTweaks' episodes row undoes jellyfin's right padding with an !important negative margin; this
+   panel has none to undo (scripts/seriesEpisodes.css). */
+.layout-desktop #reactRoot > div > main #itemDetailPage .series-episodes-section {
+    margin: 0 !important;
+}
+
+/* KefinTweaks 0.5.3 also sets overflow: hidden on the whole .detailSection, on pages its row runs on (the same
+   file). That edge is flush with the first poster, so it cuts the lift and ring off the Seasons grid. Rows clip
+   themselves. */
+.layout-desktop #reactRoot > div > main #itemDetailPage .detailSection {
+    overflow: visible;
+}
+
+#reactRoot > div > main #itemDetailPage .itemsContainer:not([data-gapless="true"]) {
+    column-gap: calc(var(--pl-gap) - 1.2em);
+}
+
+#reactRoot > div > main #itemDetailPage .detailVerticalSection .emby-scrollbuttons {
+    height: var(--pl-row-title-line);
+    min-height: 0;
+    padding-top: 0;
+    padding-inline-end: var(--pl-inset);
+}
+
+/* ── Episode list on season pages: the compact list. No row borders, a 160px 16:9 thumbnail, the summary
+   capped at its height, no ⓘ button; rows darken under the pointer on a layer of their own, so the
+   fade stays opacity. ── */
+.layout-desktop #reactRoot > div > main #itemDetailPage #childrenContent {
+    padding-inline-end: var(--pl-inset);
+}
+
+.layout-desktop #reactRoot > div > main #itemDetailPage #childrenContent .listItem {
+    margin-inline-start: -0.5em;
+}
+
+#reactRoot > div > main #itemDetailPage #childrenContent .listItem {
+    position: relative;
+    border-color: transparent;
+    border-radius: var(--pl-rounding);
+    color: var(--pl-text);
+}
+
+#reactRoot > div > main #itemDetailPage #childrenContent .listItem .secondary {
+    color: var(--pl-hero-overview);
+}
+
+/* Episode action buttons are hidden, except ✓. */
+#reactRoot > div > main #itemDetailPage #childrenContent .listItem[data-type="Episode"] :is([is="emby-ratingbutton"], .watchlist-button) {
+    display: none;
+}
+
+#reactRoot > div > main #itemDetailPage #childrenContent .listItem::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--pl-detail-row-hover);
+    opacity: 0;
+    transition: opacity var(--pl-focus-button);
+    pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    #reactRoot > div > main #itemDetailPage #childrenContent .listItem:hover::before {
+        opacity: 1;
+    }
+}
+
+#reactRoot > div > main #itemDetailPage #childrenContent .listItem:focus-visible::before {
+    opacity: 1;
+}
+
+#reactRoot > div > main #itemDetailPage #childrenContent .listItem-content {
+    height: auto;
+}
+
+#reactRoot > div > main #itemDetailPage #childrenContent .listItemImage-large {
+    width: auto;
+    height: var(--pl-detail-episode-thumb);
+    aspect-ratio: 16 / 9;
+    border-radius: var(--pl-radius-poster);
+    overflow: hidden;
+}
+
+/* listview.scss hard-codes jellyfin's blue on this button's hover. */
+#reactRoot > div > main #itemDetailPage #childrenContent .listItemImageButton {
+    background: none;
+    border-radius: var(--pl-rounding);
+    color: var(--pl-text);
+}
+
+#reactRoot > div > main #itemDetailPage #childrenContent .listItemImageButton:hover {
+    background: var(--pl-detail-button-hover);
+    color: var(--pl-text);
+}
+
+#reactRoot > div > main #itemDetailPage #childrenContent .listItemImageButton-icon {
+    padding: 0;
+}
+
+#reactRoot > div > main #itemDetailPage #childrenContent .listItemBody.itemAction {
+    max-height: var(--pl-detail-episode-thumb);
+}
+
+#reactRoot > div > main #itemDetailPage #childrenContent .listItem-overview {
+    height: auto;
+    margin: 0;
+}
+
+#reactRoot > div > main #itemDetailPage #childrenContent .listItemButton.itemAction.paper-icon-button-light {
+    display: none;
+}
+
+/* Reduce transparency, the theme's low-power mode: solid panels and no filter on the backdrop. */
+@media (prefers-reduced-transparency: reduce) {
+    body:has(> #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.hide)) .backdropImage {
+        filter: none;
+        transform: none;
+    }
+
+    .layout-mobile #reactRoot > div > main #itemDetailPage > #itemBackdrop::before {
+        filter: none;
+        transform: none;
+    }
+
+    #reactRoot > div > main #itemDetailPage :is(.detailPagePrimaryContent, .detailPageSecondaryContainer) {
+        background: var(--pl-surface);
+    }
+}
+
+/* ── Phones. .layout-mobile is set from the user agent, so none of this reaches a desktop at any width. The
+   desktop's page: the art fills the screen behind everything, the logo stands for the title, the poster is big
+   enough to look at, and the same two panels sit on top. ── */
+
+/* The art: jellyfin puts it on #itemBackdrop on a phone, a short banner in the flow. That box stays, as the empty
+   top of the page, and hands its image to a fixed layer the size of the screen, with the desktop's slight blur and
+   veil, so it stays put while the page scrolls. One layer, rasterized once: the veil's in its filter, so a page with
+   no art has nothing to darken. 100vh on a phone is the height with the browser's bars gone, so the art doesn't
+   resize as they come and go. It runs up under the app bar (apps/modern/AppOverrides.scss has that at -48px),
+   however tall the bar is. */
+.layout-mobile #reactRoot > div > main #itemDetailPage > #itemBackdrop {
+    height: var(--pl-detail-banner-phone);
+    margin-top: calc(-1 * var(--pl-appbar-height)) !important;
+    background-size: 0 0;
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage > #itemBackdrop::before {
+    position: fixed;
+    inset: 0 0 auto;
+    height: 100vh;
+    background-image: inherit;
+    background-position: center;
+    background-size: cover;
+    filter: blur(var(--pl-detail-backdrop-blur)) brightness(var(--pl-detail-veil-brightness));
+    transform: scale(var(--pl-detail-backdrop-oversize));
+}
+
+/* Positioned, or they'd paint under the fixed layer, which is. */
+.layout-mobile #reactRoot > div > main #itemDetailPage > :is(.detailLogo, .detailPageWrapperContainer) {
+    position: relative;
+}
+
+/* The logo stands for the title, as on a desktop, in the column beside the poster and hanging from the bottom of the banner.
+   jellyfin hides it on phones; its image is there all the same. The title stays when there's no logo. */
+.layout-mobile #reactRoot > div > main #itemDetailPage > .detailLogo {
+    display: block;
+    top: auto;
+    right: auto;
+    box-sizing: border-box;
+    width: calc(100% - var(--pl-detail-column-phone) - var(--pl-detail-inline));
+    height: var(--pl-detail-logo-phone);
+    margin-block: calc(-1 * (var(--pl-detail-logo-phone) + var(--pl-detail-logo-gap))) var(--pl-detail-logo-gap);
+    margin-inline-start: var(--pl-detail-column-phone);
+    filter: var(--pl-hero-logo-shadow);
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage > .detailLogo:not(.hide) + .detailPageWrapperContainer .itemName:is(.parentNameLast, .originalTitle) {
+    display: none;
+}
+
+/* The show's name on an episode or a season goes the same way, and its link goes over the logo, so the logo is what you tap. */
+.layout-mobile #reactRoot > div > main #itemDetailPage > .detailLogo:not(.hide) + .detailPageWrapperContainer .parentName:not(.musicParentName) {
+    font-size: 0;
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage > .detailLogo:not(.hide) + .detailPageWrapperContainer .parentName:not(.musicParentName) .itemAction {
+    position: absolute;
+    inset-block-start: calc(-1 * (var(--pl-detail-logo-phone) + var(--pl-detail-logo-gap)));
+    inset-inline: var(--pl-detail-column-phone) var(--pl-detail-inline);
+    height: var(--pl-detail-logo-phone);
+}
+
+/* The header's column, for the logo and everything measured from the ribbon's edge. */
+.layout-mobile #reactRoot > div > main #itemDetailPage {
+    --pl-detail-column-phone: calc(var(--pl-detail-inline) + var(--pl-detail-poster-phone) + var(--pl-detail-poster-gap));
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage .detailRibbon {
+    padding-inline: var(--pl-detail-inline) max(5vw, env(safe-area-inset-right, 0px));
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage .detailRibbon .detailImageContainer .card {
+    width: var(--pl-detail-poster-phone);
+    max-width: none;
+    max-height: none;
+    filter: none;
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage .detailRibbon .detailImageContainer .cardScalable {
+    box-shadow: var(--pl-lift-shadow);
+}
+
+/* A movie or a show takes a wide picture in place of the poster, with the logo above it: the poster takes too much
+   of the screen. The page has three images, the poster, the logo and the backdrop, and no Thumb: jellyfin only asks
+   for one on cards, and CSS can't build its address. So the picture is the backdrop #itemBackdrop already holds, a
+   card on top of the art with nothing more to download. The type isn't on the page either, only in the fallback
+   icon in the poster's card (.tv on a show, .folder on a season): a wide or missing poster keeps the layouts around
+   this. Each orientation sets the sizes below. */
+.layout-mobile #reactRoot > div > main #itemDetailPage > #itemBackdrop::after {
+    content: var(--pl-detail-thumb, none);
+    position: absolute;
+    inset-block-start: var(--pl-detail-thumb-top);
+    inset-inline-start: var(--pl-detail-inline);
+    width: var(--pl-detail-thumb-width);
+    aspect-ratio: 16 / 9;
+    border-radius: var(--pl-radius-poster);
+    background-color: var(--pl-detail-panel);
+    background-image: inherit;
+    background-position: center;
+    background-size: cover;
+    box-shadow: var(--pl-lift-shadow);
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage .detailRibbon .detailImageContainer > .portraitCard:has(> .cardBox > .cardScalable > .cardPadder > .cardImageIcon:is(.movie, .tv)) {
+    display: none;
+}
+
+/* With no logo there's no slot to keep for one, and the title stands in, under the picture. */
+.layout-mobile #reactRoot > div > main #itemDetailPage:has(> .detailLogo.hide):has(> .detailPageWrapperContainer > .detailPagePrimaryContainer > .detailRibbon > .infoWrapper > .detailImageContainer > .portraitCard > .cardBox > .cardScalable > .cardPadder > .cardImageIcon:is(.movie, .tv)) {
+    --pl-detail-logo-phone: 0px;
+}
+
+/* Upright: the poster beside the title's column, hanging up into the banner from the column's foot. */
+@media (orientation: portrait) {
+    .layout-mobile #reactRoot > div > main #itemDetailPage .detailRibbon > .infoWrapper {
+        position: relative;
+        padding-inline-start: calc(var(--pl-detail-poster-phone) + var(--pl-detail-poster-gap));
+    }
+
+    .layout-mobile #reactRoot > div > main #itemDetailPage .detailRibbon .detailImageContainer .card {
+        top: auto;
+        bottom: 0;
+        left: 0;
+    }
+
+    /* Measured from .infoWrapper here, not from the ribbon. */
+    .layout-mobile #reactRoot > div > main #itemDetailPage > .detailLogo:not(.hide) + .detailPageWrapperContainer .parentName:not(.musicParentName) .itemAction {
+        inset-block-start: calc(-1 * (var(--pl-detail-logo-phone) + var(--pl-detail-logo-gap) + 0.5rem));
+        inset-inline: calc(var(--pl-detail-poster-phone) + var(--pl-detail-poster-gap)) 0;
+    }
+
+    /* An episode's picture is wide, and at a third of a phone it's a thumbnail you can't read: it takes the width of
+       the screen, in the flow, with the logo across the top. */
+    .layout-mobile #reactRoot > div > main #itemDetailPage:has(> .detailPageWrapperContainer > .detailPagePrimaryContainer > .detailRibbon > .infoWrapper > .detailImageContainer > .backdropCard) {
+        --pl-detail-poster-phone: 0px;
+        --pl-detail-poster-gap: 0px;
+        --pl-detail-banner-phone: calc(var(--pl-appbar-height) + var(--pl-detail-logo-phone) + 1.5rem);
+    }
+
+    .layout-mobile #reactRoot > div > main #itemDetailPage .detailRibbon .detailImageContainer .backdropCard {
+        position: relative;
+        bottom: auto;
+        float: none;
+        width: 100%;
+        margin-block-end: 0.75rem;
+    }
+
+    /* The logo across the top, the picture under it at the column's width, and the details under that: an episode's order. */
+    .layout-mobile #reactRoot > div > main #itemDetailPage:has(> .detailPageWrapperContainer > .detailPagePrimaryContainer > .detailRibbon > .infoWrapper > .detailImageContainer > .portraitCard > .cardBox > .cardScalable > .cardPadder > .cardImageIcon:is(.movie, .tv)) {
+        --pl-detail-thumb: "";
+        --pl-detail-thumb-width: calc(100vw - 2 * var(--pl-detail-inline));
+        --pl-detail-thumb-top: calc(var(--pl-appbar-height) + 2 * var(--pl-detail-thumb-gap) + var(--pl-detail-logo-phone));
+        --pl-detail-poster-phone: 0px;
+        --pl-detail-poster-gap: 0px;
+        --pl-detail-logo-gap: calc(var(--pl-detail-thumb-gap) + var(--pl-detail-thumb-width) * 9 / 16);
+        --pl-detail-banner-phone: calc(var(--pl-detail-thumb-top) + var(--pl-detail-thumb-width) * 9 / 16);
+    }
+}
+
+/* On its side: the poster goes by the height, as its share of the width is taller than the screen, and hangs from
+   the ribbon's foot, clear of the app bar. Title and buttons keep to the column beside it, and the buttons are one
+   row, Play on the end: two rows end below the first screen, Play first of all. */
+@media (orientation: landscape) {
+    /* A wide picture takes more of the height, because a poster's share would make it small. */
+    .layout-mobile #reactRoot > div > main #itemDetailPage:has(> .detailPageWrapperContainer > .detailPagePrimaryContainer > .detailRibbon > .infoWrapper > .detailImageContainer > .backdropCard) {
+        --pl-detail-poster-phone: 62vh;
+        --pl-detail-banner-phone: 40vh;
+    }
+
+    /* There's no height to stack them, so the picture takes the poster's place and the logo heads the column beside it, as on
+       an episode. The picture starts level with the logo, and the ribbon reaches past its foot, so the panel clears it. */
+    .layout-mobile #reactRoot > div > main #itemDetailPage:has(> .detailPageWrapperContainer > .detailPagePrimaryContainer > .detailRibbon > .infoWrapper > .detailImageContainer > .portraitCard > .cardBox > .cardScalable > .cardPadder > .cardImageIcon:is(.movie, .tv)) {
+        --pl-detail-thumb: "";
+        --pl-detail-thumb-width: 62vh;
+        --pl-detail-thumb-top: calc(var(--pl-appbar-height) + var(--pl-detail-thumb-gap));
+        --pl-detail-poster-phone: 62vh;
+        --pl-detail-banner-phone: calc(var(--pl-detail-thumb-top) + var(--pl-detail-logo-phone) + var(--pl-detail-logo-gap));
+        --pl-detail-ribbon-min: calc(62vh * 9 / 16 + 1rem - var(--pl-detail-logo-phone) - var(--pl-detail-logo-gap));
+    }
+
+    .layout-mobile #reactRoot > div > main #itemDetailPage .detailRibbon {
+        min-height: var(--pl-detail-ribbon-min, 0);
+    }
+
+    .layout-mobile #reactRoot > div > main #itemDetailPage .detailRibbon .detailImageContainer .card {
+        top: auto;
+        bottom: 1rem;
+        left: var(--pl-detail-inline);
+    }
+
+    .layout-mobile #reactRoot > div > main #itemDetailPage .detailRibbon > .infoWrapper {
+        padding-inline-start: calc(var(--pl-detail-poster-phone) + var(--pl-detail-poster-gap));
+    }
+
+    .layout-mobile #reactRoot > div > main #itemDetailPage .mainDetailButtons {
+        flex-wrap: nowrap;
+        box-sizing: border-box;
+        width: auto;
+        margin-inline: 0;
+        padding-inline-start: calc(var(--pl-detail-poster-phone) + var(--pl-detail-poster-gap));
+    }
+
+    .layout-mobile #reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnPlay {
+        flex: 1 1 auto;
+        max-width: 20em;
+    }
+}
+
+/* A panel's content clears the camera on a phone on its side; upright that's jellyfin's 5 %. !important: librarybrowser.scss
+   sets the first panel's 5 % with !important. */
+.layout-mobile #reactRoot > div > main #itemDetailPage .detailPagePrimaryContent {
+    padding-left: max(5%, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(5%, env(safe-area-inset-right, 0px)) !important;
+}
+
+/* Track pickers: a select is as wide as its longest option, and in WebKit that sets the width of the grid's only
+   column, so on an iPhone a long audio track runs off the screen. */
+.layout-mobile #reactRoot > div > main #itemDetailPage .trackSelections {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage .trackSelections .selectContainer {
+    min-width: 0;
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage .trackSelections .selectContainer .detailTrackSelect {
+    min-width: 0;
+}
+
+/* The open list: on a phone's width a track's name is what you're choosing by, so it wraps instead of running off the panel. */
+@supports (appearance: base-select) {
+    .layout-mobile #reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect > option {
+        padding-block: 0.5em;
+        line-height: 1.25;
+        white-space: normal;
+    }
+}
+
+/* WebKit has base-select but not overflow-clip-margin, so a long name runs on under the chevron: there a phone keeps
+   its own system picker, where the name is cut with an ellipsis. */
+@supports (appearance: base-select) and (not (overflow-clip-margin: content-box)) {
+    .layout-mobile #reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect:not(:disabled) {
+        appearance: none;
+        overflow: hidden;
+    }
+}
+
+/* The lower panel has no right padding, for the rows that run off the edge. A season's list of episodes isn't one, and
+   neither is the sort control over Jellyfin Enhanced's rows on a person's page. */
+.layout-mobile #reactRoot > div > main #itemDetailPage :is(#childrenContent, .jellyseerr-discovery-header) {
+    box-sizing: border-box;
+    padding-inline-end: max(5%, env(safe-area-inset-right, 0px));
+}
+
+/* The little play button on an episode's thumbnail: 23px to look at, a fingertip to hit. */
+.layout-mobile #reactRoot > div > main #itemDetailPage #childrenContent .listItemImageButton {
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+}
+
+/* A tap leaves :hover stuck on a touch screen, so the desktop hover would stay lit after the finger has gone. */
+.layout-mobile #reactRoot > div > main #itemDetailPage #childrenContent .listItemImageButton:hover:not(:active) {
+    background: none;
+}
+
+/* The press is what a phone gets in place of a mouse's hover. */
+.layout-mobile #reactRoot > div > main #itemDetailPage .mainDetailButtons > .detailButton:not(.btnPlay):active::after {
+    opacity: 1;
+    transition-duration: var(--pl-osd-hover-in);
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage .mainDetailButtons > .btnPlay:active {
+    background: var(--pl-focus-fill);
+    box-shadow: none;
+    color: var(--pl-focus-text);
+    text-shadow: none;
+}
+
+.layout-mobile #reactRoot > div > main #itemDetailPage .trackSelections .detailTrackSelect:not(:disabled):active {
+    background: var(--pl-fill-focus);
+}

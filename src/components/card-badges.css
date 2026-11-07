@@ -1,0 +1,15 @@
+/*
+ * Poster badges (Modern layout): no unwatched count and no watched ✓ in the poster's top-right corner.
+ * Watched state still shows on the hover overlay's ✓ button (src/components/card-buttons.css). The count
+ * also covers the group count on grouped "Latest" cards. Other badges (timer, sync, missing, version
+ * count) stay.
+ *
+ * DOM: both card builders render them inside the poster's .cardIndicators: cardBuilder.js through
+ * components/indicators/indicators.js, the React cards through useIndicator.tsx
+ * (.countIndicator.unplayedItemCount / .childCountIndicator, .playedIndicator). Scoped to cards; list
+ * rows (.listItemIndicators) keep theirs.
+ */
+
+#reactRoot > div > main .card :is(.countIndicator, .playedIndicator) {
+    display: none;
+}

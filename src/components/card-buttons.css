@@ -1,0 +1,126 @@
+/*
+ * Poster buttons (Modern layout, desktop hover overlay): their order and skin, on the white accent
+ * (src/base/accent.css).
+ *   - Order: ✓ watched, ♥ favourite, KefinTweaks' bookmark, ⋮ last. Episodes drop ♥ and the bookmark.
+ *     Collections keep only ⋮. Home Screen Sections' Seerr "Discover" cards drop their request button.
+ *   - Dim: none on a poster hover, so the art stays bright; a 35 % dim fades in only while the play
+ *     button itself is hovered or focused. It's a layer of its own, so the fade is opacity.
+ *   - Legibility: jellyfin's icons are 76 % white, made for the dark wash and circles stock puts behind
+ *     them, both gone here. Solid white alone isn't enough: it often misses WCAG's 3:1 against the art.
+ *     So a scrim runs along the foot of the poster, no taller than the buttons need, and fades with the
+ *     overlay. All icons keep the soft badge shadow, the play button most of all: it has no scrim.
+ *   - Skin: the play button without its dark circle, on a slightly smaller square than stock with the
+ *     icon at its stock size; buttons with 8px corners instead of circles; below 70em each small button
+ *     sits on a dark translucent square (no backdrop blur: it would cost a layer per button). Hover is
+ *     jellyfin's own: the icon takes the white accent on a 20 % accent square.
+ *   - State: an active ✓ and ♥ on a white accent would match an idle button, so they take state colours
+ *     instead: Played purple, Favourite pink (src/tokens.css). KefinTweaks' active bookmark takes
+ *     Watchlist blue (src/plugins/kefintweaks.css).
+ *
+ * DOM: both card builders put the overlay buttons in .cardOverlayContainer, the small ones in
+ * .cardOverlayButton-br (a flex row), each a .cardOverlayButton. cardBuilder.js (home rows, details,
+ * plugins built on it) marks them button[is="emby-playstatebutton"] / [is="emby-ratingbutton"] /
+ * [data-action="menu"] and the active icons .playstatebutton-icon-played / .ratingbutton-icon-withrating.
+ * The React Card/CardHoverMenu.tsx (Modern's library pages) uses MUI IconButtons: ✓ and ♥ are told apart
+ * by their icon's data-testid (CheckIcon, FavoriteIcon, set by MUI's icon factory), the active state by
+ * .MuiSvgIcon-colorError, and ⋮ carries data-action="menu" too. KefinTweaks adds button.watchlist-button
+ * (active: [data-active="true"]). These rules match the buttons themselves: a tooltip is translated, and
+ * changes when a button is active.
+ */
+
+/* ── Order. jellyfin already puts ✓ before ♥ in both builders; KefinTweaks inserts its bookmark first. ── */
+#reactRoot > div > main .cardOverlayButton-br > .watchlist-button {
+    order: 1;
+}
+
+#reactRoot > div > main .cardOverlayButton-br > [data-action="menu"] {
+    order: 2;
+}
+
+/* Episodes: no ♥ and no bookmark. */
+#reactRoot > div > main .card[data-type="Episode"] .cardOverlayButton-br > :is([is="emby-ratingbutton"], .watchlist-button, :has(> [data-testid="FavoriteIcon"])) {
+    display: none;
+}
+
+/* Collections: only ⋮. */
+#reactRoot > div > main .card[data-type="BoxSet"] .cardOverlayButton:not([data-action="menu"]) {
+    display: none;
+}
+
+/* Seerr "Discover" cards (Home Screen Sections): no request button. */
+#reactRoot > div > main .discover-card .cardOverlayButton-br {
+    display: none;
+}
+
+/* ── Skin ── */
+#reactRoot > div > main .card .cardOverlayContainer {
+    background: var(--pl-card-overlay-scrim);
+}
+
+/* No buttons on these, so nothing for a scrim to do. */
+#reactRoot > div > main .discover-card .cardOverlayContainer {
+    background: none;
+}
+
+#reactRoot > div > main .card .cardOverlayContainer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--pl-card-overlay-dim);
+    opacity: 0;
+    transition: opacity var(--pl-focus-poster);
+    pointer-events: none;
+}
+
+#reactRoot > div > main .card .cardOverlayContainer:is(:hover, :focus-within):has(> .cardOverlayFab-primary:is(:hover, :focus-visible))::before {
+    opacity: 1;
+}
+
+/* The play button loses its dark circle; jellyfin's hover square still shows on hover. */
+#reactRoot > div > main .cardOverlayContainer > .cardOverlayFab-primary:not(:hover) {
+    background-color: transparent;
+}
+
+/* Size and centring pair up with card.scss's 3em box; the icon's own size doesn't depend on them. */
+#reactRoot > div > main .cardOverlayContainer > .cardOverlayFab-primary {
+    width: var(--pl-card-play-box);
+    height: var(--pl-card-play-box);
+    margin-top: calc(var(--pl-card-play-box) / -2);
+    margin-left: calc(var(--pl-card-play-box) / -2);
+}
+
+#reactRoot > div > main .cardOverlayContainer .cardOverlayButton {
+    border-radius: var(--pl-rounding);
+    color: var(--pl-text);
+    filter: var(--pl-badge-shadow);
+}
+
+@media (max-width: 70em) {
+    /* !important: card.scss sets these icons' background with !important (.cardOverlayButtonIcon-hover
+       transparent, .cardOverlayButtonIcon rgba(0, 0, 0, 0.7)). */
+    #reactRoot > div > main .cardOverlayContainer .cardOverlayButton > :is(.cardOverlayButtonIcon, .MuiSvgIcon-root) {
+        background-color: var(--pl-card-button-glass) !important;
+        border-radius: var(--pl-rounding);
+    }
+}
+
+/* ── State: watched purple, favourite pink (jellyfin's own is its error red). ── */
+#reactRoot > div > main .cardOverlayButton > :is(.playstatebutton-icon-played, .MuiSvgIcon-colorError[data-testid="CheckIcon"]) {
+    color: var(--pl-purple);
+}
+
+#reactRoot > div > main .cardOverlayButton > :is(.ratingbutton-icon-withrating, .MuiSvgIcon-colorError[data-testid="FavoriteIcon"]) {
+    color: var(--pl-pink);
+}
+
+/* A bolder ✓, watched or not. Stock's icon font has one weight, so font-weight can't reach it: a stroke in the icon's
+   own colour thickens the glyph, and MUI's 24-unit path by the same amount. */
+#reactRoot > div > main .cardOverlayButton > :is(.playstatebutton-icon-played, .playstatebutton-icon-unplayed) {
+    -webkit-text-stroke-width: 0.1em;
+}
+
+#reactRoot > div > main .cardOverlayButton > [data-testid="CheckIcon"] {
+    stroke: currentColor;
+    stroke-width: 2.4;
+}

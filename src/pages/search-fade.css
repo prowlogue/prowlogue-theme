@@ -1,0 +1,45 @@
+/*
+ * Search eases in and out (Modern layout).
+ *
+ * Coming in: jellyfin takes the last results off the page the moment a search starts and mounts rows as they land
+ * (features/search/components/SearchResults.tsx), so every row is a fresh element and a fade on it runs by itself.
+ * Posters fade already (src/components/poster-fade.css).
+ *
+ * Seerr's row needs a hold. Jellyfin Enhanced searches 300ms before jellyfin does, so its row lands under the
+ * suggestions, jumps to the top when they go, then jumps again when the library rows come. While it's parked outside
+ * the results it waits at 0, for --pl-search-hold at most, so it can't stay hidden; the plugin then re-inserts it in
+ * its real place, which restarts the animation, here with no delay. Beside "no results" it is the result, so it
+ * doesn't wait.
+ */
+#reactRoot > div > main #searchPage .verticalSection,
+#reactRoot > div > main #searchPage > .noItemsMessage {
+    animation: pl-home-fade-in var(--pl-home-fade) backwards;
+}
+
+#reactRoot > div > main #searchPage > .jellyseerr-section {
+    animation-delay: var(--pl-search-hold);
+}
+
+#reactRoot > div > main #searchPage > .noItemsMessage ~ .jellyseerr-section {
+    animation-delay: 0s;
+}
+
+/* Going out: an element that's gone can't animate, and CSS can't delay its removal. But jellyfin waits 500ms after a key
+   and the box changes at once, so what's about to leave can fade first: the suggestions on the first letter, the
+   results when the box is emptied. Changing one search for another has no such signal, so those rows cut out. Both
+   states last those 500ms at most, because jellyfin then removes what they hid. */
+#reactRoot > div > main #searchPage > .searchSuggestions {
+    transition: opacity var(--pl-home-fade);
+}
+
+#reactRoot > div > main #searchPage > .searchResults {
+    transition: opacity var(--pl-home-fade);
+}
+
+#reactRoot > div > main #searchPage:has(> .searchFields > .searchFieldsInner > .inputContainer > #searchTextInput:not(:placeholder-shown)) > .searchSuggestions {
+    opacity: 0;
+}
+
+#reactRoot > div > main #searchPage:has(> .searchFields > .searchFieldsInner > .inputContainer > #searchTextInput:placeholder-shown) > .searchResults {
+    opacity: 0;
+}

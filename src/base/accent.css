@@ -1,0 +1,40 @@
+/*
+ * Accent (Modern layout): white, on jellyfin's dark theme.
+ *
+ * jellyfin 12 paints its accent (#00a4dc) from MUI's CSS variables, which both the MUI shell and the
+ * legacy views read (themes/_base/_theme.scss: `var(--jf-palette-primary-main, $fallback)` and friends).
+ * MUI declares them on `:root, [data-theme="…"]` (0,1,0); redeclaring them on html under the Modern
+ * anchor (1,0,4) re-colours everything at once: selected links, round-button hover and active fills,
+ * submit buttons, checkboxes, switches, progress bars, focused fields and labels, the
+ * selection bar. Secondary is jellyfin's focus colour, the same blue, so it follows. Each
+ * *Channel twin is set too: legacy CSS builds translucent fills from it
+ * (`rgba(var(--jf-palette-primary-mainChannel) / …)`).
+ *
+ * Text on an accent fill uses contrastText, which becomes black: a white control with black text. One
+ * exception: jellyfin's legacy checkbox tick is hard-coded white
+ * (elements/emby-checkbox/emby-checkbox.scss `.checkboxIcon { color: #fff }`), so on a white checked box
+ * it takes the contrast colour instead.
+ */
+
+html:has(> body > #reactRoot > div > main) {
+    --jf-palette-primary-main: var(--pl-accent);
+    --jf-palette-primary-mainChannel: var(--pl-accent-channel);
+    --jf-palette-primary-light: var(--pl-accent);
+    --jf-palette-primary-lightChannel: var(--pl-accent-channel);
+    --jf-palette-primary-dark: var(--pl-accent-dark);
+    --jf-palette-primary-darkChannel: var(--pl-accent-dark-channel);
+    --jf-palette-primary-contrastText: var(--pl-accent-text);
+    --jf-palette-primary-contrastTextChannel: var(--pl-accent-text-channel);
+    --jf-palette-secondary-main: var(--pl-accent);
+    --jf-palette-secondary-mainChannel: var(--pl-accent-channel);
+    --jf-palette-secondary-light: var(--pl-accent);
+    --jf-palette-secondary-lightChannel: var(--pl-accent-channel);
+    --jf-palette-secondary-dark: var(--pl-accent-dark);
+    --jf-palette-secondary-darkChannel: var(--pl-accent-dark-channel);
+    --jf-palette-secondary-contrastText: var(--pl-accent-text);
+    --jf-palette-secondary-contrastTextChannel: var(--pl-accent-text-channel);
+}
+
+body:has(> #reactRoot > div > main) .emby-checkbox:checked + span + .checkboxOutline > .checkboxIcon-checked {
+    color: var(--pl-accent-text);
+}

@@ -1,0 +1,163 @@
+/*
+ * The left drawer (Modern layout): a panel in the menus' frost, attached to
+ * the left, top and bottom edges of the window.
+ *
+ * Two drawers, one set of rules, because they share their markup:
+ *   - Modern's own (.MuiDrawer-modal, components/ResponsiveDrawer.tsx): below 900px.
+ *   - KefinTweaks' desktop hamburger: its clone of that markup, from 900px up, when an admin turns it on.
+ * Without the plugin a desktop simply has no drawer and these rules match nothing; the links stay in the
+ * top bar (src/shell/nav-bar.css only hides them while the hamburger is there).
+ *
+ * Plugins add rows to both. KefinTweaks' custom links are MUI rows, some without an icon; those line up
+ * with the labels above them. Jellyfin Enhanced adds a section of legacy rows (.jellyfinEnhancedSection:
+ * h3.sidebarHeader, a.navMenuOption), drawn here as the same rows and headers.
+ *
+ * Rows: the page you're on takes a translucent pill, the row under the pointer or keyboard focus goes
+ * solid white with black text. No fade: text and fill flip together.
+ *
+ * Both drawers already sit at the window's edges, so their position stays theirs. Round corners on the free
+ * side, and a rim along the top, the right and the bottom, none along the left of the window. The rim is a
+ * border because rows scrolling past paint over an inset shadow but are clipped inside a border; the padding
+ * gives its width back. The bottom padding replaces jellyfin's fixed 4.2rem with the now-playing room Home
+ * already tracks, so the last rows scroll clear of the bar, which sits above Modern's drawer (appFooter.scss).
+ */
+
+#reactRoot ~ * .MuiDrawer-paper {
+    box-sizing: border-box;
+    padding: calc(max(var(--pl-menu-padding), env(safe-area-inset-top, 0px)) - 2px) calc(var(--pl-menu-padding) - 2px) calc(var(--pl-menu-padding) + var(--pl-page-room) - 2px) max(var(--pl-menu-padding), env(safe-area-inset-left, 0px));
+    border: 2px solid var(--pl-frost-stroke);
+    border-left: 0;
+    border-radius: 0 var(--pl-radius-menu) var(--pl-radius-menu) 0;
+    background: var(--pl-surface);
+    box-shadow: var(--pl-banner-shadow);
+    color: var(--pl-text);
+    scrollbar-width: none;
+    -webkit-backdrop-filter: var(--pl-menu-filter);
+    backdrop-filter: var(--pl-menu-filter);
+}
+
+body:has(> #reactRoot > div > main) .MuiDrawer-paper::-webkit-scrollbar {
+    display: none;
+}
+
+/* KefinTweaks' drawer only: MUI sets Modern's slide inline and clears it during a swipe, where a transition from
+   here would make the panel lag behind the finger. */
+body:has(> #reactRoot > div > main) > [data-kefin-desktop-drawer] .MuiDrawer-paper {
+    transition: transform var(--pl-drawer-slide);
+}
+
+/* The dim takes the panel's curve, as its own starts slow, so the page answers from the first frame. KefinTweaks only
+   places and colours it while open, so it would vanish on close; set here, it fades out with the panel. */
+body:has(> #reactRoot > div > main) > [data-kefin-desktop-drawer] .MuiBackdrop-root {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--pl-drawer-scrim);
+    transition: opacity var(--pl-drawer-slide);
+}
+
+/* KefinTweaks sizes its logo with `.MuiBox-root { height: 2.5rem }`, which also catches this wrapper. */
+#reactRoot ~ * .MuiDrawer-paper > .MuiBox-root {
+    height: auto;
+}
+
+#reactRoot ~ * .MuiDrawer-paper .MuiList-root {
+    padding-block: 0;
+}
+
+/* The logo is the first row of the same list as Home, in both drawers: a gap, and the line above Libraries. */
+#reactRoot ~ * .MuiDrawer-paper > .MuiBox-root > .MuiList-root:first-child > .MuiListItem-root:first-child {
+    margin-bottom: var(--pl-drawer-logo-gap);
+    padding-bottom: var(--pl-drawer-logo-gap);
+    border-bottom: 1px solid var(--pl-stroke);
+}
+
+/* !important on padding, radius and weight: .navMenuOption sets all three with !important. */
+#reactRoot ~ * .MuiDrawer-paper :is(.MuiListItemButton-root, .navMenuOption) {
+    box-sizing: border-box;
+    min-height: var(--pl-menu-row);
+    padding: 0 var(--pl-menu-row-pad) !important;
+    border-radius: var(--pl-radius-pill) !important;
+    color: var(--pl-text);
+    font-weight: 500 !important;
+    transition: none;
+}
+
+#reactRoot ~ * .MuiDrawer-paper .Mui-selected {
+    background: var(--pl-glass-tint);
+}
+
+/* !important: KefinTweaks paints its rows' hover with !important. */
+#reactRoot ~ * .MuiDrawer-paper :is(.MuiListItemButton-root, .navMenuOption):is(:hover, :focus-visible) {
+    background: var(--pl-focus-fill) !important;
+    color: var(--pl-focus-text);
+}
+
+#reactRoot ~ * .MuiDrawer-paper :is(.MuiListItemIcon-root, .navMenuOptionIcon) {
+    min-width: var(--pl-drawer-icon);
+    margin: 0;
+    color: inherit;
+    text-align: start;
+}
+
+#reactRoot ~ * .MuiDrawer-paper .MuiListItemText-root {
+    margin-block: 0;
+}
+
+#reactRoot ~ * .MuiDrawer-paper .MuiListItemButton-root > .MuiListItemText-root:first-child {
+    margin-inline-start: var(--pl-drawer-icon);
+}
+
+/* Labels follow their row, so they turn black on the white pill; KefinTweaks sets its own colour on them. */
+#reactRoot ~ * .MuiDrawer-paper :is(.MuiListItemText-root .MuiTypography-root, .navMenuOptionText) {
+    color: inherit;
+}
+
+#reactRoot ~ * .MuiDrawer-paper :is(.MuiTypography-body1, .navMenuOptionText) {
+    font: inherit;
+}
+
+#reactRoot ~ * .MuiDrawer-paper .MuiListItemText-secondary {
+    opacity: 0.6;
+}
+
+#reactRoot ~ * .MuiDrawer-paper .MuiTypography-h6 {
+    font-weight: 600;
+}
+
+/* Desktop only: phones keep jellyfin's row text. */
+.layout-desktop #reactRoot ~ * .MuiDrawer-paper :is(.MuiListItemButton-root, .navMenuOption) {
+    font-size: var(--pl-size-body);
+}
+
+#reactRoot ~ * .MuiDrawer-paper :is(.MuiListSubheader-root, .sidebarHeader) {
+    position: static;
+    margin: 0;
+    padding: 0.75em var(--pl-menu-row-pad) 0.25em;
+    background: none;
+    color: var(--pl-text-secondary);
+    font-size: var(--pl-card-label);
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+#reactRoot ~ * .MuiDrawer-paper .MuiDivider-root {
+    margin-block: 0.4em;
+    border-color: var(--pl-stroke);
+}
+
+/* Phones: a tap leaves :hover stuck, and the drawer stays mounted, so the row would still be solid white the next time it
+   opens. On touch the white is the press. !important: the rule above's. */
+.layout-mobile #reactRoot ~ * .MuiDrawer-paper :is(.MuiListItemButton-root, .navMenuOption):hover:not(:active, :focus-visible) {
+    background: none !important;
+    color: var(--pl-text);
+}
+
+.layout-mobile #reactRoot ~ * .MuiDrawer-paper .Mui-selected:hover:not(:active, :focus-visible) {
+    background: var(--pl-glass-tint) !important;
+}
+
+.layout-mobile #reactRoot ~ * .MuiDrawer-paper :is(.MuiListItemButton-root, .navMenuOption):active {
+    background: var(--pl-focus-fill) !important;
+    color: var(--pl-focus-text);
+}

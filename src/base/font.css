@@ -1,0 +1,25 @@
+/*
+ * Text font: Plus Jakarta Sans.
+ * The legacy views inherit it from body. Headings need nothing: jellyfin sets their size and weight, not a family.
+ */
+
+body:has(> #reactRoot > div > main) {
+    font-family: var(--pl-font);
+}
+
+/* MUI writes "Noto Sans" into each component's own class (themes/_base/theme.ts), so inheritance stops there, and
+   nothing reads the --jf-font-* variables it publishes. These are the components that set a font, outside the
+   dashboard; the rest (ListItemText, DialogTitle, Link, FormControlLabel) draw their text with Typography. */
+#reactRoot > div > main :is(.MuiTypography-root, .MuiButton-root, .MuiToggleButton-root, .MuiMenuItem-root, .MuiListSubheader-root, .MuiFormLabel-root, .MuiInputBase-root, .MuiFormHelperText-root, .MuiChip-root, .MuiBadge-badge),
+#reactRoot > div > header.MuiAppBar-root :is(.MuiTypography-root, .MuiButton-root, .MuiToggleButton-root, .MuiMenuItem-root, .MuiListSubheader-root, .MuiFormLabel-root, .MuiInputBase-root, .MuiFormHelperText-root, .MuiChip-root, .MuiBadge-badge),
+#reactRoot ~ * .MuiPaper-root :is(.MuiTypography-root, .MuiButton-root, .MuiToggleButton-root, .MuiMenuItem-root, .MuiListSubheader-root, .MuiFormLabel-root, .MuiInputBase-root, .MuiFormHelperText-root, .MuiChip-root, .MuiBadge-badge),
+#reactRoot ~ * .MuiTooltip-tooltip {
+    font-family: var(--pl-font);
+}
+
+/* This font's digits vary in width, where Noto Sans's don't, so a number that counts would jitter. These are the
+   ones the player's and the now-playing bar's rules don't cover already. */
+#reactRoot > div > main .positionTime,
+#reactRoot > div > main .upNextDialog-countdownText {
+    font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,34 @@
+/*
+ * Poster rows (Modern layout).
+ *
+ * Room for the poster lift (src/components/card-hover.css): KefinTweaks' rows clip (overflow: hidden) and
+ * only 0.6em sits above a poster, about 3px once lifted, against a 6px glow. jellyfin has the answer for
+ * its TV zoom: scrollers carry .padded-top-focusscale, a padding cancelled by a negative margin, so they
+ * take more height without moving (librarybrowser.scss, .layout-tv only). Here it's on for desktops. That
+ * padding overlaps the title above, and comes later in the page, so the title rises above it to stay
+ * clickable.
+ *
+ * The ‹ › row buttons show only while the row is hovered or holds keyboard focus. Devices without a hover
+ * keep them; a phone hides them anyway (KefinTweaks' homeScreen.css).
+ */
+
+.layout-desktop #reactRoot > div > main .padded-top-focusscale {
+    margin-top: -1.5em;
+    padding-top: 1.5em;
+}
+
+.layout-desktop #reactRoot > div > main :is(.sectionTitle-cards, .sectionTitleContainer-cards) {
+    position: relative;
+    z-index: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    #reactRoot > div > main .emby-scrollbuttons {
+        opacity: 0;
+        transition: opacity var(--pl-focus-button);
+    }
+
+    #reactRoot > div > main :is(.verticalSection, .emby-scroller-container):is(:hover, :focus-within) .emby-scrollbuttons {
+        opacity: 1;
+    }
+}

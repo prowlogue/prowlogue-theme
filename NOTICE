@@ -1,0 +1,15 @@
+Prowlogue for Jellyfin Web
+Copyright (c) 2026 guama.dev. Licensed under the MIT License.
+https://github.com/prowlogue/prowlogue-theme
+
+This project includes third-party material, under its own licence:
+
+Plus Jakarta Sans
+  The stylesheet embeds the Latin subset of Plus Jakarta Sans.
+  Copyright 2020 The Plus Jakarta Sans Project Authors (https://github.com/tokotype/PlusJakartaSans).
+  Licensed under the SIL Open Font License, Version 1.1:
+  https://openfontlicense.org
+
+Inspiration
+  Inspiration was taken from the Abyss theme for Jellyfin by Om Gupta:
+  https://github.com/AumGupta/abyss-jellyfin

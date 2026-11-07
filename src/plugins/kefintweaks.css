@@ -1,0 +1,101 @@
+/*
+ * KefinTweaks (Modern layout).
+ *
+ * Watchlist "on": blue instead of KefinTweaks' green, on the poster buttons and the details page (the
+ * Spotlight's is hidden, src/plugins/media-bar.css). KefinTweaks sets the green on .watchlist-button /
+ * .watchlist-icon [data-active="true"] with !important (scripts/watchlist.css:2204-2207), so this needs
+ * !important too; it wins on specificity.
+ *
+ * Row controls: no Refresh and no Grid layout button on the rows KefinTweaks builds; it has no setting for
+ * them (cardBuilder.js getSectionControlDefinitions). Desktop shows them inline on hover; below 900px and
+ * on phones they move into a ⋮ menu, listed there too and told apart only by their icon. Configure stays.
+ * A row without it (userConfigurable off) would open an empty ⋮ menu, so that button goes as well.
+ *
+ * Breadcrumb dropdown: the season, album and song menu under the breadcrumbs. Its only surface is
+ * backdrop-filter: blur(50px), and it mounts inside the app bar, which has a blur of its own, so the bar is
+ * its backdrop root: it can't reach the page and paints nothing. It wears the menus' panel instead
+ * (src/components/menus.css). Its container can also land over the breadcrumbs, so nothing here depends on
+ * the container: it steps out of the way and the menu hangs from the breadcrumb row itself. KefinTweaks'
+ * left offset still holds, because it measures from wherever the container is.
+ *
+ * Home's skeletons: every row KefinTweaks builds starts as skeleton cards and swaps in its real ones once
+ * it's within 30% of a screen, in place (cardBuilder.js replaceItemsContainerContents), so a fast scroll
+ * runs through the swap. KefinTweaks sizes a skeleton's caption block to match its real cards, but on Home
+ * this theme drops movie and series captions (src/components/card-captions.css), so with that block a row
+ * would shrink at the swap and the rows under it would jump. The block goes, on Home only because that's
+ * where captions go. An episode row, which keeps its line, would grow by that line. The rest of a skeleton
+ * is already the same as a real card waiting for its art: the frame is white at 0.12 in both. So without
+ * the text bars and the shimmer sweep, nothing visible happens at the swap, and the art fades in over the
+ * same frame (src/pages/home.css).
+ */
+
+#reactRoot > div > main :is(.watchlist-button, .watchlist-icon)[data-active="true"] {
+    color: var(--pl-blue) !important;
+}
+
+#reactRoot > div > main :is(.section-refresh-button, .show-all-button) {
+    display: none;
+}
+
+/* Inline next to the button on desktop; through KefinTweaks' ModalSystem, on <body>, below 900px and on phones. */
+body:has(> #reactRoot > div > main) .section-controls-more-item:has(> :is(.refresh, .grid_view, .view_array)) {
+    display: none;
+}
+
+/* !important: KefinTweaks shows this button with `display: inline-flex !important`. */
+#reactRoot > div > main .section-controls:not(:has(.section-configure-button)) .section-controls-more {
+    display: none !important;
+}
+
+/* ── Home's skeleton rows ── */
+#reactRoot > div > main #homeTab .skeleton-card .cardTextStack {
+    display: none;
+}
+
+#reactRoot > div > main #homeTab .skeleton-shimmer {
+    display: none;
+}
+
+/* A title still resolving keeps its height, so the row doesn't move when it arrives. */
+#reactRoot > div > main #homeTab .skeleton-text-line {
+    visibility: hidden;
+}
+
+/* ── Breadcrumb dropdown ── */
+#reactRoot > div > header.MuiAppBar-root .kefinTweaks-breadcrumbs-wrapper {
+    position: relative;
+}
+
+/* !important: its position is an inline style, and `all` so that no top, margin or transform can move it. */
+#reactRoot > div > header.MuiAppBar-root .kefinTweaks-popover-container {
+    all: unset !important;
+    display: block !important;
+}
+
+#reactRoot > div > header.MuiAppBar-root .kefinTweaks-popover {
+    position: absolute;
+    top: 100%;
+    padding: var(--pl-menu-padding) !important; /* KefinTweaks sets 0 with !important */
+    scrollbar-width: none;
+}
+
+#reactRoot > div > header.MuiAppBar-root .kefinTweaks-popover::-webkit-scrollbar {
+    display: none;
+}
+
+#reactRoot > div > header.MuiAppBar-root .kefinTweaks-popover-item {
+    border-bottom: none;
+    border-radius: var(--pl-rounding) !important; /* KefinTweaks sets 0 with !important */
+    color: var(--pl-text);
+}
+
+#reactRoot > div > header.MuiAppBar-root .kefinTweaks-popover-item:hover {
+    background: var(--pl-focus-fill);
+    color: var(--pl-focus-text);
+}
+
+/* Phones: a tap leaves :hover stuck, so the row would stay white after the finger has gone. */
+.layout-mobile #reactRoot > div > header.MuiAppBar-root .kefinTweaks-popover-item:hover:not(:active) {
+    background: none;
+    color: var(--pl-text);
+}

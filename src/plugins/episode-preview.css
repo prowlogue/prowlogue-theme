@@ -1,0 +1,22 @@
+/*
+ * In-player episode list (Modern layout): the InPlayerEpisodePreview plugin, the
+ * button beside the subtitles one on the OSD. Its panel is built from jellyfin's own classes, so it's
+ * already themed: .actionSheet gives it the glass panel and the place above the player panel
+ * (src/components/menus.css, src/pages/player-osd.css), and its rows are .actionSheetMenuItem. Those rows
+ * are whole episode cards, so menus.css leaves them stock's quiet hover.
+ *
+ * Its own CSS anchors it at left: 50vw, width: 48vw, which ends past the player panel's right edge and is
+ * narrow on a phone. It lines up with the panel instead.
+ */
+
+body:has(> #reactRoot > div > main) .previewPopup {
+    right: var(--pl-osd-margin);
+    left: auto;
+    box-sizing: border-box;
+}
+
+.layout-mobile body:has(> #reactRoot > div > main) .previewPopup {
+    left: var(--pl-osd-margin);
+    width: auto;
+    max-width: none; /* stock's 90% on sheets stops it short of the panel's right edge */
+}

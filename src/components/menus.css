@@ -1,0 +1,214 @@
+/*
+ * Menus (Modern layout): a panel that picks up the art behind it, big corners, rows as pills. A row under
+ * the pointer or keyboard focus goes solid white with black text; red marks actions that destroy something
+ * (Delete and Remove).
+ *
+ * This file: the panel, then the action sheet, then MUI's popovers. The drawer has the same surface but
+ * isn't a panel: it's flush with the window, so it has its own rule (src/shell/drawer.css). Every item
+ * menu is an action sheet, however it opens (⋮, right-click, the details page), so the player's and the
+ * library's sheets match. The sheet's page dim goes: a context menu doesn't dim the page. Clicking outside
+ * still closes it (the dialog container covers the page).
+ *
+ * Popovers: .MuiPopover-paper is every menu that drops from a button, so the profile menu, the library's
+ * title, sort, filter and view menus, SyncPlay, remote play and the More menu all come with it. Same
+ * panel and hover, with 8px row corners like the top bar's buttons they open from.
+ *
+ * Frost: the Home panel's blur and stroke on glass (a blur over black 35 %), so a menu takes its colour
+ * from what's behind it. It's cheap here, unlike the Home panel, because a menu is small and short-lived
+ * and the page behind it is still: the blur runs once, so it costs next to nothing, and little even with
+ * a full-screen video behind it. .dialog has will-change: transform (a backdrop root), so the blur goes on
+ * the sheet itself, never inside it.
+ */
+
+/* The plugins' dropdowns go through :where(), so the id in there doesn't raise the priority of every menu. */
+body:has(> #reactRoot > div > main) :is(.actionSheet, .MuiPopover-paper, .MuiDialog-paper, .formDialog:not(.dialog-fullscreen), .toast, :where(.kefinTweaks-popover, .kefin-section-configure-popover, .kefin-anchored-popover-dialog, .kefin-scrubber-popover, .je-launcher-panel, .jellyseerr-hover-popover, #je-active-streams-panel, .dialog:has(.section-controls-more-menu))) {
+    border: 0;
+    background: var(--pl-surface);
+    box-shadow: var(--pl-menu-ring), var(--pl-banner-shadow);
+    color: var(--pl-text);
+    -webkit-backdrop-filter: var(--pl-menu-filter);
+    backdrop-filter: var(--pl-menu-filter);
+
+    /* !important: actionSheet.scss sets the sheet's radius with !important. */
+    border-radius: var(--pl-radius-menu) !important;
+}
+
+/* The dim behind a dialog falls to navy rather than grey. */
+body:has(> #reactRoot > div > main) .dialogBackdrop {
+    background-color: var(--pl-navy);
+}
+
+/* ── Action sheet ── */
+body:has(> #reactRoot > div > main) .dialogBackdropOpened:has(+ .dialogContainer > .actionSheet) {
+    opacity: 0;
+}
+
+/* !important: actionSheet.scss sets this padding with !important. */
+body:has(> #reactRoot > div > main) .actionSheetContent {
+    padding: var(--pl-menu-padding) !important;
+}
+
+/* A pill as half the row's height, not 999px: a taller row is a rounded rectangle, where 999px would make it
+   a stadium whose ends clip the content (stock's .emby-button has overflow: hidden). */
+body:has(> #reactRoot > div > main) .actionSheetMenuItem {
+    min-height: var(--pl-item-menu-row);
+    padding-block: 0;
+    border-radius: calc(var(--pl-item-menu-row) / 2);
+    color: var(--pl-text);
+    font-weight: 500;
+    transition: none;
+}
+
+/* The row's height comes from --pl-item-menu-row. !important: actionSheet.scss sets this padding with !important. */
+body:has(> #reactRoot > div > main) .actionsheetListItemBody {
+    padding-block: 0.15em !important;
+}
+
+/* Desktop only: phones keep jellyfin's larger sheet text (.actionsheet-xlargeFont). */
+.layout-desktop body:has(> #reactRoot > div > main) .actionSheetMenuItem {
+    font-size: var(--pl-item-menu-text);
+}
+
+body:has(> #reactRoot > div > main) .actionSheetMenuItem:is([data-id="delete"], [data-id^="remove"]) {
+    color: var(--pl-red);
+}
+
+/* The in-player episode list reuses this class for whole episode cards: those keep stock's quiet .listItem
+   states (src/plugins/episode-preview.css). */
+body:has(> #reactRoot > div > main) .actionSheetMenuItem:not(.previewListItem):is(:hover, :focus-visible) {
+    background: var(--pl-focus-fill);
+    color: var(--pl-focus-text);
+}
+
+/* ── Popovers ── */
+#reactRoot ~ * .MuiPopover-paper {
+    box-sizing: border-box;
+    padding: var(--pl-menu-padding);
+    scrollbar-width: thin;
+}
+
+#reactRoot ~ * .MuiPopover-paper .MuiList-root {
+    padding-block: 0;
+}
+
+#reactRoot ~ * .MuiPopover-paper :is(.MuiMenuItem-root, .MuiAccordionSummary-root) {
+    min-height: var(--pl-sheet-row);
+    padding-block: 0;
+    padding-inline: var(--pl-menu-row-pad);
+    border-radius: var(--pl-rounding);
+    color: var(--pl-text);
+    font-weight: 500;
+    transition: none;
+}
+
+/* Desktop only, as the sheet's. */
+.layout-desktop #reactRoot ~ * .MuiPopover-paper :is(.MuiMenuItem-root, .MuiAccordionSummary-root) {
+    font-size: var(--pl-size-body);
+}
+
+#reactRoot ~ * .MuiPopover-paper .MuiTypography-body1 {
+    font: inherit;
+}
+
+#reactRoot ~ * .MuiPopover-paper .MuiListItemText-root {
+    margin-block: 0;
+}
+
+/* Everything in a row follows its colour, so it turns black on the white row. */
+#reactRoot ~ * .MuiPopover-paper :is(.MuiListItemIcon-root, .MuiListItemText-root .MuiTypography-root, .MuiAccordionSummary-expandIconWrapper, .MuiCheckbox-root, .MuiIconButton-root) {
+    color: inherit;
+}
+
+#reactRoot ~ * .MuiPopover-paper .MuiListSubheader-root {
+    background: none;
+    color: var(--pl-text-secondary);
+    font-size: var(--pl-card-label);
+    font-weight: 600;
+}
+
+#reactRoot ~ * .MuiPopover-paper .MuiDivider-root {
+    margin-block: 0.4em;
+    border-color: var(--pl-stroke);
+}
+
+/* The filter menu: its accordions lose their boxes and become rows; an open one is marked like a selected row. */
+#reactRoot ~ * .MuiPopover-paper :is(.MuiAccordion-root, .MuiAccordionSummary-root) {
+    border: 0;
+    background: none;
+}
+
+#reactRoot ~ * .MuiPopover-paper .MuiAccordion-root {
+    color: inherit;
+}
+
+#reactRoot ~ * .MuiPopover-paper .MuiAccordionSummary-content {
+    margin: 0;
+}
+
+#reactRoot ~ * .MuiPopover-paper .MuiAccordionDetails-root {
+    padding: 0.25em var(--pl-menu-row-pad);
+    border: 0;
+}
+
+#reactRoot ~ * .MuiPopover-paper .MuiCheckbox-root {
+    padding-block: 0.3em;
+}
+
+#reactRoot ~ * .MuiPopover-paper :is(.Mui-selected, .MuiAccordionSummary-root.Mui-expanded) {
+    background: var(--pl-glass-tint);
+}
+
+#reactRoot ~ * .MuiPopover-paper :is(.MuiMenuItem-root, .MuiAccordionSummary-root):is(:hover, :focus-visible) {
+    background: var(--pl-focus-fill);
+    color: var(--pl-focus-text);
+}
+
+/* View settings' switch rows: a white switch can't sit on a white row. */
+#reactRoot ~ * .MuiPopover-paper .MuiMenuItem-root:has(.MuiSwitch-root):is(:hover, :focus-visible) {
+    background: var(--pl-glass-tint);
+    color: var(--pl-text);
+}
+
+/* Tooltips: the same glass, with a line that suits their size. */
+#reactRoot ~ * .MuiTooltip-tooltip {
+    background: var(--pl-surface);
+    box-shadow: inset 0 0 0 1px var(--pl-frost-stroke);
+    -webkit-backdrop-filter: var(--pl-menu-filter);
+    backdrop-filter: var(--pl-menu-filter);
+}
+
+/* ── Phones: a tap leaves :hover stuck on what it touched (WebKit keeps it until the next tap somewhere else), so the solid
+   white row would stay lit after the finger has gone, on a filter menu's accordion for one. On touch the white is
+   the press itself. Rows that are selected or open keep their mark. ── */
+.layout-mobile body:has(> #reactRoot > div > main) .actionSheetMenuItem:not(.previewListItem):hover:not(:active, :focus-visible) {
+    background: none;
+    color: var(--pl-text);
+}
+
+.layout-mobile body:has(> #reactRoot > div > main) .actionSheetMenuItem:is([data-id="delete"], [data-id^="remove"]):hover:not(:active, :focus-visible) {
+    color: var(--pl-red);
+}
+
+.layout-mobile body:has(> #reactRoot > div > main) .actionSheetMenuItem:not(.previewListItem):active {
+    background: var(--pl-focus-fill);
+    color: var(--pl-focus-text);
+}
+
+.layout-mobile #reactRoot ~ * .MuiPopover-paper :is(.MuiMenuItem-root, .MuiAccordionSummary-root):hover:not(:active, :focus-visible) {
+    background: none;
+    color: var(--pl-text);
+}
+
+.layout-mobile #reactRoot ~ * .MuiPopover-paper :is(.Mui-selected, .MuiAccordionSummary-root.Mui-expanded):hover:not(:active, :focus-visible) {
+    background: var(--pl-glass-tint);
+}
+
+.layout-mobile #reactRoot ~ * .MuiPopover-paper :is(.MuiMenuItem-root, .MuiAccordionSummary-root):active {
+    background: var(--pl-focus-fill);
+    color: var(--pl-focus-text);
+}
+
+.layout-mobile #reactRoot ~ * .MuiPopover-paper .MuiMenuItem-root:has(.MuiSwitch-root):active {
+    background: var(--pl-glass-tint);
+    color: var(--pl-text);
+}

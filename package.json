@@ -1,0 +1,21 @@
+{
+  "name": "prowlogue-jellyfin-theme",
+  "title": "Prowlogue for Jellyfin Web",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "author": "guama.dev",
+  "homepage": "https://github.com/prowlogue/prowlogue-theme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prowlogue/prowlogue-theme.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "test": "node tools/build.mjs && node --test tests/*.test.mjs"
+  }
+}

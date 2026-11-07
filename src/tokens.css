@@ -1,0 +1,425 @@
+/*
+ * Design tokens: every visual value the theme uses. Sizes are points on a 1920×1080 canvas.
+ *
+ * Two units, both "one point":
+ *   --pl-pt   reading-distance point, for type and chrome (buttons, dialogs, menus). A desktop is read at
+ *             arm's length, so it runs at about half the canvas size.
+ *   --pl-vpt  canvas point (100vw / 1920), for geometry laid out across the whole screen: rows, posters,
+ *             insets, the hero and the frosted panel. Posters keep their proportions at any window width.
+ * Write sizes as `calc(N * var(--pl-pt))` or `calc(N * var(--pl-vpt))`.
+ */
+:root {
+    --pl-pt: 0.55px;
+    --pl-vpt: calc(100vw / 1920);
+
+    /* ── Page backgrounds ── */
+    --pl-bg-app: linear-gradient(#1d1d1d, #060606); /* the grey gradient */
+    --pl-navy: #081736; /* the gradient's top: flat fills, where a gradient can't go */
+    --pl-navy-mid: #000b25;
+    --pl-navy-mid-channel: 0 11 37;
+    --pl-navy-deep: #000512;
+    --pl-bg-navy: linear-gradient(var(--pl-navy) 0%, var(--pl-navy-mid) 55%, var(--pl-navy-deep) 100%); /* the navy page background */
+    --pl-hero-scrim: linear-gradient(to top, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.2) 35%, transparent 60%);
+
+    /* ── Text ── */
+    --pl-text: #fff;
+    --pl-text-secondary: rgba(235, 235, 245, 0.6); /* years */
+    --pl-hero-overview: rgba(255, 255, 255, 0.85);
+    --pl-label-shadow: 0 0 3px rgba(0, 0, 0, 0.9), 0 0 8px rgba(0, 0, 0, 0.5); /* row titles, hero text */
+    --pl-badge-shadow: drop-shadow(0 0 3px rgba(0, 0, 0, 0.6)); /* poster badges */
+
+    /* ── Status and accent colours. The accent is plain white; colour only means state. ── */
+    /* The accent replaces jellyfin's #00a4dc everywhere (src/base/accent.css).
+       Channels are MUI's space-separated "R G B" form; -dark is what MUI derives for a white main
+       (darken 0.3), the hover of solid accent buttons. */
+    --pl-accent: #fff;
+    --pl-accent-channel: 255 255 255;
+    --pl-accent-dark: rgb(178, 178, 178);
+    --pl-accent-dark-channel: 178 178 178;
+    --pl-accent-text: #000; /* label on an accent fill: white control, black text */
+    --pl-accent-text-channel: 0 0 0;
+    --pl-red: #ff453a; /* poster favourite heart */
+    --pl-pink: #ff375f; /* detail Favourite "on" */
+    --pl-blue: #0a84ff; /* detail Watchlist "on" */
+    --pl-purple: #ac5cc3; /* detail Played "on" */
+
+    /* ── Translucent fills and strokes ── */
+    --pl-fill: rgba(255, 255, 255, 0.12); /* action buttons idle */
+    --pl-fill-focus: rgba(255, 255, 255, 0.22);
+    --pl-fill-play: rgba(255, 255, 255, 0.2); /* Play idle */
+    --pl-fill-plate: rgba(255, 255, 255, 0.05); /* list rows */
+    --pl-stroke: rgba(255, 255, 255, 0.12);
+    --pl-stroke-play: rgba(255, 255, 255, 0.3);
+
+    /* ── Glass, for chrome only. Content never gets glass. ── */
+    --pl-surface: rgba(0, 0, 0, 0.35); /* menus, the drawer, toasts, under --pl-menu-filter. Modals take navy instead */
+    --pl-menu-filter: blur(var(--pl-frost-blur)) brightness(0.7) saturate(1.5); /* the Home panel's frost. brightness keeps white text readable on white art, saturate keeps muted art from reading as grey */
+    --pl-menu-ring: inset 0 0 0 2px var(--pl-frost-stroke); /* the Home panel's stroke, at a menu's size */
+    --pl-glass-tint: rgba(255, 255, 255, 0.2); /* overlay buttons */
+    --pl-glass-rim: rgba(255, 255, 255, 0.1);
+    --pl-banner-shadow: 0 calc(6 * var(--pl-pt)) calc(24 * var(--pl-pt)) rgba(0, 0, 0, 0.35);
+
+    /* ── Corner radii ── */
+    --pl-radius-poster: calc(14 * var(--pl-vpt)); /* every poster */
+    --pl-radius-panel: calc(30 * var(--pl-vpt)); /* home frosted panel, top corners only */
+    --pl-radius-card: calc(16 * var(--pl-vpt)); /* hero focus ring, request poster */
+    --pl-radius-tile: calc(12 * var(--pl-vpt)); /* episode thumbs and library tiles */
+    --pl-radius-button: calc(18 * var(--pl-pt)); /* action squares, Play */
+    --pl-radius-menu: calc(40 * var(--pl-pt)); /* menu panels, sheets, dialogs */
+    --pl-radius-pill: 999px;
+
+    /* ── Type. Small sizes get a floor so desktop's half scale stays legible. ── */
+    --pl-font: "Plus Jakarta Sans", "Noto Sans", "Noto Sans HK", "Noto Sans JP", "Noto Sans KR", "Noto Sans SC", "Noto Sans TC", sans-serif; /* src/base/font.css; jellyfin's own stack catches what its Latin subset doesn't have */
+    --pl-size-headline: calc(38 * var(--pl-pt));
+    --pl-size-callout: calc(31 * var(--pl-pt)); /* hero overview */
+    --pl-size-body: calc(29 * var(--pl-pt)); /* overviews, Play label (semibold) */
+    --pl-size-caption: max(12px, calc(25 * var(--pl-pt))); /* metadata line, badges */
+
+    /* ── Shelves: canvas geometry ── */
+    --pl-inset: 40px; /* screen-edge inset for rows and hero */
+    --pl-gap: 20px; /* between cards */
+    --pl-progress-height: calc(8 * var(--pl-vpt)); /* hangs below the poster; track @.25, fill white */
+    --pl-progress-track: rgba(255, 255, 255, 0.25);
+    --pl-card-label: 0.95rem; /* year, episode and date lines under posters; jellyfin's are 86-90 % */
+    --pl-progress-fill: #fff;
+    --pl-progress-display: block; /* none on cards that don't show one (src/components/poster-progress.css) */
+
+    /* ── Home hero and frosted panel ── */
+    /* On load the screen ends partway down the first row's posters, so the rows start that far above the
+       screen bottom, at any window size, and never above mid-screen. The row is a landscape Continue
+       Watching row: panel padding 1.8 + title 2.03 + card margin .6 = 4.43rem, plus the shown part of the
+       16:9 poster inside the card's .6rem side margins. */
+    --pl-first-row-shown: 0.6;
+    --pl-first-row: calc(4.43rem + (var(--pl-row-card-landscape) - 1.2rem) * 9 / 16 * var(--pl-first-row-shown));
+    --pl-hero-height: max(50vh, 100vh - var(--pl-first-row));
+    --pl-row-card-landscape: 72vw; /* jellyfin's .overflowBackdropCard; breakpoints at the end of this file */
+    --pl-page-room: env(safe-area-inset-bottom, 0px); /* room under Home; src/pages/home.css adds the now-playing bar's while it shows */
+    --pl-trailer-left: 35vw; /* a hero trailer fills the screen from here rightwards */
+    --pl-trailer-fade: 10vw; /* its soft left edge, and the backdrop's right edge over it */
+    --pl-trailer-zoom: 1.35; /* crops the letterbox bars of a 2.39:1 trailer in a 16:9 frame */
+    --pl-appbar-height: 48px; /* Modern's dense bar (components/OffsetAppBar.tsx) */
+    --pl-row-spacing: 1.8rem; /* the space between Home rows: jellyfin's card bottom margin */
+    --pl-detail-hold: 0.2s; /* a details page's rows wait this long after landing, for the rows above them (src/pages/details-glass.css) */
+    --pl-detail-wait-limit: 1.5s; /* longest a details page stays hidden waiting for its item: a limit, so nothing can leave it blank */
+    --pl-search-hold: 1.5s; /* longest Seerr's row waits outside the results for the library's rows: a limit, so it can't stay hidden */
+    --pl-home-hold-limit: 0.5s; /* longest Home's rows wait for the top row; an empty row never answers, so this is what an account with one waits */
+    --pl-poster-preload: 100vh; /* how far ahead of the screen library posters start loading, beyond the library's own 100px */
+    --pl-row-title-line: 2.025rem; /* a row title's line box: jellyfin's 1.5rem × 1.35 */
+    --pl-hero-bottom: calc(20 * var(--pl-vpt)); /* hero text just above the panel, the logo-to-overview gap */
+    --pl-hero-logo-w: calc(700 * var(--pl-vpt));
+    --pl-hero-logo-h: calc(180 * var(--pl-vpt));
+    --pl-hero-logo-shadow: drop-shadow(0 0 calc(20 * var(--pl-vpt)) rgba(0, 0, 0, 0.33));
+    --pl-hero-text-max: calc(1440 * var(--pl-vpt));
+    --pl-frost-blur: calc(20 * var(--pl-vpt)); /* Gaussian σ; CSS blur() uses the same unit */
+    --pl-frost-stroke: rgba(255, 255, 255, 0.4);
+    --pl-frost-border: calc(4 * var(--pl-vpt)) solid var(--pl-frost-stroke);
+    --pl-hero-chevron: calc(38 * var(--pl-pt)); /* scrub chevrons, bold white */
+    --pl-hero-chevron-inset: calc(20 * var(--pl-vpt)); /* in from each screen edge, vertically centred */
+    --pl-hero-chevron-shadow: drop-shadow(0 0 calc(10 * var(--pl-pt)) rgba(0, 0, 0, 0.5)); /* black @ .5, r5 */
+    --pl-hero-arrow-hit: 6em 3em; /* a tall hit area beside each edge arrow */
+
+    /* ── Item details (src/pages/details-glass.css) ── */
+    --pl-detail-backdrop-blur: 4px; /* the .backdropImage blur */
+    --pl-detail-backdrop-oversize: 1.02; /* hides the blur's soft edge past the screen */
+    --pl-detail-veil: rgba(0, 0, 0, 0.17); /* black, the accent is white */
+    --pl-detail-banner: 31vh;
+    --pl-detail-logo-w: 25vw; /* jellyfin's .detailLogo */
+    --pl-detail-logo-h: 16vh;
+    --pl-detail-logo-gap: 2vh; /* logo to ribbon */
+    --pl-detail-poster-top: max(10vh, var(--pl-appbar-height) + 2.5rem); /* the pinned poster; the floor clears the bar's 76px with breadcrumbs on a short window */
+    --pl-detail-poster: min(25vw, (100vh - var(--pl-detail-poster-top) - var(--pl-row-spacing)) / 1.5); /* jellyfin's 25vw, capped so a 2:3 poster fits the screen */
+    --pl-detail-column: calc(var(--pl-inset) + var(--pl-detail-poster) + 3.3vw); /* where the logo, ribbon and panel content start */
+    --pl-detail-ribbon-info: 18em; /* the metadata's room before the buttons wrap under it */
+    --pl-detail-ribbon-foot: 1em; /* Play to the panel */
+    --pl-detail-actions-shift: calc(60 * var(--pl-vpt)); /* the action buttons, further in than the page's right inset */
+    --pl-detail-ribbon: 5.5em; /* keeps the ribbon's height from jumping between one and two lines of metadata */
+    --pl-detail-panel: rgba(0, 0, 0, 0.4); /* glass, no blur */
+    --pl-detail-panel-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    --pl-detail-panel-pad: 2rem;
+    --pl-detail-button-hover: rgb(var(--pl-accent-channel) / 0.25); /* .button-flat:hover on the white accent */
+    --pl-detail-track: 2.6em; /* Video / Audio / Subtitles capsule height */
+    --pl-detail-track-pad: 1em;
+    --pl-detail-track-gap: 0.45em;
+    --pl-detail-track-list: min(44em, 90vw); /* the open list: long track names don't run across the screen */
+    --pl-detail-row-bleed: max(1rem, (var(--pl-lift) - 1) / 2 * var(--pl-row-card-landscape) + 6px); /* the widest poster's lift, plus the 6px of --pl-card-glow */
+    --pl-collection-card: max(calc(160 * var(--pl-vpt)), calc(4 * 2.65rem + 1.2em)); /* narrowest card in a collection's grid, margin included: smaller than Home's, scaling with the screen like every poster, but never narrower than the four hover buttons */
+    --pl-detail-row-hover: rgba(0, 0, 0, 0.4); /* .listItem:hover */
+    --pl-detail-star: rgba(255, 255, 255, 0.8); /* .starIcon */
+    --pl-detail-episode-thumb: 160px;
+
+    /* ── Buttons ── */
+    --pl-button: calc(115 * var(--pl-pt)); /* action squares and Play height */
+    --pl-button-gap: calc(12 * var(--pl-pt));
+    --pl-button-row-gap: calc(15 * var(--pl-pt));
+    --pl-action-glyph: calc(52 * var(--pl-pt)); /* 24-unit icon box */
+    --pl-action-play-glyph: calc(46 * var(--pl-pt));
+    --pl-action-label: calc(34 * var(--pl-pt)); /* Play's label */
+    --pl-action-idle: rgba(255, 255, 255, 0.9); /* icon, idle */
+    --pl-action-blocked: rgba(255, 255, 255, 0.45); /* a square that can't act */
+    --pl-action-focus-fill: rgba(255, 255, 255, 0.114); /* over --pl-fill, adds up to .22 */
+    --pl-tooltip-bg: rgba(0, 0, 0, 0.75); /* blocked-button tooltip */
+    --pl-control-shadow: 0 0 calc(20 * var(--pl-pt)) rgba(0, 0, 0, 0.5);
+
+    /* ── Shell ── */
+    --pl-menu-row: calc(72 * var(--pl-pt));
+    --pl-sheet-row: calc(68 * var(--pl-pt)); /* drop-down menu rows */
+    --pl-item-menu-row: calc(60 * var(--pl-pt)); /* the right-click menu, about 10 % smaller, as it's so tall */
+    --pl-item-menu-text: calc(26 * var(--pl-pt));
+
+    /* ── Action button icons (details page): heart, bookmark, eye, clapperboard, restart..., drawn for this
+       theme, since jellyfin's icon font has no outlined eye or clapperboard. Used as masks, so they take
+       the button's colour. ── */
+    --pl-icon-heart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20.2S3.2 15 3.2 8.9A4.9 4.9 0 0 1 12 6.1a4.9 4.9 0 0 1 8.8 2.8c0 6.1-8.8 11.3-8.8 11.3z'/%3E%3C/svg%3E");
+    --pl-icon-heart-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' stroke='%23000' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M12 20.2S3.2 15 3.2 8.9A4.9 4.9 0 0 1 12 6.1a4.9 4.9 0 0 1 8.8 2.8c0 6.1-8.8 11.3-8.8 11.3z'/%3E%3C/svg%3E");
+    --pl-icon-bookmark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5A1.5 1.5 0 0 1 7.5 3z'/%3E%3C/svg%3E");
+    --pl-icon-bookmark-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' stroke='%23000' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5A1.5 1.5 0 0 1 7.5 3z'/%3E%3C/svg%3E");
+    --pl-icon-bookmark-slash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.5 3h9A1.5 1.5 0 0 1 18 4.5V21l-6-4-6 4V4.5A1.5 1.5 0 0 1 7.5 3z'/%3E%3Cpath d='M3.5 3.5l17 17'/%3E%3C/svg%3E");
+    --pl-icon-eye: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12c2.5-4.5 6-6.6 10-6.6s7.5 2.1 10 6.6c-2.5 4.5-6 6.6-10 6.6S4.5 16.5 2 12z'/%3E%3Ccircle cx='12' cy='12' r='2.2' fill='%23000'/%3E%3C/svg%3E");
+    --pl-icon-eye-fill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill-rule='evenodd' d='M1.2 12C3.9 7.1 7.6 4.8 12 4.8s8.1 2.3 10.8 7.2c-2.7 4.9-6.4 7.2-10.8 7.2S3.9 16.9 1.2 12zM12 7.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9z'/%3E%3Ccircle cx='12' cy='12' r='2.7'/%3E%3C/svg%3E");
+    --pl-icon-clapper: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='10' width='18' height='11' rx='2'/%3E%3Cg transform='rotate(-11 3 10)'%3E%3Crect x='3' y='4.4' width='18' height='5.6' rx='1.5'/%3E%3Cpath d='M8.5 4.4 6.3 10M13.5 4.4 11.3 10M18.5 4.4 16.3 10'/%3E%3C/g%3E%3C/svg%3E");
+    --pl-icon-ellipsis: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='5' cy='12' r='2.1'/%3E%3Ccircle cx='12' cy='12' r='2.1'/%3E%3Ccircle cx='19' cy='12' r='2.1'/%3E%3C/svg%3E");
+    --pl-icon-play: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7.5 4.6v14.8a1.3 1.3 0 0 0 2 1.1l12-7.4a1.3 1.3 0 0 0 0-2.2l-12-7.4a1.3 1.3 0 0 0-2 1.1z'/%3E%3C/svg%3E");
+    --pl-icon-restart: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5a8 8 0 1 1-7.2 4.5'/%3E%3Cpath d='M14.2 1.8 10.6 5l3.6 3.2'/%3E%3C/svg%3E");
+
+    /* ── Top navigation bar (src/shell/nav-bar.css). ── */
+    --pl-rounding: 8px; /* nav buttons, poster buttons */
+    --pl-nav-blur: 8px;
+    --pl-nav-rounding: var(--pl-rounding);
+    --pl-nav-user: 40px; /* the user button: MUI Avatar's default size (components/UserAvatar.tsx) */
+    --pl-nav-tint: rgba(0, 0, 0, 0.35); /* no-blur fallback for floating surfaces */
+    --pl-nav-solid: #1c1c1e; /* Reduce transparency, multi-select: the foot of --pl-surface */
+    --pl-menu-padding: calc(17 * var(--pl-pt));
+
+    /* ── Modals (src/components/dialogs.css) ── */
+    --pl-dialog-width: 36rem;
+    --pl-dialog-width-wide: 62rem;
+    --pl-dialog-max-height: 85%;
+    --pl-dialog-pad: calc(40 * var(--pl-pt));
+    --pl-dialog-rise: 12px;
+    --pl-dialog-open: 0.3s var(--pl-ease-fluid);
+    --pl-dialog-close: 0.13s ease-in;
+    --pl-dialog-footer-fade: linear-gradient(transparent, var(--pl-navy-deep) 35%);
+    --pl-drawer-logo-gap: 0.75rem;
+    --pl-drawer-icon: calc(68 * var(--pl-pt)); /* icon column, so labels line up */
+    --pl-drawer-slide: 0.18s cubic-bezier(0, 0, 0.2, 1); /* KefinTweaks' 225ms and its curve, 20 % faster */
+    --pl-drawer-scrim: rgba(0, 0, 0, 0.5);
+    --pl-menu-row-pad: calc(22 * var(--pl-pt));
+
+    /* ── Poster buttons (src/components/card-buttons.css). ── */
+    --pl-card-overlay-dim: rgba(0, 0, 0, 0.35); /* on play-button hover only */
+    --pl-card-overlay-scrim: linear-gradient(to top, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.45) 2.5em, rgba(0, 0, 0, 0.2) 4em, transparent 5.5em); /* 45 % at the icons' top is the least that gives white icons 3:1 contrast */
+    --pl-card-placeholder: rgb(var(--pl-accent-channel) / 0.2); /* a tile with no art: faint, because a stronger white glares and hides the white icon */
+    --pl-card-play-box: 2.6em; /* the square round the play icon (stock 3em); the 2.5em icon still fits */
+    --pl-card-button-glass: rgba(0, 0, 0, 0.35); /* square behind each small button below 70em */
+    --pl-card-glow: 0 0 2px var(--pl-accent), 0 0 4px var(--pl-accent), 0 0 6px rgb(var(--pl-accent-channel) / 0.6); /* three stacked shadows on the white accent */
+    --pl-card-ring: 2px solid var(--pl-accent);
+    --pl-scrollbar: rgba(255, 255, 255, 0.35) transparent; /* thumb, track (src/base/scrollbar.css) */
+
+    /* ── Player ── */
+    --pl-progress-bar: calc(14 * var(--pl-pt)); /* capsule; 20 while scrubbing */
+    --pl-progress-bar-track: rgba(255, 255, 255, 0.2);
+
+    /* The floating glass panel (src/pages/player-osd.css). */
+    --pl-osd-margin: 24px; /* gap to the window edges */
+    --pl-osd-radius: 24px;
+    --pl-osd-padding: 12px;
+    --pl-osd-ring: inset 0 0 0 1.25px var(--pl-frost-stroke); /* a touch finer than the menus' 2px */
+    --pl-osd-surface: rgba(0, 0, 0, 0.55); /* where the player can't frost: smoked glass inside the panel (src/pages/player-osd.css) */
+    --pl-osd-button: 40px; /* a pointer target */
+    --pl-osd-play: 48px;
+    --pl-osd-buffered: rgba(255, 255, 255, 0.2); /* on top of the track */
+    --pl-osd-cut: rgba(0, 0, 0, 0.55); /* chapter marks read as cuts in the bar */
+    --pl-osd-bar-scrub: calc(20 * var(--pl-pt));
+    --pl-osd-clearance: 140px; /* skip button, up next and subtitles clear the panel */
+    --pl-osd-subtitle-rest: 60px; /* text subtitles already sit this high (Vertical Position -3: Small 60, Normal 80). Keep the lift this leaves, clearance minus this, a multiple of 20: anything else lands between screen pixels at scales like 110%, and the text jumps a fraction of a pixel as the animation starts */
+    --pl-osd-subtitle-lift: 0px; /* this and the next: src/pages/player-osd.css raises them while the panel shows */
+    --pl-osd-ass-lift: 0px;
+    --pl-osd-upnext-height: 14.5em; /* the skip button rises this far above the up next card */
+    --pl-osd-bubble-gap: calc(var(--pl-osd-padding) + 12px); /* the thumbnail clears the panel's top edge */
+    --pl-osd-slide: 16px;
+    --pl-ease-fluid: cubic-bezier(0.16, 1, 0.3, 1);
+    --pl-osd-motion: 0.37s var(--pl-ease-fluid);
+    --pl-osd-subtitle-rise: 0.3s var(--pl-ease-fluid); /* a touch ahead of the panel */
+    --pl-osd-subtitle-motion: var(--pl-osd-motion) 0.1s; /* falling: a short wait gives the panel's 0.25s fade a head start */
+    --pl-osd-hover-disc: rgba(255, 255, 255, 0.14);
+    --pl-osd-hover-in: 0.08s;
+    --pl-osd-hover-out: 0.14s;
+
+    /* ── Focus: white, never a blue outline ── */
+    --pl-focus-fill: #fff; /* focused buttons, Play */
+    --pl-focus-text: #000; /* label on a focused (white) control */
+    --pl-lift: 1.04; /* poster lift: slight */
+    --pl-lift-shadow: 0 calc(20 * var(--pl-vpt)) calc(40 * var(--pl-vpt)) rgba(0, 0, 0, 0.5);
+    --pl-ring: calc(4 * var(--pl-pt)); /* white inside ring: action buttons */
+    --pl-ring-hero: calc(5 * var(--pl-vpt));
+
+    /* ── Motion ── */
+    --pl-card-hover: 0.15s; /* the whole poster hover, overlay included */
+    --pl-focus-poster: var(--pl-card-hover) ease-out;
+    --pl-focus-button: 0.18s ease-out;
+    --pl-fade: 0.25s ease-in-out; /* overlays, banners, skip button */
+    --pl-fade-in-time: 0.25s; /* on its own because a transition-delay can't take the easing */
+    --pl-fade-in: var(--pl-fade-in-time) ease-out; /* poster art landing, on every page (src/components/poster-fade.css): short, because fast scrolling leaves a longer fade unfinished on screen */
+    --pl-home-fade: 0.2s ease-out; /* Home's panel and rows arriving: quick, so the page never just appears */
+    --pl-collection-hold: 0.1s; /* a collection's rows wait this long (src/pages/details-glass.css), which keeps the biggest jump in a frame to an ordinary step of the fade */
+}
+
+/* Phones: fewer, larger posters, and a canvas point sized so a 3-up poster keeps a ≈9 % corner. .layout-mobile is
+   jellyfin's phone flag, set from the user agent (components/layoutManager.js), so nothing here or in any other
+   .layout-mobile rule can reach a desktop, at any window width.
+   Touch sizes are set against Apple's 44pt and Android's 48dp targets, WCAG 2.2's 24px floor and 44px AAA.
+   iPhones run a smaller rem than Android, 13.12px against 14.4px (styles/ios.scss forces html to 82 %), so a size
+   that has to hold on a phone is in px here, not rem. */
+.layout-mobile {
+    --pl-pt: 0.45px;
+    --pl-appbar-height: calc(48px + env(safe-area-inset-top, 0px)); /* the bar takes on the status bar's height, where the page runs under it (src/shell/nav-bar.css) */
+    --pl-button: min(62px, (90vw - 4 * var(--pl-button-gap)) / 5); /* action squares and Play: sized for a thumb; five always fit between the page's 5 % edges */
+    --pl-button-gap: 8px;
+    --pl-button-row-gap: 8px;
+    --pl-action-glyph: 31px;
+    --pl-action-play-glyph: 25px;
+    --pl-action-label: 16.5px;
+    --pl-osd-margin: 12px;
+    --pl-osd-radius: 20px;
+    --pl-osd-button: 44px; /* touch floor */
+    --pl-osd-panel: 152px; /* the panel with two rows of buttons */
+    --pl-osd-clearance: calc(var(--pl-osd-panel) + max(var(--pl-osd-margin), env(safe-area-inset-bottom, 0px)) + 8px); /* its top edge, whatever the home indicator takes, and a gap */
+    --pl-osd-upnext-height: 16em; /* its title wraps */
+    --pl-menu-row: 44px; /* touch floor */
+    --pl-sheet-row: 44px; /* touch floor */
+    --pl-item-menu-row: 44px;
+    --pl-vpt: calc(100vmin / 820); /* the short side, so a phone on its side keeps its proportions: from the width, its Spotlight logo would be taller than the Spotlight */
+    --pl-inset: calc(44 * var(--pl-vpt));
+    --pl-detail-panel-pad: 1.25rem;
+    --pl-detail-veil-brightness: 0.72; /* the desktop's --pl-detail-veil, in the art's own filter, and a little stronger: a phone's crop of a bright backdrop fills the whole screen, and the header's text sits right on it */
+    --pl-detail-inline: max(5vw, env(safe-area-inset-left, 0px)); /* jellyfin's 5 %, clear of the camera on a phone on its side */
+    --pl-detail-poster-phone: min(40vw, 30vh); /* far larger than stock's 30vw; goes by the height too, so a short phone still gets to Play */
+    --pl-detail-poster-gap: 1rem;
+    --pl-detail-thumb-gap: 12px; /* above and below the logo over a movie or show's wide picture (src/pages/details-glass.css) */
+    --pl-detail-logo-phone: 20vw;
+    --pl-detail-banner-phone: max(30vh, var(--pl-appbar-height) + var(--pl-detail-poster-phone) * 1.5 - 18px); /* the poster hangs from the bottom of the text beside it, so this is what clears the app bar: its top lands the text's height less 18px below the bar, on a short window and under a notch too */
+    --pl-detail-panel: rgba(0, 0, 0, 0.5); /* a little heavier than the desktop's: smaller text, and a phone's crop of a bright backdrop fills the panel with it */
+    --pl-detail-track: 44px; /* touch floor */
+    --pl-detail-episode-thumb: clamp(72px, 22vw, 96px); /* desktop's 160px is 284px wide at 16:9, which would leave a season's episode titles a column one word wide */
+}
+
+/* The hero is sized to the screen a page opens on: 100vh is the tall one, with the browser's bars gone, so on an iPhone the
+   first row's posters would start below the fold. */
+@supports (height: 100svh) {
+    .layout-mobile {
+        --pl-hero-height: max(50svh, 100svh - var(--pl-first-row));
+    }
+
+    @media (orientation: portrait) {
+        .layout-mobile {
+            --pl-hero-height: max(var(--pl-hero-min), 100svh - var(--pl-first-row));
+        }
+    }
+}
+
+/* jellyfin's cards drop their bottom margin from 1.8em to 1.2em at this width (cardbuilder/card.scss). The row spacing follows
+   it: past their margin, the details page's last row would pull its captions under .detailSection's clip. */
+@media (max-width: 50em) {
+    .layout-mobile {
+        --pl-row-spacing: 1.2rem;
+        --pl-first-row: calc(3.83rem + (var(--pl-row-card-landscape) - 1.2rem) * 9 / 16 * var(--pl-first-row-shown));
+    }
+}
+
+/* Upright, Home opens higher: all of the first row and 40 % of the second row's posters, for two
+   landscape rows. Panel top to first poster is the row spacing + 2.63rem, as above; poster to poster is the row spacing +
+   4.35rem, at 320-430px on both phone rems. A row where no card has a caption shows a little more. On its side a
+   phone has no height for this: one row already takes the lower half. The floor is what the hero has to hold, the bar, a
+   full-size logo and two lines of overview, so a very short window shows less of the row instead of losing the logo. */
+@media (orientation: portrait) {
+    .layout-mobile {
+        --pl-next-row-shown: 0.4;
+        --pl-row-poster-landscape: calc((var(--pl-row-card-landscape) - 1.2rem) * 9 / 16);
+        --pl-first-row: calc(2 * var(--pl-row-spacing) + 6.98rem + var(--pl-row-poster-landscape) * (1 + var(--pl-next-row-shown)));
+        --pl-hero-min: calc(var(--pl-appbar-height) + 220 * var(--pl-vpt) + 2 * var(--pl-size-callout) * 38 / 31 + 8px);
+    }
+}
+
+/* A phone on its side: one row of buttons in the player, and less height for everything. */
+@media (orientation: landscape) {
+    .layout-mobile {
+        --pl-osd-panel: 106px;
+        --pl-osd-upnext-height: 8em; /* the compact card (src/pages/player-osd.css) */
+        --pl-detail-poster-phone: 44vh;
+        --pl-detail-logo-phone: 18vh;
+        --pl-detail-banner-phone: calc(var(--pl-appbar-height) + var(--pl-detail-poster-phone) * 1.5 - 72px); /* the same, beside the metadata and the button row */
+        --pl-button: 48px;
+        --pl-action-glyph: 26px;
+        --pl-action-play-glyph: 22px;
+        --pl-action-label: 15px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --pl-dialog-open: 1ms; /* stays an animation: jellyfin closes dialogs on animationend */
+        --pl-dialog-close: 1ms;
+        --pl-drawer-slide: 1ms; /* stays a transition: KefinTweaks removes its drawer on transitionend */
+        --pl-card-hover: 0s;
+        --pl-fade-in-time: 1ms; /* stays an animation: jellyfin hides the blurhash on animationend */
+        --pl-home-fade: 0s; /* the rows still wait for the top row: the delay is separate */
+        --pl-focus-button: 0s;
+        --pl-osd-motion: 0s;
+        --pl-osd-subtitle-rise: 0s;
+        --pl-osd-hover-in: 0s;
+        --pl-osd-hover-out: 0s;
+        --pl-osd-slide: 0px;
+    }
+}
+
+/* Reduce transparency, the low-power mode: solid menus. */
+@media (prefers-reduced-transparency: reduce) {
+    :root {
+        --pl-surface: var(--pl-nav-solid);
+        --pl-osd-surface: var(--pl-nav-solid);
+        --pl-menu-filter: none;
+    }
+}
+
+/* jellyfin's .overflowBackdropCard width at each breakpoint, same order (cardbuilder/card.scss:671-800). */
+@media (min-width: 35em) {
+    :root {
+        --pl-row-card-landscape: 45.5vw;
+    }
+}
+
+@media (min-width: 48.125em) {
+    :root {
+        --pl-row-card-landscape: 30vw;
+    }
+}
+
+@media (orientation: landscape) {
+    :root {
+        --pl-row-card-landscape: 30vw;
+    }
+}
+
+@media (orientation: landscape) and (min-width: 48.125em) {
+    :root {
+        --pl-row-card-landscape: 23.1vw;
+    }
+}
+
+@media (min-width: 75em) {
+    :root {
+        --pl-row-card-landscape: 23.1vw;
+    }
+}
+
+@media (min-width: 100em) {
+    :root {
+        --pl-row-card-landscape: 18.7vw;
+    }
+}
+
+@media (min-width: 156.25em) {
+    :root {
+        --pl-row-card-landscape: 15.6vw;
+    }
+}

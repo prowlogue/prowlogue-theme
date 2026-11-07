@@ -1,0 +1,16 @@
+/*
+ * Poster corners (Modern layout): rounded corners on every poster, scaled with the canvas like the posters
+ * themselves (--pl-radius-poster, 14 points of a 1920-wide screen: 14px there, 10px in a 1400px window,
+ * about 7px on a phone).
+ *
+ * jellyfin draws a poster in layers that each carry the 0.2em corner: the placeholder (.cardPadder),
+ * the BlurHash canvas, the image (.cardImageContainer, .cardContent, which also clip their contents, so
+ * the stock in-poster progress bar follows the curve) and the hover overlay. Set on each layer directly
+ * rather than through --jf-card-borderRadius, which also rounds settings lists (.paperList) and the
+ * details page image (themes/_base/_theme.scss:227-240).
+ * Cards with a visual box (.visualCardBox: a poster on a panel with text under it) keep jellyfin's shape.
+ */
+
+#reactRoot > div > main .cardBox:not(.visualCardBox) :is(.cardScalable, .cardPadder, .cardContent, .cardImageContainer, .blurhash-canvas, .cardOverlayContainer) {
+    border-radius: var(--pl-radius-poster);
+}

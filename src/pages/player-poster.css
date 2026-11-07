@@ -1,0 +1,18 @@
+/*
+ * Player loading poster (Modern layout): while a video loads, its poster zooms to fill the player at any
+ * window shape and is never stretched. Stock letterboxes it (`contain`).
+ *
+ * `object-fit` also rules the video's own frames, so this has to stop the moment playback starts, or the
+ * film itself gets cropped. The active spinner, a child of body, is that signal: jellyfin shows it for
+ * every start, first play or next episode (components/playback/playbackmanager.js:2404), and hides it
+ * in the `playing` handler itself (plugins/htmlVideoPlayer/plugin.js:1111). Mid-film buffering uses a
+ * different indicator (.osdMediaStatus).
+ *
+ * Starting another item from an open player (Next, Previous, the queue) shows the spinner while the old
+ * video is still on screen, so that video zooms for a moment before the new poster replaces it. Audio and
+ * quality changes reload the stream with no spinner, so a poster shown there stays stock.
+ */
+
+body:has(> #reactRoot > div > main):has(> .docspinner.mdlSpinnerActive) > .videoPlayerContainer > .htmlvideoplayer {
+    object-fit: cover !important; /* beats the inline object-fit of the Aspect Ratio setting, so Fill can't stretch it */
+}

@@ -1,0 +1,9 @@
+/*
+ * Placeholder tiles, for items with no art (Modern layout): a tint of the accent, in place of jellyfin's
+ * five hard-coded blues (themes/dark/theme.scss).
+ */
+
+#reactRoot > div > main .defaultCardBackground,
+body:has(> #reactRoot > div > main) .formDialog .defaultCardBackground {
+    background-color: var(--pl-card-placeholder);
+}

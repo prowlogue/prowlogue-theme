@@ -1,0 +1,34 @@
+/*
+ * Library posters load a screen early (Modern layout), so scrolling doesn't outrun them. Modern's library
+ * grids (Movies, Shows and the rest) are React cards, unlike Home and the details page:
+ * components/common/Image.tsx uses react-lazy-load-image-component, whose default threshold starts a poster
+ * only 100px from the screen, against 50% of a screen for jellyfin's and KefinTweaks' rows. At an ordinary
+ * scrolling speed that's too little warning for an image to load and fade in, so posters enter view
+ * unfinished. Blurhash doesn't cover for it, because Image.tsx only creates its canvas as the image starts,
+ * so it lasts about as long as the load.
+ *
+ * What the library's IntersectionObserver watches, until a poster loads, is an empty invisible span. It
+ * paints nothing, so it can reach further with no visual change, and the observer sees the poster coming
+ * by that much sooner. Top and bottom cover scrolling either way. A clipped area doesn't count as
+ * intersecting, so .cardContent's overflow and both boxes' paint containment go while the span is there.
+ * Once the <img> replaces it they return, with the poster's rounded corners. .card's layout containment
+ * keeps the reach out of the page's scroll height. Everything hangs off the span: if the library renders
+ * it differently one day, these rules match nothing and posters load as they do in stock.
+ */
+
+#reactRoot > div > main .cardContent:has(> .cardImageContainer > div:not([class]) > span) {
+    overflow: visible;
+    contain: size layout style;
+}
+
+#reactRoot > div > main .cardContent > .cardImageContainer:has(> div:not([class]) > span) {
+    contain: size layout style;
+}
+
+/* !important: the library sets inset and height inline. */
+#reactRoot > div > main .cardContent > .cardImageContainer > div:not([class]) > span {
+    top: calc(-1 * var(--pl-poster-preload)) !important;
+    bottom: calc(-1 * var(--pl-poster-preload)) !important;
+    height: auto !important;
+    pointer-events: none;
+}

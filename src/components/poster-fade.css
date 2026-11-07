@@ -1,0 +1,38 @@
+/*
+ * Poster art fades in the same way on every page: Home, item details, search and the rest. Everything
+ * jellyfin draws lazily, posters, logos, list thumbnails and chapters, lands through one function
+ * (images/imageLoader.js), which swaps .lazy-hidden for a fade class, so one rule reaches all of them.
+ * Stock's fade is 0.1s, which reads as appearing at once.
+ *
+ * It's an animation, for three reasons: jellyfin hides the blurhash on animationend, an opacity animation runs
+ * on the compositor, and a cached image can land before anything has painted, which leaves a transition nothing to
+ * start from. A collection is the exception (src/pages/details-glass.css): KefinTweaks' sort re-inserts its cards,
+ * and that would restart an animation.
+ *
+ * KefinTweaks' cards have the fade class from birth, so their fade plays before there's an image and the art then
+ * snaps in; .lazy-loaded is what marks their landing. That rule names different keyframes because an unchanged
+ * animation-name wouldn't restart.
+ *
+ * Posters with a hanging progress bar fade too: src/components/poster-progress.css clips the bar for as long.
+ */
+#reactRoot > div > main .lazy-image-fadein-fast,
+#reactRoot > div > main .lazy-image-fadein {
+    animation: fadein var(--pl-fade-in);
+}
+
+#reactRoot > div > main .cardImageContainer.lazy-loaded {
+    animation: pl-home-fade-in var(--pl-fade-in);
+}
+
+/* The blurhash stays until the art has faded in over it. KefinTweaks hides it the moment the art lands, which
+   would dip the poster to its empty frame and back: a blink. jellyfin already waits for animationend, and for
+   its rows this delay only keeps a canvas a moment longer behind a finished poster. */
+#reactRoot > div > main .blurhash-canvas.lazy-hidden {
+    transition: opacity 0s linear var(--pl-fade-in-time);
+}
+
+/* Library grids are React cards, whose <img> fades by a transition (components/common/Image.tsx), which also takes
+   their blurhash away when it ends. !important: Image.tsx sets it inline, at 0.1s. */
+#reactRoot > div > main .cardImageContainer > div:not([class]) > img {
+    transition: opacity var(--pl-fade-in) !important;
+}

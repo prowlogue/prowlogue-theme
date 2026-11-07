@@ -1,0 +1,97 @@
+/*
+ * Now-playing bar and queue page (Modern layout): a floating bar with the player panel's surface
+ * (src/pages/player-osd.css, which also carries its round controls).
+ *
+ * .appfooter stays pinned to the window edges, as headroom's translateY(100%) !important needs, and the
+ * gap is its padding. It's empty space that mustn't take clicks. The surface goes on .nowPlayingBar, not
+ * the footer, because the footer stays in the DOM (height 0) with nothing playing and a rim would show.
+ */
+
+body:has(> #reactRoot > div > main) > .appfooter {
+    padding: 0 max(var(--pl-osd-margin), env(safe-area-inset-right)) max(var(--pl-osd-margin), env(safe-area-inset-bottom)) max(var(--pl-osd-margin), env(safe-area-inset-left));
+    background: none;
+    pointer-events: none;
+}
+
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar {
+    padding: var(--pl-osd-padding);
+    border-radius: var(--pl-osd-radius);
+    background: var(--pl-osd-surface);
+    box-shadow: inset 0 0 0 1px var(--pl-glass-rim), var(--pl-banner-shadow);
+    color: var(--pl-text);
+    pointer-events: auto;
+}
+
+.layout-desktop body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar {
+    background: var(--pl-surface);
+    box-shadow: var(--pl-osd-ring), var(--pl-banner-shadow);
+    -webkit-backdrop-filter: var(--pl-menu-filter);
+    backdrop-filter: var(--pl-menu-filter);
+}
+
+.layout-mobile body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar {
+    background: var(--pl-surface);
+    box-shadow: var(--pl-osd-ring), var(--pl-banner-shadow);
+    -webkit-backdrop-filter: var(--pl-menu-filter);
+    backdrop-filter: var(--pl-menu-filter);
+}
+
+/* Clears the footer's padding on its way out. */
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar-hidden {
+    transform: translate3d(0, calc(100% + var(--pl-osd-margin)), 0);
+}
+
+/* The bar sits inside the surface, above the row. */
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarTop {
+    margin-top: var(--pl-osd-margin);
+}
+
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarPositionContainer {
+    top: -1.5em;
+    padding: 0 calc(var(--pl-osd-padding) * 0.75);
+}
+
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarInfoContainer {
+    margin-left: calc(var(--pl-osd-padding) * 0.75);
+}
+
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar .nowPlayingImage {
+    width: 2.91em;
+    border-radius: var(--pl-radius-tile);
+}
+
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarCurrentTime {
+    width: 6em;
+    padding-left: 0;
+    color: var(--pl-text-secondary);
+    font-size: var(--pl-size-caption);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Sliders on both surfaces: white, no jellyfin blue. */
+body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider-background-flex {
+    border-radius: var(--pl-radius-pill);
+    background: var(--pl-progress-bar-track);
+}
+
+body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider-background-lower {
+    background-color: var(--pl-progress-fill);
+}
+
+body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider-background-upper {
+    background: var(--pl-osd-buffered);
+}
+
+body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider::-webkit-slider-thumb {
+    background: var(--pl-progress-fill);
+}
+
+body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider::-moz-range-thumb {
+    background: var(--pl-progress-fill);
+}
+
+/* Queue page (/queue): borderless art. */
+#reactRoot > div > main #nowPlayingPage .nowPlayingPageImage {
+    border: none;
+    border-radius: var(--pl-osd-radius);
+}

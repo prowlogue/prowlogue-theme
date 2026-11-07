@@ -1,0 +1,81 @@
+/*
+ * Seerr's rows (Modern layout): Jellyfin Enhanced's results and Home Screen Sections' Discover rows: no
+ * posterless results, and titles reworded around requesting.
+ */
+
+/* A result with no art. JE gives it a stand-in image, parked in data-je-poster until the card nears the screen
+   (ui-cards.js observePoster). It leaves the row but keeps its width, so never display: none: a row's ‹ › arrows take
+   the width of the card at an index, and a card with none sends the row back to the start, or breaks the arrow if
+   it's the first (emby-scrollbuttons/utils.ts). */
+#reactRoot > div > main .jellyseerr-card:has(> .cardBox > .cardScalable > [data-je-poster*="poster-not-found"]) {
+    position: absolute;
+    visibility: hidden;
+}
+
+/* With no box the image never nears the screen, so the attribute stays and the rule above keeps matching. */
+#reactRoot > div > main .jellyseerr-poster-image[data-je-poster*="poster-not-found"] {
+    display: none;
+}
+
+/* JE adds cards as a row fills, and nothing tells the scroller, which measures once: the row ends where it was first
+   measured, and › turns itself off with cards still to come (lib/scroller ensureSizeInfo). Only a change in the row's
+   frame makes it measure again, so each card adds 1/64 of a pixel to the row's height, far too little to see. */
+@supports (margin-bottom: calc(sibling-index() * 1px)) {
+    #reactRoot > div > main .scrollSlider > .jellyseerr-card {
+        margin-bottom: calc(sibling-index() * 0.016px);
+    }
+}
+
+/* The star and score under each result. */
+#reactRoot > div > main .jellyseerr-rating {
+    display: none;
+}
+
+/* "No results found on Jellyfin": JE's own message, which it only puts above Seerr's results. A search that finds
+   nothing anywhere keeps jellyfin's, so the page is never left blank. */
+#reactRoot > div > main .jellyseerr-no-results-message {
+    display: none;
+}
+
+/* Titles. The words are plain text in the page, so the original stays, unseen, and a label is drawn
+   over it. visibility, not a zero font-size, so the label inherits the title's size, weight and shadow. English only:
+   CSS has no translations to read. */
+#reactRoot > div > main #homeTab :is(.Discover, .DiscoverMovies, .DiscoverTV) .sectionTitle,
+#reactRoot > div > main .jellyseerr-section > .sectionTitle {
+    visibility: hidden;
+}
+
+#reactRoot > div > main #homeTab :is(.Discover, .DiscoverMovies, .DiscoverTV) .sectionTitle::before {
+    position: absolute;
+    visibility: visible;
+}
+
+#reactRoot > div > main #homeTab .Discover .sectionTitle::before {
+    content: "Request";
+}
+
+#reactRoot > div > main #homeTab .DiscoverMovies .sectionTitle::before {
+    content: "Request Movies";
+}
+
+#reactRoot > div > main #homeTab .DiscoverTV .sectionTitle::before {
+    content: "Request TV Shows";
+}
+
+/* Longer than the original, with a button after it: as a row, the label and button come first, and the original
+   text trails behind them unseen. */
+#reactRoot > div > main .jellyseerr-section > .sectionTitle {
+    display: flex;
+    align-items: center;
+}
+
+#reactRoot > div > main .jellyseerr-section > .sectionTitle::before {
+    content: "Request to Download";
+    order: -2;
+    visibility: visible;
+}
+
+#reactRoot > div > main .jellyseerr-section > .sectionTitle > .jellyseerr-refresh-btn {
+    order: -1;
+    visibility: visible;
+}

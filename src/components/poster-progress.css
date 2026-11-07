@@ -1,0 +1,93 @@
+/*
+ * Poster progress bar (Modern layout). It hangs 8pt below the poster and fills the poster's bottom corners,
+ * so poster and bar read as one block with rounded bottom corners; a white fill on a white @ 25 % track,
+ * the trailing edge square; the caption moves down by the bar's height.
+ *
+ * Which cards show one is the first rule below, the one place to change it: the Home Continue Watching
+ * row, landscape movies anywhere, and episode thumbnails on details pages.
+ * Live TV cards keep theirs too: it's how far the programme has aired, not how far you've watched. Every
+ * other poster loses the bar and the room for it, through two tokens the bar rules read. The Continue
+ * Watching row is named by whoever builds it: Home Screen Sections' class, KefinTweaks' section id, or
+ * on a stock home a row with neither that holds video (the shared data-monitor can't tell rows apart
+ * on its own: every Home Screen Sections row has it).
+ *
+ * Two markups, both inside the poster image, which clips (card.scss: overflow hidden, contain: strict):
+ *   - cardBuilder.js (home rows, details, search, KefinTweaks' own cardBuilder.js):
+ *     .cardScalable > .cardImageContainer.cardContent > .innerCardFooter.innerCardFooterClear >
+ *     .itemProgressBar > .itemProgressBarForeground (inline width).
+ *   - The React cards on Modern's library pages (Card/CardContent.tsx, CardImageContainer.tsx):
+ *     .cardScalable > .cardContent > .cardImageContainer > MUI LinearProgress.itemLinearProgress >
+ *     .MuiLinearProgress-bar (inline translateX). Its fill is hard-coded #00a4dc with 5px ends
+ *     (indicators/useIndicator.tsx getProgress), or the accent / error red for Live TV
+ *     (emby-progressbar/AutoTimeProgressBar.tsx), set through emotion classes.
+ * On posters that carry a bar, the clipping layers let go: overflow visible, and containment drops to
+ * size + style, which also stops them being stacking contexts. The bar's box then runs from one corner
+ * radius above the poster's bottom edge to the bar's height below it, rounded at the bottom, and sits at
+ * z-index -1: inside .cardScalable's stacking context (contain: layout) it paints behind the placeholder
+ * and the art, showing only below the poster and in its bottom corners. Bars over a text footer
+ * (overlay-text cards) stay as they are. Recordings keep jellyfin's red.
+ */
+
+#reactRoot > div > main .card:not(#homeTab :is(.ContinueWatching, .ContinueWatchingNextUp, [data-section-id^="continueWatching"]) *, #homeTab .verticalSection:not([data-page], [data-section-id]) [data-monitor="videoplayback,markplayed"] *, [data-type="Movie"]:is(.overflowBackdropCard, .backdropCard, .mixedBackdropCard), #itemDetailPage [data-type="Episode"], [data-timerid], [data-type="Program"], [data-type="TvChannel"], [data-type="Recording"], [data-type="Timer"]) {
+    --pl-progress-display: none;
+    --pl-progress-height: 0px;
+}
+
+#reactRoot > div > main .cardBox:not(.visualCardBox) .cardScalable:has(.cardImageContainer > .innerCardFooterClear > .itemProgressBar, .cardImageContainer > .itemLinearProgress) {
+    --pl-card-bar: var(--pl-progress-height);
+    margin-bottom: var(--pl-progress-height);
+}
+
+#reactRoot > div > main .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer):has(> .innerCardFooterClear > .itemProgressBar, > .itemLinearProgress, > .cardImageContainer > .itemLinearProgress) {
+    overflow: visible;
+    contain: size style;
+}
+
+/* These fade in with every other poster (src/components/poster-fade.css), but an opacity animation makes the poster
+   a stacking context while it runs, which would flash the bar's whole box over the art. So the part of the box that
+   would cross the art sits out the fade, clipped for exactly as long, and only the bar under the poster shows until
+   the art has landed. One held value, so nothing repaints per frame. A KefinTweaks poster only fades when
+   .lazy-loaded restarts its animation, which this can't follow, so a bar on one of its rows doesn't fade. */
+@keyframes pl-progress-clear-art {
+    from, to {
+        clip-path: inset(var(--pl-radius-poster) 0 0);
+    }
+}
+
+#reactRoot > div > main :is(.lazy-image-fadein-fast, .lazy-image-fadein) > .innerCardFooterClear:has(> .itemProgressBar) {
+    animation: pl-progress-clear-art var(--pl-fade-in-time) linear;
+}
+
+#reactRoot > div > main .cardImageContainer.lazy-loaded:has(> .innerCardFooterClear > .itemProgressBar) {
+    animation: none;
+}
+
+/* The bar's box: from one corner radius above the poster's bottom edge to the bar's height below it. */
+#reactRoot > div > main .cardBox:not(.visualCardBox) .cardImageContainer > :is(.innerCardFooterClear:has(> .itemProgressBar), .itemLinearProgress) {
+    display: var(--pl-progress-display);
+    top: calc(100% - var(--pl-radius-poster));
+    bottom: auto;
+    height: calc(var(--pl-radius-poster) + var(--pl-progress-height));
+    z-index: -1;
+    border-radius: 0 0 var(--pl-radius-poster) var(--pl-radius-poster);
+    background: var(--pl-progress-track);
+}
+
+#reactRoot > div > main .cardBox:not(.visualCardBox) .cardImageContainer > .innerCardFooterClear > .itemProgressBar {
+    height: 100%;
+    background: none;
+}
+
+#reactRoot > div > main .cardBox:not(.visualCardBox) .cardImageContainer > .itemLinearProgress > .MuiLinearProgress-bar {
+    border-radius: 0;
+}
+
+/* White fill; recordings keep jellyfin's red (the legacy -recording class; React marks them only by
+   item type or timer, on the card). */
+#reactRoot > div > main .cardBox:not(.visualCardBox) .cardImageContainer > .innerCardFooterClear > .itemProgressBar > .itemProgressBarForeground:not(.itemProgressBarForeground-recording) {
+    background-color: var(--pl-progress-fill);
+}
+
+#reactRoot > div > main .card:not([data-timerid], [data-type="Timer"], [data-type="Recording"]) .cardBox:not(.visualCardBox) .cardImageContainer > .itemLinearProgress > .MuiLinearProgress-bar {
+    background-color: var(--pl-progress-fill);
+}
