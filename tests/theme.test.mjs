@@ -1,15 +1,17 @@
-// Static guardrails over the built bundle (dist/v1/prowlogue.css). `npm test` builds first.
+// Static guardrails over what ships in dist/v1 (the two stylesheets and potato-mode.js). `npm test` builds first.
 // Each test encodes a rule that is cheap to check and expensive to get wrong.
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { bundle } from '../tools/build.mjs';
+import { Script } from 'node:vm';
+import { bundle, entries } from '../tools/build.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const css = readFileSync(resolve(root, 'dist/v1/prowlogue.css'), 'utf8');
-const code = css.replace(/\/\*[\s\S]*?\*\//g, '');
+const withoutComments = (source) => source.replace(/\/\*[\s\S]*?\*\//g, '');
+const shipped = (name) => withoutComments(readFileSync(resolve(root, 'dist/v1', name), 'utf8'));
+const code = shipped('prowlogue.css');
 
 // The first header lets a load use the browser's copy at once and still fetch a deploy in the background. Without
 // the second, the domain's cache keeps a deploy from a returning user for hours, with no error anywhere.
@@ -19,7 +21,7 @@ test('a load uses its copy at once and a deploy arrives one load later', () => {
     assert.match(headers, /^\s+Cloudflare-CDN-Cache-Control: no-store\s*$/m);
 });
 
-test('the licence and notices ship beside the stylesheet', () => {
+test('the licence and notices ship beside the stylesheets', () => {
     assert.ok(existsSync(resolve(root, 'dist/v1/NOTICE.txt')), 'dist/v1/NOTICE.txt is missing');
     assert.ok(existsSync(resolve(root, 'dist/v1/LICENSE.txt')), 'dist/v1/LICENSE.txt is missing');
 });
@@ -80,15 +82,15 @@ function selectorList(text) {
 const allBlocks = blocks(code);
 const styleRules = allBlocks.filter((block) => block.kind === 'rule');
 
-// Only what ships belongs in src/: a file nothing imports would be published without ever being used.
-test('every file in src/ reaches the bundle', () => {
+// Only what ships belongs in src/: a file no bundle imports would be published without ever being used.
+test('every file in src/ reaches a bundle', () => {
     const reached = new Set();
     const visit = (file) => {
         reached.add(file);
-        const source = readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+        const source = withoutComments(readFileSync(file, 'utf8'));
         for (const [, target] of source.matchAll(/@import\s+"(\.[^"]+)"/g)) visit(resolve(dirname(file), target));
     };
-    visit(resolve(root, 'src/prowlogue.css'));
+    for (const name of entries) visit(resolve(root, 'src', name));
     const files = readdirSync(resolve(root, 'src'), { recursive: true })
         .filter((file) => file.endsWith('.css'))
         .map((file) => resolve(root, 'src', file));
@@ -99,11 +101,58 @@ test('the bundle is not empty', () => {
     assert.ok(styleRules.length > 0, 'dist/v1/prowlogue.css has no style rules');
 });
 
-test('the shipped bundle keeps every rule of the source, in order', () => {
+test('each shipped bundle keeps every rule of its source, in order', () => {
     const selectors = (source) => blocks(source)
         .filter((block) => block.kind === 'rule')
         .map((block) => block.text.replace(/\s+/g, ' ').replace(/ ?, ?/g, ','));
-    assert.deepEqual(selectors(code), selectors(bundle().replace(/\/\*[\s\S]*?\*\//g, '')));
+    for (const name of entries) {
+        assert.deepEqual(selectors(shipped(name)), selectors(withoutComments(bundle(name))), name);
+    }
+});
+
+// The body of every @media block whose prelude matches, braces balanced.
+function mediaBodies(source, prelude) {
+    const bodies = [];
+    for (const match of source.matchAll(/@media[^{]*\{/g)) {
+        if (!prelude.test(match[0])) continue;
+        let depth = 1;
+        let at = match.index + match[0].length;
+        while (at < source.length && depth > 0) {
+            if (source[at] === '{') depth++;
+            if (source[at] === '}') depth--;
+            at++;
+        }
+        bodies.push(source.slice(match.index + match[0].length, at - 1).trim());
+    }
+    return bodies;
+}
+
+// prowlogue-lite.css is the theme with potato mode on. It can only turn on what the theme reads from the switch, so
+// a value the system's preference changed some other way would be missing from it. Being the theme plus one rule,
+// it passes every other test here too.
+test('potato mode is one switch, and prowlogue-lite.css is the theme with it on', () => {
+    const lite = shipped('prowlogue-lite.css');
+    const theme = code.trimEnd();
+    assert.ok(lite.startsWith(theme), 'prowlogue-lite.css must start with all of prowlogue.css');
+    // An empty value is on. The minifier keeps its space: `--x:;` is invalid in older engines.
+    assert.match(lite.slice(theme.length).trim(), /^@supports selector\(:has\(\*\)\)\{:root\{--pl-lite: ;--pl-lite-why:"[^"]+"\}\s*\}$/);
+    assert.match(code, /var\(--pl-lite\)/);
+    const bodies = mediaBodies(code, /prefers-reduced-transparency|\(update\b/);
+    assert.ok(bodies.length > 0, 'nothing turns potato mode on from the system');
+    const offenders = bodies.filter((body) => !/^(:root\{--pl-lite[\w-]*:[^;{}]*(;--pl-lite[\w-]*:[^;{}]*)*\})+$/.test(body));
+    assert.deepEqual(offenders, [], 'a system preference may only set --pl-lite* tokens on :root');
+});
+
+// potato-mode.js ships as written and the README carries the same text to paste. It names a mark, the badge's
+// selector and an animation, so the stylesheet has to keep all three.
+test('potato-mode.js parses, matches the README, and names only what the stylesheet has', () => {
+    const script = readFileSync(resolve(root, 'dist/v1/potato-mode.js'), 'utf8').replace(/\r\n/g, '\n');
+    assert.doesNotThrow(() => new Script(script), 'potato-mode.js has a syntax error');
+    const readme = readFileSync(resolve(root, 'README.md'), 'utf8').replace(/\r\n/g, '\n');
+    assert.ok(readme.includes(`\`\`\`js\n${script.trim()}\n\`\`\``), "the README's copy of potato-mode.js differs from the file");
+    const badge = script.match(/const badge = '([^']+)'/)?.[1];
+    assert.ok(badge && code.includes(`:root[data-prowlogue-lite] ${badge}::before{`), 'the badge selector or its mark is gone');
+    assert.ok(script.includes("'pl-potato-announce'") && /@keyframes pl-potato-announce\{/.test(code), 'the announcement is gone');
 });
 
 test('no hashed MUI/emotion classes (they change on every jellyfin-web build)', () => {
@@ -169,10 +218,11 @@ test('motion respects prefers-reduced-motion', () => {
 
 test('every selector is scoped to the Modern app (never Legacy or TV)', () => {
     // Legacy has no <main>, and renders no MUI portals, so these paths can't reach it.
-    // Tokens may sit on :root and the layout classes: custom properties only change values the scoped rules read.
+    // Tokens may sit on :root, its potato mode mark and the layout classes: custom properties only change values the
+    // scoped rules read.
     const anchors = [
-        /^(:root|\.layout-(tv|mobile|desktop))$/,
-        /^(\.layout-(desktop|mobile) )?(\[dir="rtl"\] )?#reactRoot > div > (main|header\.MuiAppBar-root)\b/,
+        /^(:root(\[data-prowlogue-lite\])?|\.layout-(tv|mobile|desktop))$/,
+        /^(\.layout-(desktop|mobile) )?(:root\[data-prowlogue-lite(="new")?\] )?(\[dir="rtl"\] )?#reactRoot > div > (main|header\.MuiAppBar-root)\b/,
         /^(\.layout-(desktop|mobile) )?body:has\(> /,
         /^(\.layout-(desktop|mobile) )?#reactRoot ~ \* \.Mui/,
         /^html:has\(> body > /,

@@ -52,12 +52,27 @@
     --pl-stroke-play: rgba(255, 255, 255, 0.3);
 
     /* ── Glass, for chrome only. Content never gets glass. ── */
-    --pl-surface: rgba(0, 0, 0, 0.35); /* menus, the drawer, toasts, under --pl-menu-filter. Modals take navy instead */
-    --pl-menu-filter: blur(var(--pl-frost-blur)) brightness(0.7) saturate(1.5); /* the Home panel's frost. brightness keeps white text readable on white art, saturate keeps muted art from reading as grey */
+    --pl-surface: var(--pl-lite-smoke, rgba(0, 0, 0, 0.35)); /* menus, the drawer, toasts, under --pl-menu-filter. Modals take navy instead */
+    --pl-menu-filter: var(--pl-lite-none, blur(var(--pl-frost-blur)) brightness(0.7) saturate(1.5)); /* the Home panel's frost. brightness keeps white text readable on white art, saturate keeps muted art from reading as grey */
     --pl-menu-ring: inset 0 0 0 2px var(--pl-frost-stroke); /* the Home panel's stroke, at a menu's size */
     --pl-glass-tint: rgba(255, 255, 255, 0.2); /* overlay buttons */
     --pl-glass-rim: rgba(255, 255, 255, 0.1);
     --pl-banner-shadow: 0 calc(6 * var(--pl-pt)) calc(24 * var(--pl-pt)) rgba(0, 0, 0, 0.35);
+
+    /* ── Potato mode: every live blur turns off, for a device that can't draw them smoothly, and each surface that
+       showed one keeps a see-through black tint, so it still takes its colour from what's behind it. One switch, --pl-lite, turns it on: an empty value is on, and with nothing set, a guaranteed-invalid
+       value, it's off (the end of this file). Each token here is a value potato mode uses, written after
+       `var(--pl-lite)`: it's that value while the switch is on and invalid while it's off. So a rule that reads
+       `var(--pl-lite-none, blur(8px))` gets none in potato mode and blur(8px) otherwise, with nothing that depends
+       on rule order, and src/prowlogue-lite.css is the whole theme with it on. ── */
+    --pl-lite-none: var(--pl-lite) none;
+    --pl-lite-smoke: var(--pl-lite) rgba(0, 0, 0, 0.85); /* menus, the drawer, toasts, the player's panel: with nothing behind them blurred, dark enough to read over anything */
+    --pl-lite-bar: var(--pl-lite) rgba(0, 0, 0, 0.65); /* the top bar and the multi-select bar */
+    --pl-lite-panel: var(--pl-lite) rgba(0, 0, 0, 0.6); /* the Home panel, over the pinned spotlight */
+    --pl-lite-shown: var(--pl-lite) ""; /* the badge in the top bar and its card (src/shell/potato-badge.css) */
+    --pl-lite-flex: var(--pl-lite) flex;
+    --pl-lite-relative: var(--pl-lite) relative;
+    --pl-lite-badge: var(--pl-lite) var(--pl-nav-icon); /* the badge's width, kept free before the user button arrives */
 
     /* ── Corner radii ── */
     --pl-radius-poster: calc(14 * var(--pl-vpt)); /* every poster */
@@ -186,8 +201,10 @@
     --pl-nav-blur: 8px;
     --pl-nav-rounding: var(--pl-rounding);
     --pl-nav-user: 40px; /* the user button: MUI Avatar's default size (components/UserAvatar.tsx) */
+    --pl-nav-glyph: 1.5rem; /* MUI's icon in the bar's large icon buttons */
+    --pl-nav-icon: calc(var(--pl-nav-glyph) + 24px); /* one of those buttons: the icon and 12px of padding each side */
     --pl-nav-tint: rgba(0, 0, 0, 0.35); /* no-blur fallback for floating surfaces */
-    --pl-nav-solid: #1c1c1e; /* Reduce transparency, multi-select: the foot of --pl-surface */
+    --pl-nav-solid: #1c1c1e; /* a native list's options, where a browser draws its own (src/pages/details-glass.css) */
     --pl-menu-padding: calc(17 * var(--pl-pt));
 
     /* ── Modals (src/components/dialogs.css) ── */
@@ -261,6 +278,7 @@
     --pl-fade-in-time: 0.25s; /* on its own because a transition-delay can't take the easing */
     --pl-fade-in: var(--pl-fade-in-time) ease-out; /* poster art landing, on every page (src/components/poster-fade.css): short, because fast scrolling leaves a longer fade unfinished on screen */
     --pl-home-fade: 0.2s ease-out; /* Home's panel and rows arriving: quick, so the page never just appears */
+    --pl-potato-announce: 10s linear; /* the potato's card opening by itself (src/shell/potato-badge.css): long enough to read */
     --pl-collection-hold: 0.1s; /* a collection's rows wait this long (src/pages/details-glass.css), which keeps the biggest jump in a frame to an ordinary step of the fade */
 }
 
@@ -372,13 +390,35 @@
     }
 }
 
-/* Reduce transparency, the low-power mode: solid menus. */
+/* Potato mode turns itself on wherever the system asks: Reduce transparency, which Chromium reports from Windows'
+   Transparency effects and macOS's Reduce transparency, and a screen that can't show smooth motion (update: slow, as
+   on e-ink). Firefox and Safari don't report the first by default. CSS has no view of a GPU or of the frame rate, so
+   anywhere else it takes src/prowlogue-lite.css, or src/potato-mode.js, which marks <html> with data-prowlogue-lite.
+   These rules only flip the switch, and every rule it changes reads one of the --pl-lite-* tokens above. Each also
+   sets --pl-lite-why, the tip at the end of the badge's card (src/shell/potato-badge.css). */
+@media (prefers-reduced-transparency: reduce), (update: slow) {
+    :root {
+        --pl-lite: ;
+    }
+}
+
 @media (prefers-reduced-transparency: reduce) {
     :root {
-        --pl-surface: var(--pl-nav-solid);
-        --pl-osd-surface: var(--pl-nav-solid);
-        --pl-menu-filter: none;
+        --pl-lite-why: "Don't want to be a \1F954?\A Turn transparency effects back on in your system's settings.";
     }
+}
+
+@media (update: slow) {
+    :root {
+        --pl-lite-why: "This screen can't show smooth motion, so it stays this way.";
+    }
+}
+
+/* The mark says this device is struggling, so its tip outranks every other cause, src/prowlogue-lite.css's included.
+   A click on the potato tests it again (src/potato-mode.js). */
+:root[data-prowlogue-lite] {
+    --pl-lite: ;
+    --pl-lite-why: "Don't want to be a \1F954?\A Google \"How to enable Browser Hardware Acceleration\" to improve performance.\A\A Click the \1F954 to test this device again.";
 }
 
 /* jellyfin's .overflowBackdropCard width at each breakpoint, same order (cardbuilder/card.scss:671-800). */

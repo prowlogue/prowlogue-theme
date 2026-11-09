@@ -4,8 +4,9 @@
  *
  * The blur: CSS can't copy the hero's <img> into another layer. So on a desktop with a fine pointer, and on
  * phones, the hero's backdrop stays on screen and the panel blurs it live with backdrop-filter: the one
- * full-screen live blur in the theme, as the rows scroll over it. Engines without backdrop-filter, Reduce
- * transparency and a touch-only desktop get an opaque grey panel instead.
+ * full-screen live blur in the theme, as the rows scroll over it. Potato mode (src/tokens.css) tints the
+ * pinned backdrop black instead of blurring it. Engines without backdrop-filter and a touch-only desktop get
+ * an opaque grey panel.
  *
  * Only while Media Bar's stage is on screen: without a hero the rows stay as they are. Both Media Bars
  * remove every .slide the moment they leave Home, so `body:has(> #slides-container > .slide)` says
@@ -184,9 +185,9 @@ body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeS
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     @media (hover: hover) and (pointer: fine) {
         .layout-desktop body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before {
-            background: transparent;
-            -webkit-backdrop-filter: blur(var(--pl-frost-blur));
-            backdrop-filter: blur(var(--pl-frost-blur));
+            background: var(--pl-lite-panel, transparent);
+            -webkit-backdrop-filter: var(--pl-lite-none, blur(var(--pl-frost-blur)));
+            backdrop-filter: var(--pl-lite-none, blur(var(--pl-frost-blur)));
         }
     }
 }
@@ -194,23 +195,8 @@ body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeS
 /* Phones: the panel frosts the pinned spotlight too. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     .layout-mobile body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before {
-        background: transparent;
-        -webkit-backdrop-filter: blur(var(--pl-frost-blur));
-        backdrop-filter: blur(var(--pl-frost-blur));
-    }
-}
-
-/* Same selectors as the rules above, later, so they win there; elsewhere the panel is opaque already. */
-@media (prefers-reduced-transparency: reduce) {
-    .layout-desktop body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before {
-        background: var(--pl-bg-app);
-        -webkit-backdrop-filter: none;
-        backdrop-filter: none;
-    }
-
-    .layout-mobile body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before {
-        background: var(--pl-bg-app);
-        -webkit-backdrop-filter: none;
-        backdrop-filter: none;
+        background: var(--pl-lite-panel, transparent);
+        -webkit-backdrop-filter: var(--pl-lite-none, blur(var(--pl-frost-blur)));
+        backdrop-filter: var(--pl-lite-none, blur(var(--pl-frost-blur)));
     }
 }

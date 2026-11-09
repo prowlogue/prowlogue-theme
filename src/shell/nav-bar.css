@@ -20,9 +20,10 @@
  * used; never the hashed css-* ones.
  */
 
-/* ── Transparent, frosted bar, in both of Modern's states (at the top and scrolled) ── */
+/* ── Transparent, frosted bar, in both of Modern's states (at the top and scrolled). Tinted in potato mode
+   (src/tokens.css). ── */
 #reactRoot > div > header.MuiAppBar-root {
-    background-color: transparent;
+    background-color: var(--pl-lite-bar, transparent);
     background-image: none;
     box-shadow: none;
     color: var(--pl-text);
@@ -57,8 +58,8 @@
         position: absolute;
         inset: 0;
         z-index: -1;
-        -webkit-backdrop-filter: blur(var(--pl-nav-blur));
-        backdrop-filter: blur(var(--pl-nav-blur));
+        -webkit-backdrop-filter: var(--pl-lite-none, blur(var(--pl-nav-blur)));
+        backdrop-filter: var(--pl-lite-none, blur(var(--pl-nav-blur)));
         pointer-events: none;
     }
 }
@@ -78,18 +79,7 @@
 /* Engines without backdrop-filter: a light tint keeps the bar readable over posters. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     #reactRoot > div > header.MuiAppBar-root {
-        background-color: var(--pl-nav-tint);
-    }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-    #reactRoot > div > header.MuiAppBar-root {
-        background-color: var(--pl-nav-solid);
-    }
-
-    #reactRoot > div > header.MuiAppBar-root::before {
-        -webkit-backdrop-filter: none;
-        backdrop-filter: none;
+        background-color: var(--pl-lite-bar, var(--pl-nav-tint));
     }
 }
 
@@ -188,7 +178,8 @@
    last box they leave that room, and once the button arrives this stops matching. Only its width is
    reserved, so any number of icons works, and plugins that prepend theirs move nothing anyway. A sign-in
    page never gets the button, but has no icons to move. It can't reach the frames before this stylesheet
-   loads, so the icons settle as the page's colour arrives, instead of on their own a moment later. */
+   loads, so the icons settle as the page's colour arrives, instead of on their own a moment later. Potato mode's
+   badge sits in the user button's box (src/shell/potato-badge.css), so its width is kept free too. */
 #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root:last-child:not(.MuiBox-root + *) {
-    margin-inline-end: var(--pl-nav-user);
+    margin-inline-end: calc(var(--pl-nav-user) + var(--pl-lite-badge, 0px));
 }

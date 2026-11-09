@@ -35,7 +35,7 @@
 
 /* ── Backdrop: fixed, jellyfin's own layer. These rules need "a details page is on screen", because that
    layer sits outside the page, in #reactRoot; only these carry the extra :has(). filter on a fixed layer
-   is rasterized once. ── */
+   is rasterized once and costs nothing while the page scrolls, so potato mode (src/tokens.css) keeps it. ── */
 body:has(> #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.hide)) .backdropImage {
     filter: blur(var(--pl-detail-backdrop-blur));
     transform: scale(var(--pl-detail-backdrop-oversize));
@@ -934,23 +934,6 @@ body:has(> #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.h
 
 #reactRoot > div > main #itemDetailPage #childrenContent .listItemButton.itemAction.paper-icon-button-light {
     display: none;
-}
-
-/* Reduce transparency, the theme's low-power mode: solid panels and no filter on the backdrop. */
-@media (prefers-reduced-transparency: reduce) {
-    body:has(> #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.hide)) .backdropImage {
-        filter: none;
-        transform: none;
-    }
-
-    .layout-mobile #reactRoot > div > main #itemDetailPage > #itemBackdrop::before {
-        filter: none;
-        transform: none;
-    }
-
-    #reactRoot > div > main #itemDetailPage :is(.detailPagePrimaryContent, .detailPageSecondaryContainer) {
-        background: var(--pl-surface);
-    }
 }
 
 /* ── Phones. .layout-mobile is set from the user agent, so none of this reaches a desktop at any width. The

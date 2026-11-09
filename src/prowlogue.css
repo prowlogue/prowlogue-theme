@@ -55,6 +55,7 @@
 
     /* App shell */
     @import "./shell/nav-bar.css"; /* the transparent top bar */
+    @import "./shell/potato-badge.css"; /* potato mode's badge in the top bar */
     @import "./shell/drawer.css"; /* floating glass drawer for Modern's and KefinTweaks' */
 
     /* Pages */

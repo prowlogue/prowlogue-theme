@@ -13,23 +13,16 @@
  * bar is a child of <body> only while it's up (components/multiSelect/multiSelect.js).
  */
 
-/* !important: _theme.scss forces the bar's colour with !important. */
+/* Tinted in potato mode (src/tokens.css), as the top bar is. !important: _theme.scss forces the bar's colour with
+   !important. */
 body:has(> #reactRoot > div > main) > .selectionCommandsPanel {
     min-height: var(--pl-appbar-height);
     padding-block: env(safe-area-inset-top, 0px) 0;
     box-sizing: border-box;
-    background: var(--pl-nav-tint);
+    background: var(--pl-lite-bar, var(--pl-nav-tint));
     color: var(--pl-text) !important;
-    -webkit-backdrop-filter: blur(var(--pl-nav-blur));
-    backdrop-filter: blur(var(--pl-nav-blur));
-}
-
-@media (prefers-reduced-transparency: reduce) {
-    body:has(> #reactRoot > div > main) > .selectionCommandsPanel {
-        background: var(--pl-nav-solid);
-        -webkit-backdrop-filter: none;
-        backdrop-filter: none;
-    }
+    -webkit-backdrop-filter: var(--pl-lite-none, blur(var(--pl-nav-blur)));
+    backdrop-filter: var(--pl-lite-none, blur(var(--pl-nav-blur)));
 }
 
 body:has(> .selectionCommandsPanel) > #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child {

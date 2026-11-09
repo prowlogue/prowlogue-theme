@@ -12,6 +12,8 @@
  * (1,0,4). The *Channel twin is set too: legacy CSS builds translucent fills from it.
  * --jf-palette-background-default stays a flat colour because it also lands in background-color, which
  * can't take a gradient. --jf-palette-background-paper stays jellyfin's neutral: dropdown lists use it.
+ * Potato mode (src/tokens.css) keeps the navy flat: without a GPU a gradient behind the page is redrawn on every
+ * scrolled frame, and a flat colour isn't.
  *
  * #202020 hard-coded at build time ($surface-overlay, so no variable reaches it) goes on list plates and
  * the block behind a poster while it loads. They take a faint white fill, which also sits right on a
@@ -21,15 +23,7 @@
 html:has(> body > #reactRoot > div > main) {
     --jf-palette-background-default: var(--pl-navy-mid);
     --jf-palette-background-defaultChannel: var(--pl-navy-mid-channel);
-    --jf-palette-background-defaultImage: var(--pl-bg-navy);
-}
-
-/* Reduce transparency, the theme's low-power mode: flat navy. Without a GPU a gradient behind the page
-   is redrawn on every scrolled frame and a flat colour isn't. */
-@media (prefers-reduced-transparency: reduce) {
-    html:has(> body > #reactRoot > div > main) {
-        --jf-palette-background-defaultImage: none;
-    }
+    --jf-palette-background-defaultImage: var(--pl-lite-none, var(--pl-bg-navy));
 }
 
 #reactRoot > div > main :is(.paperList, .visualCardBox, .collapseContent) {

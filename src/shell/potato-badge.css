@@ -1,0 +1,113 @@
+/*
+ * Potato mode's badge (src/tokens.css): a potato among the top bar's icons, and on hover a card that says potato
+ * mode is on. Neither exists with the switch off: both take their content from
+ * --pl-lite-shown, which is only valid while it's on, and every other value here that could reach the bar goes
+ * through a --pl-lite-* token too, so with the switch off nothing here touches the bar.
+ *
+ * Both hang off the user button's box (components/toolbar/AppToolbar.tsx: the toolbar's second .MuiBox-root,
+ * after the buttons tray; plugins put their buttons inside the tray or in boxes of their own). That box is only
+ * as wide as what's in it, so hovering it without hovering the button means hovering the badge, and the card hangs
+ * from its end, which is the bar's. The badge takes no fill and no focus. It's as wide as the bar's icon buttons, so
+ * the row keeps its spacing, and as tall as the user button, so the box keeps its height and the two need no
+ * alignment. A tap on a phone leaves the box hovered, which shows the card until the next tap somewhere else.
+ *
+ * src/potato-mode.js marks <html> with data-prowlogue-lite. While it does, a click on the badge tests the device
+ * again, and the value "new" opens the card by itself for a few seconds, once, when it turns potato mode on.
+ */
+
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root {
+    display: var(--pl-lite-flex, block);
+    position: var(--pl-lite-relative, static);
+}
+
+/* The potato emoji, from the system's colour emoji font. */
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root::before {
+    content: var(--pl-lite-shown, none) "\1F954";
+    flex: none;
+    width: var(--pl-nav-icon);
+    height: var(--pl-nav-user);
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    font-size: var(--pl-nav-glyph);
+    line-height: var(--pl-nav-user);
+    text-align: center;
+    cursor: help;
+}
+
+:root[data-prowlogue-lite] #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root::before {
+    cursor: pointer;
+}
+
+/* The card, and its title. Generated text takes one style, so the red title is the user button's own ::after,
+   laid over the card's first line, which the card leaves blank. The button ends where the box ends, on both edges
+   the two are placed from, so the same box puts the title's line exactly on that blank one, and a line height set
+   from the card's text keeps it there at the title's larger size. Neither is drawn until a rule below gives it
+   content. */
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root::after,
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root > .MuiIconButton-root::after {
+    position: absolute;
+    inset-block-start: calc(100% + 6px);
+    inset-inline-end: 0;
+    box-sizing: border-box;
+    width: min(25rem, 100vw - 2 * var(--pl-inset));
+    padding: calc(var(--pl-menu-padding) + 6px) calc(var(--pl-menu-row-pad) + 4px);
+    font-size: var(--pl-size-caption);
+    line-height: calc(1.45 * var(--pl-size-caption));
+    text-align: center;
+    white-space: pre-line;
+    pointer-events: none;
+}
+
+/* The menus' panel at a tooltip's size. */
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root::after {
+    z-index: 1;
+    border-radius: var(--pl-radius-menu);
+    background: var(--pl-surface);
+    box-shadow: var(--pl-menu-ring), var(--pl-banner-shadow);
+    color: var(--pl-text);
+    font-weight: 500;
+}
+
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root > .MuiIconButton-root::after {
+    z-index: 2;
+    color: var(--pl-red);
+    font-family: var(--pl-font); /* a button doesn't inherit the page's font everywhere */
+    font-size: var(--pl-size-body);
+    font-weight: 700;
+}
+
+/* Shown while the badge is hovered on its own (the button isn't hovered when none of the box's content is), or
+   announced. The tip at the end depends on what turned potato mode on (--pl-lite-why, src/tokens.css). */
+:root[data-prowlogue-lite="new"] #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root::after,
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root:hover:not(:has(:hover))::after {
+    content: var(--pl-lite-shown, none) "\A\A Whoa there! I noticed your device was sweating!\A\A This is the theme's lite version\A (Visual effects have been minimized)\A\A " var(--pl-lite-why, "");
+}
+
+:root[data-prowlogue-lite="new"] #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root > .MuiIconButton-root::after,
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root:hover > .MuiIconButton-root:not(:hover)::after {
+    content: var(--pl-lite-shown, none) "POTATO MODE ACTIVATED";
+}
+
+/* src/potato-mode.js clears "new" when this animation ends or is cancelled, so the card is announced once. */
+:root[data-prowlogue-lite="new"] #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root::after,
+:root[data-prowlogue-lite="new"] #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root > .MuiIconButton-root::after {
+    animation: pl-potato-announce var(--pl-potato-announce) both;
+}
+
+/* After the announcement, with the same weight, so a hover during it shows the card for as long as it lasts. */
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root:hover:not(:has(:hover))::after,
+#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root:hover > .MuiIconButton-root:not(:hover)::after {
+    animation: pl-home-fade-in var(--pl-focus-button);
+}
+
+/* In, held long enough to read, out. */
+@keyframes pl-potato-announce {
+    from,
+    to {
+        opacity: 0;
+    }
+
+    3%,
+    94% {
+        opacity: 1;
+    }
+}

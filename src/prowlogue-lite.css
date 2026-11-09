@@ -1,0 +1,15 @@
+/*
+ * Prowlogue Lite: the whole theme with potato mode on (src/tokens.css), for servers whose devices can't draw live
+ * blur smoothly. Every live blur turns off, the glass that showed it keeps a see-through tint, and a potato in the
+ * top bar says so. It loads in place of prowlogue.css, in the server's Custom CSS for everyone or in one browser's
+ * own. `npm run build` inlines the theme below into dist/v1/prowlogue-lite.css, so it stays one request.
+ */
+@import "./prowlogue.css";
+
+/* After the system's switches at the end of src/tokens.css, so this tip wins over theirs. */
+@supports selector(:has(*)) {
+    :root {
+        --pl-lite: ;
+        --pl-lite-why: "Don't want to be a \1F954?\A Your server's admin turned this on for everyone. Ask them about the full theme.";
+    }
+}
