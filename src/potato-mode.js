@@ -17,17 +17,19 @@
     let last = 0;
     let lastScroll = 0;
     let watching = false;
+    let announce = true;
 
     // A session cookie keeps the verdict until the browser closes: 1 for lite, 0 for a GPU that only needs watching.
     const save = (verdict) => {
         document.cookie = `prowlogue-lite=${verdict}; SameSite=Strict`;
     };
 
-    // "new" opens the potato's card by itself, once.
+    // "new" opens the potato's card by itself. A test started from the potato stays quiet: its card is under the
+    // pointer already, or was moments ago.
     const lite = () => {
         removeEventListener('scroll', onScroll, true);
         save(1);
-        root.setAttribute(mark, 'new');
+        root.setAttribute(mark, announce ? 'new' : '');
     };
 
     // Frame rate while something scrolls, which is when frosted glass costs most. A gap over half a second is a
@@ -82,6 +84,7 @@
 
     addEventListener('click', (event) => {
         if (!root.hasAttribute(mark) || !event.target.matches?.(badge)) return;
+        announce = false;
         root.removeAttribute(mark);
         test();
     });

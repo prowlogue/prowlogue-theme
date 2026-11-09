@@ -12,7 +12,8 @@
  * alignment. A tap on a phone leaves the box hovered, which shows the card until the next tap somewhere else.
  *
  * src/potato-mode.js marks <html> with data-prowlogue-lite. While it does, a click on the badge tests the device
- * again, and the value "new" opens the card by itself for a few seconds, once, when it turns potato mode on.
+ * again, and the value "new" opens the card by itself for a few seconds when it turns potato mode on, unless the
+ * test was started from the badge.
  */
 
 #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root {

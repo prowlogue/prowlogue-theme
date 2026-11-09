@@ -36,12 +36,22 @@
    @import url("https://theme.prowlogue.app/v1/prowlogue.css");
    ```
 
-3. Select **Save**, then reload the page.
+3. Select **Save**.
+4. **Recommended:** let slow devices switch to [potato mode](#-potato-mode) by themselves. This needs the [JavaScript Injector](https://github.com/n00bcodr/Jellyfin-JavaScript-Injector) plugin.
+   1. Open **Dashboard → Plugins → JavaScript Injector** and tick **Allow external script URLs**.
+   2. Select **Add Script**, name it `Prowlogue potato mode`, and paste this into **Script URL**:
 
-That's it. The theme now applies to everyone on your server.
+      ```text
+      https://theme.prowlogue.app/v1/potato-mode.js
+      ```
+
+   3. Leave **Requires Authentication** off, and select **Save**.
+5. Reload the page.
+
+That's it. The theme now applies to everyone on your server, and any device that can't keep up with it switches to potato mode on its own.
 
 > [!TIP]
-> **Not the server admin?** Paste the same line into **Settings → Display → Custom CSS code** instead. It applies to you, in that browser.
+> **Not the server admin?** Paste the theme's line into **Settings → Display → Custom CSS code** instead. It applies to you, in that browser. Step 4 needs an admin, so on a slow device use the [lite version](#for-everyone) instead.
 
 > [!IMPORTANT]
 > Keep it as the first line. Browsers ignore an `@import` that comes after any other CSS.
@@ -59,7 +69,7 @@ Everything else keeps the stock Jellyfin look, including the Legacy and TV displ
 
 ### Updates
 
-There's nothing to do. Your browser starts from the copy it already has, so the theme never holds up a page, and fetches any new release in the background. The release shows from the next reload.
+There's nothing to do. Your browser starts from the copy it already has, so the theme never holds up a page, and fetches any new release in the background. The release shows from the next reload. The potato mode script updates the same way when it's added by its address, as in step 4.
 
 ## ✨ Features
 
@@ -85,7 +95,7 @@ With the [JavaScript Injector](https://github.com/n00bcodr/Jellyfin-JavaScript-I
 - A device that stutters while scrolling, under 25 frames a second for 3 seconds, switches on the spot, and the potato's card says so.
 - It stays on until the browser closes. Clicking the potato tests the device again.
 
-Keep the theme's line in **Dashboard → Branding**. In **Dashboard → Plugins → JavaScript Injector**, select **Add Script**, paste this, leave **Requires Authentication** off, and select **Save**:
+[Step 4 of Install](#-install) adds the script by its address, so it updates with the theme. To paste it in instead, without allowing external script URLs: keep the theme's line in **Dashboard → Branding**, then in **Dashboard → Plugins → JavaScript Injector**, select **Add Script**, paste this into the code box, leave **Requires Authentication** off, and select **Save**. A pasted copy doesn't update by itself.
 
 ```js
 /*
@@ -107,17 +117,19 @@ Keep the theme's line in **Dashboard → Branding**. In **Dashboard → Plugins 
     let last = 0;
     let lastScroll = 0;
     let watching = false;
+    let announce = true;
 
     // A session cookie keeps the verdict until the browser closes: 1 for lite, 0 for a GPU that only needs watching.
     const save = (verdict) => {
         document.cookie = `prowlogue-lite=${verdict}; SameSite=Strict`;
     };
 
-    // "new" opens the potato's card by itself, once.
+    // "new" opens the potato's card by itself. A test started from the potato stays quiet: its card is under the
+    // pointer already, or was moments ago.
     const lite = () => {
         removeEventListener('scroll', onScroll, true);
         save(1);
-        root.setAttribute(mark, 'new');
+        root.setAttribute(mark, announce ? 'new' : '');
     };
 
     // Frame rate while something scrolls, which is when frosted glass costs most. A gap over half a second is a
@@ -172,6 +184,7 @@ Keep the theme's line in **Dashboard → Branding**. In **Dashboard → Plugins 
 
     addEventListener('click', (event) => {
         if (!root.hasAttribute(mark) || !event.target.matches?.(badge)) return;
+        announce = false;
         root.removeAttribute(mark);
         test();
     });
@@ -182,9 +195,6 @@ Keep the theme's line in **Dashboard → Branding**. In **Dashboard → Plugins 
     else test();
 })();
 ```
-
-> [!NOTE]
-> To keep the script up to date with the theme, put `https://theme.prowlogue.app/v1/potato-mode.js` in **Script URL** instead, and turn on **Allow external script URLs** in the plugin's settings.
 
 ### For everyone
 
@@ -278,7 +288,7 @@ style-src 'self' 'unsafe-inline' https://theme.prowlogue.app;
 font-src 'self' data:;
 ```
 
-Keep the rest of your policy as it is. If only the font is blocked, text falls back to Jellyfin's Noto Sans.
+If you add the potato mode script by its address, add `https://theme.prowlogue.app` to `script-src` too. Keep the rest of your policy as it is. If only the font is blocked, text falls back to Jellyfin's Noto Sans.
 
 </details>
 
