@@ -45,9 +45,7 @@
       https://theme.prowlogue.app/v1/potato-mode.js
       ```
 
-      (Leave the code box empty)
-
-   3. Leave **Requires Authentication** off, and select **Save**.
+   3. Leave the code box empty and **Requires Authentication** off, then select **Save**.
 5. Reload the page.
 
 That's it. The theme now applies to everyone on your server, and any device that can't keep up with it switches to potato mode on its own.
