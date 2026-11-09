@@ -32,3 +32,14 @@
         opacity: 1;
     }
 }
+
+/* Upright phones: portrait posters in rows take 40 % of the width, jellyfin's .overflowPortraitCard below 25em
+   (cardbuilder/card.scss), so two and a half share the screen on every phone and the next one always peeks in. From
+   25em jellyfin fits 3.2, too small to tap comfortably. A phone on its side keeps jellyfin's size, because its
+   poster already takes most of the height under the bar, and 43.75em is where jellyfin's tablet sizes start.
+   KefinTweaks' skeleton cards carry the same class, so its rows keep their size when the real cards swap in. */
+@media (orientation: portrait) and (max-width: 43.75em) {
+    .layout-mobile #reactRoot > div > main .overflowPortraitCard {
+        width: 40vw;
+    }
+}
