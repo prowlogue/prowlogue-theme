@@ -39,11 +39,13 @@
 3. Select **Save**.
 4. **Recommended:** let slow devices switch to [potato mode](#-potato-mode) by themselves. This needs the [JavaScript Injector](https://github.com/n00bcodr/Jellyfin-JavaScript-Injector) plugin.
    1. Open **Dashboard → Plugins → JavaScript Injector** and tick **Allow external script URLs**.
-   2. Select **Add Script**, name it `Prowlogue potato mode`, and paste this into **Script URL**:
+   2. Select **Add Script**, name it `Potato Mode | Low End Devices`, and paste this into the **Script URL**:
 
       ```text
       https://theme.prowlogue.app/v1/potato-mode.js
       ```
+
+      (Leave the code box empty)
 
    3. Leave **Requires Authentication** off, and select **Save**.
 5. Reload the page.
@@ -95,7 +97,7 @@ With the [JavaScript Injector](https://github.com/n00bcodr/Jellyfin-JavaScript-I
 - A device that stutters while scrolling, under 25 frames a second for 3 seconds, switches on the spot, and the potato's card says so.
 - It stays on until the browser closes. Clicking the potato tests the device again.
 
-[Step 4 of Install](#-install) adds the script by its address, so it updates with the theme. To paste it in instead, without allowing external script URLs: keep the theme's line in **Dashboard → Branding**, then in **Dashboard → Plugins → JavaScript Injector**, select **Add Script**, paste this into the code box, leave **Requires Authentication** off, and select **Save**. A pasted copy doesn't update by itself.
+[Step 4 of Install](#-install) adds the script by its address, so it updates with the theme. To paste it in instead, without allowing external script URLs: keep the theme's line in **Dashboard → Branding**, then in **Dashboard → Plugins → JavaScript Injector**, select **Add Script**, name it `Potato Mode | Low End Devices`, paste this into the code box, leave **Requires Authentication** off, and select **Save**. A pasted copy doesn't update by itself.
 
 ```js
 /*
