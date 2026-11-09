@@ -11,10 +11,11 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const css = readFileSync(resolve(root, 'dist/v1/prowlogue.css'), 'utf8');
 const code = css.replace(/\/\*[\s\S]*?\*\//g, '');
 
-// Without these two headers a deploy takes up to 4 hours to reach a returning user, with no error anywhere.
-test('a deploy reaches browsers on their next load', () => {
+// The first header lets a load use the browser's copy at once and still fetch a deploy in the background. Without
+// the second, the domain's cache keeps a deploy from a returning user for hours, with no error anywhere.
+test('a load uses its copy at once and a deploy arrives one load later', () => {
     const headers = readFileSync(resolve(root, 'dist/_headers'), 'utf8');
-    assert.match(headers, /^\s+Cache-Control: no-cache\s*$/m);
+    assert.match(headers, /^\s+Cache-Control: max-age=0, stale-while-revalidate=604800\s*$/m);
     assert.match(headers, /^\s+Cloudflare-CDN-Cache-Control: no-store\s*$/m);
 });
 

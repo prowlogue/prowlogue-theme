@@ -1,8 +1,13 @@
 # Cloudflare Pages response headers. tools/build.mjs copies this file into dist/.
 #
-# Browsers check for a new file on every full page load and get a 304 when nothing changed, so a deploy
-# reaches users the next time they load Jellyfin. Cloudflare-CDN-Cache-Control keeps the domain's own
-# cache out of it: on a custom domain that cache raises what it stores to 4 hours in the browser.
+# A load never waits on the network for the theme: for a week after each load, the browser uses the copy it
+# has at once and fetches any new file in the background, so a deploy reaches a returning user on the second
+# full load after it. Past the week it waits for the check, as with no-cache. A no-cache directive here
+# cancels the background fetch, and a longer max-age holds a deploy back until it runs out.
+#
+# Cloudflare-CDN-Cache-Control keeps the domain's own cache out of it. On a custom domain the zone also raises
+# a max-age below its Browser Cache TTL to that TTL, so the hostname needs a Cache Rule with Browser TTL set to
+# Respect origin.
 /*
-  Cache-Control: no-cache
+  Cache-Control: max-age=0, stale-while-revalidate=604800
   Cloudflare-CDN-Cache-Control: no-store

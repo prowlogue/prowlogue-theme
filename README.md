@@ -59,7 +59,7 @@ Everything else keeps the stock Jellyfin look, including the Legacy and TV displ
 
 ### Updates
 
-There's nothing to do. A new release reaches your server the next time a page loads.
+There's nothing to do. Your browser starts from the copy it already has, so the theme never holds up a page, and fetches any new release in the background. The release shows from the next reload.
 
 ## ✨ Features
 
@@ -154,7 +154,7 @@ Keep the rest of your policy as it is. If only the font is blocked, text falls b
 <details>
 <summary><b>I don't see the latest update</b></summary>
 
-Reload the page. A tab that's already open keeps the version it loaded.
+Reload the page twice. The first reload fetches the update in the background, and the second shows it. A tab that's already open keeps the version it loaded until you reload it.
 
 </details>
 
