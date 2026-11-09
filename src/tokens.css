@@ -313,7 +313,7 @@
     --pl-detail-inline: max(5vw, env(safe-area-inset-left, 0px)); /* jellyfin's 5 %, clear of the camera on a phone on its side */
     --pl-detail-poster-phone: min(40vw, 30vh); /* far larger than stock's 30vw; goes by the height too, so a short phone still gets to Play */
     --pl-detail-poster-gap: 1rem;
-    --pl-detail-thumb-gap: 12px; /* above and below the logo over a movie or show's wide picture (src/pages/details-glass.css) */
+    --pl-detail-thumb-gap: 12px; /* the bar to a wide picture, and the logo's inset over it (src/pages/details-glass.css) */
     --pl-detail-logo-phone: 20vw;
     --pl-detail-banner-phone: max(30vh, var(--pl-appbar-height) + var(--pl-detail-poster-phone) * 1.5 - 18px); /* the poster hangs from the bottom of the text beside it, so this is what clears the app bar: its top lands the text's height less 18px below the bar, on a short window and under a notch too */
     --pl-detail-panel: rgba(0, 0, 0, 0.5); /* a little heavier than the desktop's: smaller text, and a phone's crop of a bright backdrop fills the panel with it */

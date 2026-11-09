@@ -969,30 +969,37 @@ body:has(> #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.h
 }
 
 /* The logo stands for the title, as on a desktop, in the column beside the poster and hanging from the bottom of the banner.
-   jellyfin hides it on phones; its image is there all the same. The title stays when there's no logo. */
+   jellyfin hides it on phones; its image is there all the same. The title stays when there's no logo. It sits above
+   the ribbon (z-index 2, librarybrowser.scss), so it can lie over an episode's picture, and taps go through it to
+   the show's link under it. */
 .layout-mobile #reactRoot > div > main #itemDetailPage > .detailLogo {
     display: block;
     top: auto;
     right: auto;
+    z-index: 3;
     box-sizing: border-box;
-    width: calc(100% - var(--pl-detail-column-phone) - var(--pl-detail-inline));
+    width: calc(100% - var(--pl-detail-column-phone) - var(--pl-detail-inline) - var(--pl-detail-logo-x, 0px) - var(--pl-detail-logo-end, 0px));
     height: var(--pl-detail-logo-phone);
     margin-block: calc(-1 * (var(--pl-detail-logo-phone) + var(--pl-detail-logo-gap))) var(--pl-detail-logo-gap);
-    margin-inline-start: var(--pl-detail-column-phone);
+    margin-inline-start: calc(var(--pl-detail-column-phone) + var(--pl-detail-logo-x, 0px));
+    background-position: var(--pl-detail-logo-align, center);
     filter: var(--pl-hero-logo-shadow);
+    pointer-events: none;
 }
 
 .layout-mobile #reactRoot > div > main #itemDetailPage > .detailLogo:not(.hide) + .detailPageWrapperContainer .itemName:is(.parentNameLast, .originalTitle) {
     display: none;
 }
 
-/* The show's name on an episode or a season goes the same way, and its link goes over the logo, so the logo is what you tap. */
+/* The show's name on an episode or a season goes the same way, and its link goes over the logo, so the logo is what you
+   tap. Over an episode's picture it has to clear the picture's card, which jellyfin raises to z-index 3. */
 .layout-mobile #reactRoot > div > main #itemDetailPage > .detailLogo:not(.hide) + .detailPageWrapperContainer .parentName:not(.musicParentName) {
     font-size: 0;
 }
 
 .layout-mobile #reactRoot > div > main #itemDetailPage > .detailLogo:not(.hide) + .detailPageWrapperContainer .parentName:not(.musicParentName) .itemAction {
     position: absolute;
+    z-index: 4;
     inset-block-start: calc(-1 * (var(--pl-detail-logo-phone) + var(--pl-detail-logo-gap)));
     inset-inline: var(--pl-detail-column-phone) var(--pl-detail-inline);
     height: var(--pl-detail-logo-phone);
@@ -1018,7 +1025,7 @@ body:has(> #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.h
     box-shadow: var(--pl-lift-shadow);
 }
 
-/* A movie or a show takes a wide picture in place of the poster, with the logo above it: the poster takes too much
+/* A movie or a show takes a wide picture in place of the poster, with the logo over it: the poster takes too much
    of the screen. The page has three images, the poster, the logo and the backdrop, and no Thumb: jellyfin only asks
    for one on cards, and CSS can't build its address. So the picture is the backdrop #itemBackdrop already holds, a
    card on top of the art with nothing more to download. The type isn't on the page either, only in the fallback
@@ -1064,15 +1071,28 @@ body:has(> #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.h
     /* Measured from .infoWrapper here, not from the ribbon. */
     .layout-mobile #reactRoot > div > main #itemDetailPage > .detailLogo:not(.hide) + .detailPageWrapperContainer .parentName:not(.musicParentName) .itemAction {
         inset-block-start: calc(-1 * (var(--pl-detail-logo-phone) + var(--pl-detail-logo-gap) + 0.5rem));
-        inset-inline: calc(var(--pl-detail-poster-phone) + var(--pl-detail-poster-gap)) 0;
+        inset-inline: calc(var(--pl-detail-poster-phone) + var(--pl-detail-poster-gap) + var(--pl-detail-logo-x, 0px)) var(--pl-detail-logo-end, 0px);
+    }
+
+    /* A movie, a show or an episode: a wide picture the width of the screen, just under the bar, and the logo over its
+       foot at the left, kept to the left 73 % so a wide logo doesn't run across the picture. */
+    .layout-mobile #reactRoot > div > main #itemDetailPage:has(> .detailPageWrapperContainer > .detailPagePrimaryContainer > .detailRibbon > .infoWrapper > .detailImageContainer > .backdropCard),
+    .layout-mobile #reactRoot > div > main #itemDetailPage:has(> .detailPageWrapperContainer > .detailPagePrimaryContainer > .detailRibbon > .infoWrapper > .detailImageContainer > .portraitCard > .cardBox > .cardScalable > .cardPadder > .cardImageIcon:is(.movie, .tv)) {
+        --pl-detail-thumb-width: calc(100vw - 2 * var(--pl-detail-inline));
+        --pl-detail-poster-phone: 0px;
+        --pl-detail-poster-gap: 0px;
+        --pl-detail-logo-phone: calc(var(--pl-detail-thumb-width) * 9 / 16 * 0.411);
+        --pl-detail-logo-x: var(--pl-detail-thumb-gap);
+        --pl-detail-logo-end: calc(var(--pl-detail-thumb-width) * 0.27);
+        --pl-detail-logo-align: left bottom;
     }
 
     /* An episode's picture is wide, and at a third of a phone it's a thumbnail you can't read: it takes the width of
-       the screen, in the flow, with the logo across the top. */
+       the screen, in the flow at the top of the ribbon, under jellyfin's 0.5rem padding. The banner ends that far
+       above it, and the logo hangs from the banner down onto it. */
     .layout-mobile #reactRoot > div > main #itemDetailPage:has(> .detailPageWrapperContainer > .detailPagePrimaryContainer > .detailRibbon > .infoWrapper > .detailImageContainer > .backdropCard) {
-        --pl-detail-poster-phone: 0px;
-        --pl-detail-poster-gap: 0px;
-        --pl-detail-banner-phone: calc(var(--pl-appbar-height) + var(--pl-detail-logo-phone) + 1.5rem);
+        --pl-detail-banner-phone: calc(var(--pl-appbar-height) + var(--pl-detail-thumb-gap) - 0.5rem);
+        --pl-detail-logo-gap: calc(var(--pl-detail-thumb-gap) - 0.5rem - var(--pl-detail-thumb-width) * 9 / 16);
     }
 
     .layout-mobile #reactRoot > div > main #itemDetailPage .detailRibbon .detailImageContainer .backdropCard {
@@ -1083,14 +1103,11 @@ body:has(> #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.h
         margin-block-end: 0.75rem;
     }
 
-    /* The logo across the top, the picture under it at the column's width, and the details under that: an episode's order. */
+    /* A movie or a show's picture is drawn by the banner, which ends at its foot, so the logo hangs from there. */
     .layout-mobile #reactRoot > div > main #itemDetailPage:has(> .detailPageWrapperContainer > .detailPagePrimaryContainer > .detailRibbon > .infoWrapper > .detailImageContainer > .portraitCard > .cardBox > .cardScalable > .cardPadder > .cardImageIcon:is(.movie, .tv)) {
         --pl-detail-thumb: "";
-        --pl-detail-thumb-width: calc(100vw - 2 * var(--pl-detail-inline));
-        --pl-detail-thumb-top: calc(var(--pl-appbar-height) + 2 * var(--pl-detail-thumb-gap) + var(--pl-detail-logo-phone));
-        --pl-detail-poster-phone: 0px;
-        --pl-detail-poster-gap: 0px;
-        --pl-detail-logo-gap: calc(var(--pl-detail-thumb-gap) + var(--pl-detail-thumb-width) * 9 / 16);
+        --pl-detail-thumb-top: calc(var(--pl-appbar-height) + var(--pl-detail-thumb-gap));
+        --pl-detail-logo-gap: var(--pl-detail-thumb-gap);
         --pl-detail-banner-phone: calc(var(--pl-detail-thumb-top) + var(--pl-detail-thumb-width) * 9 / 16);
     }
 }
