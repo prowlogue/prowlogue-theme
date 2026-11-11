@@ -1,5 +1,5 @@
 /*
- * Spotlight hero (Modern layout): the Media Bar plugin (IAmParadox27, client "Jellyfin Slideshow by
+ * Spotlight hero (both layouts): the Media Bar plugin (IAmParadox27, client "Jellyfin Slideshow by
  * M0RPH3US" v6.1.3) as a hero: only the backdrop, the logo and the overview remain, and the arrows sit
  * at the left and right screen edges.
  *   - Full-bleed backdrop, centred, under a bottom scrim; no Ken Burns zoom, no blur-in, no plugin fades
@@ -36,7 +36,8 @@
 
 /* ── Geometry, through Media Bar's own variables: the stage is the hero, and the rows start where
    it ends. Both are read outside the stage (the rows sit in #reactRoot), so they go on <html>. ── */
-html:has(> body > #reactRoot > div > main) {
+html:has(> body > #reactRoot > div > main),
+html:where([data-theme]:not(.layout-tv)):has(> body > #reactRoot > .skinBody) {
     --slideshow-height: var(--pl-hero-height);
     --slideshow-content-top: var(--pl-hero-height);
 }
@@ -45,21 +46,30 @@ html:has(> body > #reactRoot > div > main) {
    Enhanced's Downloads page, a cached legacy page) it reads 0 and publishes the scroll position
    instead, so the rows land in the wrong place if the page loads scrolled. The real offset is the
    app bar's height. KefinTweaks sets the same value, but only once its stylesheet has loaded. */
-#reactRoot > div > main #homeTab > .homeSectionsContainer {
+#reactRoot > div > main #homeTab > .homeSectionsContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab > .homeSectionsContainer {
     --slideshow-page-offset: var(--pl-appbar-height);
+}
+
+/* Legacy's Home starts where its bar ends, and that's lower where its tabs have a row of their own
+   (src/shell/legacy-bar.css). */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab > .homeSectionsContainer {
+    --slideshow-page-offset: var(--pl-page-top);
 }
 
 /* On the stage: beats the marquee layout's own gutter (#slides-container.layout-marquee). The bottom
    fade becomes an opaque mask, so masks that combine it (a playing trailer's side fade) keep only
    the rest. */
-body:has(> #reactRoot > div > main) > #slides-container {
+body:has(> #reactRoot > div > main) > #slides-container,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container {
     --slideshow-gutter: var(--pl-inset);
     --slideshow-bottom-fade: linear-gradient(#000, #000);
     --slideshow-video-side-fade: linear-gradient(to right, transparent, #000 var(--pl-trailer-fade));
 }
 
 /* Phones: the logo and overview clear the camera on a phone on its side, as Home's rows do. */
-.layout-mobile body:has(> #reactRoot > div > main) > #slides-container {
+.layout-mobile body:has(> #reactRoot > div > main) > #slides-container,
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) > #slides-container {
     --slideshow-gutter: max(var(--pl-inset), env(safe-area-inset-left, 0px));
 }
 
@@ -68,37 +78,44 @@ body:has(> #reactRoot > div > main) > #slides-container {
    stage rather than the image so the logo and overview come with it, and on the first .slide so the fade
    waits for the art. Slides swap one at a time, so it can't replay during the show; every slide goes on
    leaving Home, so it plays again on the way back. */
-body:has(> #reactRoot > div > main) > #slides-container:has(> .slide) {
+body:has(> #reactRoot > div > main) > #slides-container:has(> .slide),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container:has(> .slide) {
     animation: pl-home-fade-in var(--pl-home-fade);
 }
 
 /* ── Only the backdrop, the logo and the overview (plus the hidden click target). ── */
-body:has(> #reactRoot > div > main) > #slides-container :is(.dots-container, .ss-chrome, .plate) {
+body:has(> #reactRoot > div > main) > #slides-container :is(.dots-container, .ss-chrome, .plate),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container :is(.dots-container, .ss-chrome, .plate) {
     display: none;
 }
 
-body:has(> #reactRoot > div > main) > #slides-container .slide-content > :is(.poster-container, .info-container, .tagline, .genre, .spec-rail, .spec-line, .plate-eyebrow, .plate-specs) {
+body:has(> #reactRoot > div > main) > #slides-container .slide-content > :is(.poster-container, .info-container, .tagline, .genre, .spec-rail, .spec-line, .plate-eyebrow, .plate-specs),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .slide-content > :is(.poster-container, .info-container, .tagline, .genre, .spec-rail, .spec-line, .plate-eyebrow, .plate-specs) {
     display: none;
 }
 
 /* ── Backdrop: centred, still, unmasked; a scrim instead of the plugin's darkening. Phones
    hard-code their fades rather than using the variable, so masks go explicitly. ── */
-body:has(> #reactRoot > div > main) > #slides-container .backdrop {
+body:has(> #reactRoot > div > main) > #slides-container .backdrop,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .backdrop {
     object-position: center;
     border-radius: 0;
     animation: none;
 }
 
-body:has(> #reactRoot > div > main) > #slides-container :is(.backdrop-container, .backdrop:not(.with-video)) {
+body:has(> #reactRoot > div > main) > #slides-container :is(.backdrop-container, .backdrop:not(.with-video)),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container :is(.backdrop-container, .backdrop:not(.with-video)) {
     -webkit-mask-image: none;
     mask-image: none;
 }
 
-body:has(> #reactRoot > div > main) > #slides-container .backdrop-overlay {
+body:has(> #reactRoot > div > main) > #slides-container .backdrop-overlay,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .backdrop-overlay {
     display: none;
 }
 
-body:has(> #reactRoot > div > main) > #slides-container .gradient-overlay {
+body:has(> #reactRoot > div > main) > #slides-container .gradient-overlay,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .gradient-overlay {
     background: var(--pl-hero-scrim);
     -webkit-mask-image: none;
     mask-image: none;
@@ -107,17 +124,20 @@ body:has(> #reactRoot > div > main) > #slides-container .gradient-overlay {
 /* ── Trailer: the right of the screen (--pl-trailer-left), the backdrop on the left, a soft overlap.
    Media Bar sets .with-video on the backdrop and overview while a trailer plays, and hides trailers below
    768px wide, which a big phone on its side isn't: the end of this block. ── */
-body:has(> #reactRoot > div > main) > #slides-container .video-container {
+body:has(> #reactRoot > div > main) > #slides-container .video-container,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .video-container {
     left: var(--pl-trailer-left);
 }
 
 /* Centred on the visible hero, not the full-height box, and zoomed past any letterbox bars. */
-body:has(> #reactRoot > div > main) > #slides-container .video-player {
+body:has(> #reactRoot > div > main) > #slides-container .video-player,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .video-player {
     top: calc(var(--pl-hero-height) / 2);
     transform: translate(-50%, -50%) scale(var(--pl-trailer-zoom));
 }
 
-body:has(> #reactRoot > div > main) > #slides-container .backdrop.with-video {
+body:has(> #reactRoot > div > main) > #slides-container .backdrop.with-video,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .backdrop.with-video {
     width: calc(var(--pl-trailer-left) + var(--pl-trailer-fade));
     -webkit-mask-image: linear-gradient(to left, transparent, #000 var(--pl-trailer-fade));
     mask-image: linear-gradient(to left, transparent, #000 var(--pl-trailer-fade));
@@ -127,7 +147,8 @@ body:has(> #reactRoot > div > main) > #slides-container .backdrop.with-video {
    it) still scrolls away. Fixed children escape the stage's overflow clip (no transform on any ancestor). */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     @media (hover: hover) and (pointer: fine) {
-        .layout-desktop body:has(> #reactRoot > div > main) > #slides-container :is(.backdrop-container, .gradient-overlay) {
+        .layout-desktop body:has(> #reactRoot > div > main) > #slides-container :is(.backdrop-container, .gradient-overlay),
+        .layout-desktop:where([data-theme]) body:has(> #reactRoot > .skinBody) > #slides-container :is(.backdrop-container, .gradient-overlay) {
             position: fixed;
             inset: 0;
             width: auto;
@@ -135,7 +156,8 @@ body:has(> #reactRoot > div > main) > #slides-container .backdrop.with-video {
             pointer-events: none;
         }
 
-        .layout-desktop body:has(> #reactRoot > div > main) > #slides-container .video-container {
+        .layout-desktop body:has(> #reactRoot > div > main) > #slides-container .video-container,
+        .layout-desktop:where([data-theme]) body:has(> #reactRoot > .skinBody) > #slides-container .video-container {
             position: fixed;
         }
     }
@@ -144,7 +166,8 @@ body:has(> #reactRoot > div > main) > #slides-container .backdrop.with-video {
 /* Phones the same, from the top of the screen and as tall as it gets with the browser's bars
    gone, which is what 100vh is on a phone: an inset of 0 would resize the art as those bars come and go. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    .layout-mobile body:has(> #reactRoot > div > main) > #slides-container :is(.backdrop-container, .gradient-overlay) {
+    .layout-mobile body:has(> #reactRoot > div > main) > #slides-container :is(.backdrop-container, .gradient-overlay),
+    .layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) > #slides-container :is(.backdrop-container, .gradient-overlay) {
         position: fixed;
         inset: 0 0 auto;
         width: auto;
@@ -156,7 +179,8 @@ body:has(> #reactRoot > div > main) > #slides-container .backdrop.with-video {
 /* Media Bar's trailer gate only looks at width, so a big phone on its side plays them. The trailer stays up in the hero
    and the art carries on at full width behind it, as the plugin does upright: that's what the panel frosts, where
    pinning the trailer the way a desktop does would re-blur half a phone's screen on every video frame. */
-.layout-mobile body:has(> #reactRoot > div > main) > #slides-container .backdrop.with-video {
+.layout-mobile body:has(> #reactRoot > div > main) > #slides-container .backdrop.with-video,
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) > #slides-container .backdrop.with-video {
     width: 100%;
     -webkit-mask-image: none;
     mask-image: none;
@@ -166,7 +190,8 @@ body:has(> #reactRoot > div > main) > #slides-container .backdrop.with-video {
    (phones centre it with a transform; marquee on phones makes it a frosted card), so it's set in full.
    A grid: the first column is as wide as the logo and the overview spans past it. A logo taller or
    wider than 700 × 180 is scaled down; a smaller one stays as it is. ── */
-body:has(> #reactRoot > div > main) > #slides-container .slide-content {
+body:has(> #reactRoot > div > main) > #slides-container .slide-content,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .slide-content {
     display: grid;
     grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
     top: auto;
@@ -186,11 +211,13 @@ body:has(> #reactRoot > div > main) > #slides-container .slide-content {
 }
 
 /* The logo's box steps aside, so the image itself is the grid item and sizes the first cell. */
-body:has(> #reactRoot > div > main) > #slides-container .logo-container {
+body:has(> #reactRoot > div > main) > #slides-container .logo-container,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .logo-container {
     display: contents;
 }
 
-body:has(> #reactRoot > div > main) > #slides-container .logo {
+body:has(> #reactRoot > div > main) > #slides-container .logo,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .logo {
     grid-area: 1 / 1;
     justify-self: start;
     align-self: end;
@@ -201,18 +228,21 @@ body:has(> #reactRoot > div > main) > #slides-container .logo {
 }
 
 /* Media Bar hides the overview on phones; here it always shows. */
-body:has(> #reactRoot > div > main) > #slides-container .plot-container {
+body:has(> #reactRoot > div > main) > #slides-container .plot-container,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .plot-container {
     grid-area: 2 / 1 / auto / -1;
     display: block;
     width: 100%;
 }
 
 /* The overview ends where the fade does, on the backdrop's edge, not where the trailer starts. */
-body:has(> #reactRoot > div > main) > #slides-container .plot-container.with-video {
+body:has(> #reactRoot > div > main) > #slides-container .plot-container.with-video,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .plot-container.with-video {
     width: calc(var(--pl-trailer-left) + var(--pl-trailer-fade) - var(--slideshow-gutter));
 }
 
-body:has(> #reactRoot > div > main) > #slides-container .plot {
+body:has(> #reactRoot > div > main) > #slides-container .plot,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .plot {
     font-size: var(--pl-size-callout);
     line-height: calc(38 / 31);
     color: var(--pl-hero-overview);
@@ -225,7 +255,8 @@ body:has(> #reactRoot > div > main) > #slides-container .plot {
    the buttons stretching that cell, and hidden takes the others (Play, Favourite, KefinTweaks' Watchlist,
    any plugin's) out of the tab order. On the container, so no rule here needs `> *`: that would put the
    whole page in Blink's :has() invalidation set. ── */
-body:has(> #reactRoot > div > main) > #slides-container .button-container {
+body:has(> #reactRoot > div > main) > #slides-container .button-container,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .button-container {
     grid-area: 1 / 1;
     justify-self: stretch;
     align-self: stretch;
@@ -236,7 +267,8 @@ body:has(> #reactRoot > div > main) > #slides-container .button-container {
     visibility: hidden;
 }
 
-body:has(> #reactRoot > div > main) > #slides-container .button-container > .detailButton.detail-button {
+body:has(> #reactRoot > div > main) > #slides-container .button-container > .detailButton.detail-button,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .button-container > .detailButton.detail-button {
     visibility: visible;
     position: absolute;
     inset: 0;
@@ -253,7 +285,8 @@ body:has(> #reactRoot > div > main) > #slides-container .button-container > .det
 }
 
 /* Keyboard focus on it: a 5pt white inside stroke with 16pt corners. */
-body:has(> #reactRoot > div > main) > #slides-container::after {
+body:has(> #reactRoot > div > main) > #slides-container::after,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -265,12 +298,14 @@ body:has(> #reactRoot > div > main) > #slides-container::after {
     pointer-events: none;
 }
 
-body:has(> #reactRoot > div > main) > #slides-container:has(.detailButton.detail-button:focus-visible)::after {
+body:has(> #reactRoot > div > main) > #slides-container:has(.detailButton.detail-button:focus-visible)::after,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container:has(.detailButton.detail-button:focus-visible)::after {
     opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    body:has(> #reactRoot > div > main) > #slides-container::after {
+    body:has(> #reactRoot > div > main) > #slides-container::after,
+    :where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container::after {
         transition: none;
     }
 }
@@ -278,7 +313,8 @@ body:has(> #reactRoot > div > main) > #slides-container:has(.detailButton.detail
 /* ── Arrows at the screen edges: bare white chevrons, vertically centred on the hero, always shown.
    !important: in its marquee and plate layouts Media Bar writes the arrows' top, bottom and transform
    inline (positionDots) to park them bottom-right beside the dots. ── */
-body:has(> #reactRoot > div > main) > #slides-container .arrow {
+body:has(> #reactRoot > div > main) > #slides-container .arrow,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .arrow {
     top: 50% !important;
     bottom: auto !important;
     transform: translateY(-50%) !important;
@@ -297,17 +333,20 @@ body:has(> #reactRoot > div > main) > #slides-container .arrow {
 }
 
 /* Phones only see these on their side: the chevrons keep to the gutter, between the camera and the logo. */
-.layout-mobile body:has(> #reactRoot > div > main) > #slides-container .left-arrow {
+.layout-mobile body:has(> #reactRoot > div > main) > #slides-container .left-arrow,
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) > #slides-container .left-arrow {
     padding-left: calc(var(--slideshow-gutter) - var(--pl-hero-chevron));
 }
 
-.layout-mobile body:has(> #reactRoot > div > main) > #slides-container .right-arrow {
+.layout-mobile body:has(> #reactRoot > div > main) > #slides-container .right-arrow,
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) > #slides-container .right-arrow {
     padding-right: calc(var(--slideshow-gutter) - var(--pl-hero-chevron));
 }
 
 /* The left arrow's hit area stops at the gutter, where logos start: it sits above the slides, so any wider
    and it would take clicks off the top-left of a tall logo. The chevron may overflow it on narrow windows. */
-body:has(> #reactRoot > div > main) > #slides-container .left-arrow {
+body:has(> #reactRoot > div > main) > #slides-container .left-arrow,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .left-arrow {
     right: auto;
     left: 0;
     justify-content: flex-start;
@@ -317,13 +356,15 @@ body:has(> #reactRoot > div > main) > #slides-container .left-arrow {
     padding-left: var(--pl-hero-chevron-inset);
 }
 
-body:has(> #reactRoot > div > main) > #slides-container .right-arrow {
+body:has(> #reactRoot > div > main) > #slides-container .right-arrow,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .right-arrow {
     right: 0;
     left: auto;
     padding-right: var(--pl-hero-chevron-inset);
 }
 
-body:has(> #reactRoot > div > main) > #slides-container .arrow :is(.chevron_left, .chevron_right) {
+body:has(> #reactRoot > div > main) > #slides-container .arrow :is(.chevron_left, .chevron_right),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > #slides-container .arrow :is(.chevron_left, .chevron_right) {
     font-size: var(--pl-hero-chevron);
     font-weight: 700;
     pointer-events: none;

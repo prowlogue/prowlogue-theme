@@ -1,0 +1,199 @@
+/*
+ * Top bar (Legacy layout: jellyfin 12's Legacy display modes and jellyfin 10.11), on jellyfin's own header.
+ * It takes the Modern bar's look (src/shell/nav-bar.css): transparent, frosting what scrolls under it, a hairline
+ * along its foot, everything in it white, buttons with 8px corners, and the same height, so every size that is
+ * measured from the bar (--pl-appbar-height) holds in both layouts.
+ *
+ * DOM (scripts/libraryMenu.js renderHeader, the same in 10.11 and 12): #reactRoot > div > .skinHeader >
+ * .headerTop (.headerLeft [back, home, drawer buttons, h3.pageTitle], .headerRight [SyncPlay, cast, search,
+ * user]) + .headerTabs, which holds a page's tabs (Home and Favorites, a library's views). Legacy has no library
+ * links in the bar: they're in its drawer (src/shell/legacy-drawer.css).
+ *
+ * Tabs: stock pulls them up into the bar's row only from 100em and gives them a row of their own below that.
+ * Here they sit centred in the bar from 80em, and from 40em on Home, whose two tabs always fit. Below that they
+ * keep a row under the bar, and a page with tabs starts that much lower.
+ *
+ * Pages: Modern's start at the foot of its bar. Legacy's start at the top of the window, under a fixed header,
+ * each with a top padding sized for stock's taller header. They take the bar's height instead, an item's page
+ * included, so a page is laid out the same in both layouts.
+ *
+ * The wrapper also holds Modern's unused copy of this header, hidden, so a rule that reaches it there draws
+ * nothing. The TV display mode keeps stock's header.
+ */
+
+/* ── The bar. Stock paints it solid, or 40 % black on an item's page (.semiTransparent), or a gradient in the
+   player (.osdHeader). Paint containment goes in potato mode only: the badge's card hangs below the bar
+   (src/shell/potato-badge.css). ── */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader {
+    background-color: transparent;
+    background-image: none;
+    color: var(--pl-text);
+    contain: var(--pl-lite-contain, layout style paint);
+}
+
+/* The tint and the frost sit on a layer behind the bar's content, as in the Modern bar. Tinted in potato mode
+   (src/tokens.css). */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--pl-lite-bar, transparent);
+    pointer-events: none;
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader::before {
+        -webkit-backdrop-filter: var(--pl-lite-none, blur(var(--pl-nav-blur)));
+        backdrop-filter: var(--pl-lite-none, blur(var(--pl-nav-blur)));
+    }
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background: var(--pl-frost-stroke);
+    pointer-events: none;
+}
+
+/* Engines without backdrop-filter: a light tint keeps the bar readable over posters. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader::before {
+        background-color: var(--pl-lite-bar, var(--pl-nav-tint));
+    }
+}
+
+/* The player's top bar has no surface of its own (src/pages/player-osd.css). */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader::before,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader::after {
+    content: none;
+}
+
+/* ── The bar's row: the Modern bar's height and side insets. Stock's is as tall as its buttons and padding, more
+   from 100em and again on a page with tabs (librarybrowser.scss). The header already keeps the status bar's room
+   above the row, and a notch's at either side, which comes off the inset here: 3.3 % or the notch, whichever is
+   more, as in the Modern bar. ── */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader > .headerTop {
+    height: var(--pl-nav-row);
+    padding-block: 0;
+    padding-left: max(0px, 3.3% - env(safe-area-inset-left, 0px));
+    padding-right: max(0px, 3.3% - env(safe-area-inset-right, 0px));
+}
+
+/* ── Buttons: the Modern bar's size and corners. Direct children only: the user's picture is a nested element
+   that carries the same classes. ── */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader :is(.headerLeft, .headerRight) > .headerButton {
+    width: var(--pl-nav-icon);
+    height: var(--pl-nav-icon);
+    margin: 0;
+    padding: 0;
+    border-radius: var(--pl-nav-rounding);
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader :is(.headerLeft, .headerRight) > .headerButton > .material-icons {
+    font-size: var(--pl-nav-glyph);
+}
+
+/* The user's picture fills its button. Stock draws it as a small box scaled up 1.8 times inside a round one
+   (emby-button.scss, .paper-icon-button-light > div). The button goes last in the row: potato mode's badge sits
+   before it (src/shell/potato-badge.css). */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .headerUserButton {
+    order: var(--pl-lite-last, 0);
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .headerUserButtonRound {
+    width: var(--pl-nav-user);
+    height: var(--pl-nav-user);
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .headerUserButtonRound > div {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border-radius: var(--pl-nav-rounding);
+    transform: none;
+}
+
+/* ── Tabs: the Modern bar's link size, the bar's height when they sit in it, and their own row's otherwise.
+   Stock shrinks them to 83.5 % below 100em and pads them 1.5em all round (emby-tabs.scss). ── */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader > .headerTabs {
+    font-size: 1.1rem;
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader > .headerTabs .emby-tab-button {
+    height: var(--pl-tabs-row);
+    padding-block: 0;
+    padding-inline: 1em;
+}
+
+/* Centred in the bar's row: as wide as its tabs and pulled up by the row's height. From 80em, where a library's
+   seven tabs clear the title and the buttons either side of them; stock does the same from 100em, with a margin
+   sized for its own row. */
+@media (min-width: 80em) {
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader > .headerTabs {
+        position: relative;
+        align-self: center;
+        width: auto;
+        margin-top: calc(-1 * var(--pl-nav-row));
+    }
+
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader > .headerTabs .emby-tab-button {
+        height: var(--pl-nav-row);
+    }
+}
+
+/* Home has two tabs and no Home button (.noHomeButtonHeader, controllers/home.js), so they fit far sooner. */
+@media (min-width: 40em) {
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.noHomeButtonHeader > .headerTabs {
+        position: relative;
+        align-self: center;
+        width: auto;
+        margin-top: calc(-1 * var(--pl-nav-row));
+    }
+
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.noHomeButtonHeader > .headerTabs .emby-tab-button {
+        height: var(--pl-nav-row);
+    }
+}
+
+/* ── Pages start at the bar's foot. --pl-page-top is where a page's content starts: rules that have to know it
+   read it from the page (src/plugins/media-bar.css). !important: librarybrowser.scss sets each of these with
+   !important. ── */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .libraryPage {
+    --pl-page-top: var(--pl-appbar-height);
+    padding-top: var(--pl-page-top) !important;
+}
+
+@media not all and (min-width: 80em) {
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .libraryPage.withTabs:not(.homePage) {
+        --pl-page-top: calc(var(--pl-appbar-height) + var(--pl-tabs-row));
+    }
+}
+
+@media not all and (min-width: 40em) {
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .libraryPage.withTabs.homePage {
+        --pl-page-top: calc(var(--pl-appbar-height) + var(--pl-tabs-row));
+    }
+}
+
+/* A tab that fills its page, Live TV's guide, hangs from a fixed offset for stock's header. !important: stock's. */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .libraryPage .absolutePageTabContent {
+    top: var(--pl-page-top) !important;
+}
+
+/* A phone's queue lists its songs in a sheet hung 12.2em below the page's top edge (remotecontrol.scss), which
+   in Modern is the bar's foot. */
+.layout-mobile:where([data-theme]) #reactRoot > .skinBody #nowPlayingPage .playlistSection .playlist {
+    top: calc(12.2em + var(--pl-page-top));
+}
+
+/* A tap leaves :hover on the tab it landed on, in the open tab's white, and a swipe can open another one. On
+   touch the tab under a finger keeps its resting colour. */
+.layout-mobile:where([data-theme]) #reactRoot > div > .skinHeader > .headerTabs .emby-tab-button:hover:not(.emby-tab-button-active) {
+    color: rgba(255, 255, 255, 0.7);
+}

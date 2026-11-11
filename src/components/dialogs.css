@@ -1,5 +1,5 @@
 /*
- * Modals (Modern layout): every dialog jellyfin opens over a page (refresh metadata, add to collection or
+ * Modals (both layouts): every dialog jellyfin opens over a page (refresh metadata, add to collection or
  * playlist, media info, metadata, image and subtitle editors, identify, prompts, alerts, confirms) takes
  * the menu's panel (src/components/menus.css), the theme's fluid motion and quiet, rounded controls.
  * They all come from one helper (components/dialogHelper) and one skeleton (.formDialog: header, content,
@@ -37,18 +37,21 @@
 }
 
 /* !important: both animations are inline styles. */
-body:has(> #reactRoot > div > main) .dialog[style*="scaleup"] {
+body:has(> #reactRoot > div > main) .dialog[style*="scaleup"],
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .dialog[style*="scaleup"] {
     animation: pl-dialog-in var(--pl-dialog-open) both !important;
 }
 
-body:has(> #reactRoot > div > main) .dialog[style*="scaledown"] {
+body:has(> #reactRoot > div > main) .dialog[style*="scaledown"],
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .dialog[style*="scaledown"] {
     animation: pl-dialog-out var(--pl-dialog-close) both !important;
 }
 
 /* Modals are one of the two places the navy goes (src/base/surfaces.css), opaque, so no blur behind
    them. Tokens, not a background: the panel's selector outranks this one. color-scheme: native date
    pickers and dropdowns. */
-body:has(> #reactRoot > div > main) :is(.formDialog, .MuiDialog-paper) {
+body:has(> #reactRoot > div > main) :is(.formDialog, .MuiDialog-paper),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) :is(.formDialog, .MuiDialog-paper) {
     --pl-surface: var(--pl-bg-navy);
     --pl-menu-filter: none;
     --pl-menu-ring: inset 0 0 0 1px var(--pl-glass-rim);
@@ -56,32 +59,37 @@ body:has(> #reactRoot > div > main) :is(.formDialog, .MuiDialog-paper) {
 }
 
 /* Full-screen dialogs, as on phones: the panel stays out, for its corners; the navy doesn't. */
-body:has(> #reactRoot > div > main) .formDialog.dialog-fullscreen {
+body:has(> #reactRoot > div > main) .formDialog.dialog-fullscreen,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog.dialog-fullscreen {
     --pl-dialog-footer-fade: none;
     background: var(--pl-surface);
 }
 
 /* ── Size ── */
 @media (min-width: 80em) and (min-height: 45em) {
-    body:has(> #reactRoot > div > main) .formDialog.dialog-small {
+    body:has(> #reactRoot > div > main) .formDialog.dialog-small,
+    :where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog.dialog-small {
         width: min(60%, var(--pl-dialog-width));
         height: auto;
         max-height: var(--pl-dialog-max-height);
     }
 
-    body:has(> #reactRoot > div > main) .formDialog.dialog-small:has(.itemsContainer, .editItemMetadataForm, .mediaInfoContent) {
+    body:has(> #reactRoot > div > main) .formDialog.dialog-small:has(.itemsContainer, .editItemMetadataForm, .mediaInfoContent),
+    :where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog.dialog-small:has(.itemsContainer, .editItemMetadataForm, .mediaInfoContent) {
         width: min(60%, var(--pl-dialog-width-wide));
     }
 }
 
 /* !important: dialoghelper.scss forces these full screen with !important. */
 @media (max-width: 80em), (max-height: 45em) {
-    body:has(> #reactRoot > div > main) .formDialog.dialog-fixedSize {
+    body:has(> #reactRoot > div > main) .formDialog.dialog-fixedSize,
+    :where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog.dialog-fixedSize {
         --pl-dialog-footer-fade: none; /* filling the window, its footer can land anywhere on the gradient */
         border-radius: 0 !important;
     }
 
-    body:has(> #reactRoot > div > main) .formDialog.dialog-fullscreen-lowres {
+    body:has(> #reactRoot > div > main) .formDialog.dialog-fullscreen-lowres,
+    :where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog.dialog-fullscreen-lowres {
         position: relative !important;
         inset: auto !important;
         max-width: calc(100% - 2 * var(--pl-dialog-pad));
@@ -90,52 +98,61 @@ body:has(> #reactRoot > div > main) .formDialog.dialog-fullscreen {
 }
 
 /* ── Header ── */
-body:has(> #reactRoot > div > main) .formDialogHeader {
+body:has(> #reactRoot > div > main) .formDialogHeader,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialogHeader {
     padding: var(--pl-dialog-pad) var(--pl-dialog-pad) 0.5em;
     background: none;
 }
 
-body:has(> #reactRoot > div > main) .formDialogHeaderTitle {
+body:has(> #reactRoot > div > main) .formDialogHeaderTitle,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialogHeaderTitle {
     margin-inline: 0;
     font-size: var(--pl-size-headline);
     font-weight: 600;
 }
 
-body:has(> #reactRoot > div > main) .formDialogHeader .btnCancel {
+body:has(> #reactRoot > div > main) .formDialogHeader .btnCancel,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialogHeader .btnCancel {
     order: 1;
     margin-inline-start: auto;
     border-radius: var(--pl-rounding);
 }
 
-body:has(> #reactRoot > div > main) .formDialogHeader .btnCancel > .arrow_back::before {
+body:has(> #reactRoot > div > main) .formDialogHeader .btnCancel > .arrow_back::before,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialogHeader .btnCancel > .arrow_back::before {
     content: "\e5cd";
 }
 
 /* ── Content. !important: several dialogs set these paddings inline. ── */
-body:has(> #reactRoot > div > main) .formDialogContent {
+body:has(> #reactRoot > div > main) .formDialogContent,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialogContent {
     flex: 1 1 auto;
     min-height: 0;
     padding-top: 0 !important;
     scrollbar-width: thin;
 }
 
-body:has(> #reactRoot > div > main) .formDialog .dialogContentInner {
+body:has(> #reactRoot > div > main) .formDialog .dialogContentInner,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog .dialogContentInner {
     padding: 0.5em var(--pl-dialog-pad) 0 !important;
 }
 
 /* ── Footer. !important: formdialog.scss sets the items' margin with !important. ── */
-body:has(> #reactRoot > div > main) .formDialogFooter {
+body:has(> #reactRoot > div > main) .formDialogFooter,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialogFooter {
     background: none;
 }
 
-body:has(> #reactRoot > div > main) .formDialogFooter:not(.formDialogFooter-flex) {
+body:has(> #reactRoot > div > main) .formDialogFooter:not(.formDialogFooter-flex),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialogFooter:not(.formDialogFooter-flex) {
     position: sticky;
     justify-content: flex-end;
     padding: 1em 0 var(--pl-dialog-pad);
     background: var(--pl-dialog-footer-fade);
 }
 
-body:has(> #reactRoot > div > main) .formDialogFooter:not(.formDialogFooter-flex) > .formDialogFooterItem {
+body:has(> #reactRoot > div > main) .formDialogFooter:not(.formDialogFooter-flex) > .formDialogFooterItem,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialogFooter:not(.formDialogFooter-flex) > .formDialogFooterItem {
     flex: 0 1 auto;
     width: auto;
     min-width: 9em;
@@ -143,74 +160,87 @@ body:has(> #reactRoot > div > main) .formDialogFooter:not(.formDialogFooter-flex
 }
 
 /* ── Buttons ── */
-body:has(> #reactRoot > div > main) .formDialog .raised {
+body:has(> #reactRoot > div > main) .formDialog .raised,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog .raised {
     border-radius: var(--pl-radius-button);
     font-weight: 600;
 }
 
-body:has(> #reactRoot > div > main) .formDialog :is(.raised:not(.button-submit, .button-delete), .fab) {
+body:has(> #reactRoot > div > main) .formDialog :is(.raised:not(.button-submit, .button-delete), .fab),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog :is(.raised:not(.button-submit, .button-delete), .fab) {
     background: var(--pl-fill);
     color: var(--pl-text);
 }
 
-body:has(> #reactRoot > div > main) .formDialog :is(.raised:not(.button-submit, .button-delete), .fab):is(:hover, :focus) {
+body:has(> #reactRoot > div > main) .formDialog :is(.raised:not(.button-submit, .button-delete), .fab):is(:hover, :focus),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog :is(.raised:not(.button-submit, .button-delete), .fab):is(:hover, :focus) {
     background: var(--pl-focus-fill);
     color: var(--pl-focus-text);
 }
 
-body:has(> #reactRoot > div > main) .formDialog .button-delete {
+body:has(> #reactRoot > div > main) .formDialog .button-delete,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog .button-delete {
     background: var(--pl-red);
 }
 
 /* ── Fields, lists, cards ── */
-body:has(> #reactRoot > div > main) .formDialog :is(.emby-input, .emby-textarea, .emby-select-withcolor) {
+body:has(> #reactRoot > div > main) .formDialog :is(.emby-input, .emby-textarea, .emby-select-withcolor),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog :is(.emby-input, .emby-textarea, .emby-select-withcolor) {
     border-width: 1px;
     border-color: var(--pl-stroke);
     border-radius: var(--pl-rounding);
     background: var(--pl-fill-plate);
 }
 
-body:has(> #reactRoot > div > main) .formDialog .checkboxOutline {
+body:has(> #reactRoot > div > main) .formDialog .checkboxOutline,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog .checkboxOutline {
     border-radius: var(--pl-rounding);
 }
 
-body:has(> #reactRoot > div > main) .formDialog :is(.paperList, .visualCardBox, fieldset) {
+body:has(> #reactRoot > div > main) .formDialog :is(.paperList, .visualCardBox, fieldset),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog :is(.paperList, .visualCardBox, fieldset) {
     border-radius: var(--pl-rounding);
     background: var(--pl-fill-plate);
 }
 
 /* Stock paints list icons a fixed blue (listview.scss); colour means state here. */
-body:has(> #reactRoot > div > main) .formDialog .listItemIcon:not(.listItemIcon-transparent) {
+body:has(> #reactRoot > div > main) .formDialog .listItemIcon:not(.listItemIcon-transparent),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog .listItemIcon:not(.listItemIcon-transparent) {
     background: var(--pl-fill);
 }
 
 /* ── Phones: dialogs fill the screen, so they keep clear of what's around it, and their buttons share the
    width: three at the desktop's 9em would wrap and leave Save on a line of its own, and full width is what
    a thumb expects. ── */
-.layout-mobile body:has(> #reactRoot > div > main) .formDialogHeader {
+.layout-mobile body:has(> #reactRoot > div > main) .formDialogHeader,
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) .formDialogHeader {
     padding-top: max(var(--pl-dialog-pad), env(safe-area-inset-top, 0px));
     padding-inline: max(var(--pl-dialog-pad), env(safe-area-inset-left, 0px)) max(var(--pl-dialog-pad), env(safe-area-inset-right, 0px));
 }
 
 /* !important: the rule this refines, under "Content" above, sets its padding with !important. */
-.layout-mobile body:has(> #reactRoot > div > main) .formDialog .dialogContentInner {
+.layout-mobile body:has(> #reactRoot > div > main) .formDialog .dialogContentInner,
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) .formDialog .dialogContentInner {
     padding-inline: max(var(--pl-dialog-pad), env(safe-area-inset-left, 0px)) max(var(--pl-dialog-pad), env(safe-area-inset-right, 0px)) !important;
 }
 
-.layout-mobile body:has(> #reactRoot > div > main) .formDialogFooter:not(.formDialogFooter-flex) {
+.layout-mobile body:has(> #reactRoot > div > main) .formDialogFooter:not(.formDialogFooter-flex),
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) .formDialogFooter:not(.formDialogFooter-flex) {
     gap: 0.6em;
     padding-bottom: max(var(--pl-dialog-pad), env(safe-area-inset-bottom, 0px));
 }
 
 /* !important: formdialog.scss sets the items' margin with !important. */
-.layout-mobile body:has(> #reactRoot > div > main) .formDialogFooter:not(.formDialogFooter-flex) > .formDialogFooterItem {
+.layout-mobile body:has(> #reactRoot > div > main) .formDialogFooter:not(.formDialogFooter-flex) > .formDialogFooterItem,
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) .formDialogFooter:not(.formDialogFooter-flex) > .formDialogFooterItem {
     flex: 1 1 0;
     min-width: 0;
     margin: 0 !important;
 }
 
 /* A tap leaves :hover and :focus behind, so a button would stay white after it has done its work. */
-.layout-mobile body:has(> #reactRoot > div > main) .formDialog :is(.raised:not(.button-submit, .button-delete), .fab):is(:hover, :focus):not(:active, :focus-visible) {
+.layout-mobile body:has(> #reactRoot > div > main) .formDialog :is(.raised:not(.button-submit, .button-delete), .fab):is(:hover, :focus):not(:active, :focus-visible),
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) .formDialog :is(.raised:not(.button-submit, .button-delete), .fab):is(:hover, :focus):not(:active, :focus-visible) {
     background: var(--pl-fill);
     color: var(--pl-text);
 }

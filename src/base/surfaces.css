@@ -1,13 +1,14 @@
 /*
- * Surfaces (Modern layout): the navy gradient belongs to two things only: the page behind every view, and
+ * Surfaces (both layouts): the navy gradient belongs to two things only: the page behind every view, and
  * pop-up modals (src/components/dialogs.css). Everything else that floats takes no blue of its own: it's
  * frosted glass on the white accent, menus, dropdowns, the drawer, toasts, the player's controls
  * (src/components/menus.css), and picks up the colour of what's behind it.
  * What's frosted or glass keeps its look: the Home panel, the top bar, the details page's panels.
  *
- * The page needs no selectors. jellyfin paints html, .backgroundContainer, .nowPlayingPlaylist and .dialog
- * from these palette variables (themes/_base/_theme.scss), and --jf-palette-background-defaultImage takes a
- * gradient. .backgroundContainer is fixed, so the gradient spans the window, stays put while the page
+ * The page needs no selectors on jellyfin 12, which paints html, .backgroundContainer, .nowPlayingPlaylist and
+ * .dialog from these palette variables (themes/_base/_theme.scss), and --jf-palette-background-defaultImage
+ * takes a gradient. jellyfin 10.11 reads none of them, and src/base/palette-10.css paints the same four.
+ * .backgroundContainer is fixed, so the gradient spans the window, stays put while the page
  * scrolls, and is painted once. MUI declares these on `:root, [data-theme="…"]` (0,1,0); this anchor is
  * (1,0,4). The *Channel twin is set too: legacy CSS builds translucent fills from it.
  * --jf-palette-background-default stays a flat colour because it also lands in background-color, which
@@ -20,16 +21,19 @@
  * frosted panel or a glass one.
  */
 
-html:has(> body > #reactRoot > div > main) {
+html:has(> body > #reactRoot > div > main),
+html:where([data-theme]:not(.layout-tv)):has(> body > #reactRoot > .skinBody) {
     --jf-palette-background-default: var(--pl-navy-mid);
     --jf-palette-background-defaultChannel: var(--pl-navy-mid-channel);
     --jf-palette-background-defaultImage: var(--pl-lite-none, var(--pl-bg-navy));
 }
 
-#reactRoot > div > main :is(.paperList, .visualCardBox, .collapseContent) {
+#reactRoot > div > main :is(.paperList, .visualCardBox, .collapseContent),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody :is(.paperList, .visualCardBox, .collapseContent) {
     background-color: var(--pl-fill-plate);
 }
 
-#reactRoot > div > main .cardBox:not(.visualCardBox) .cardPadder {
+#reactRoot > div > main .cardBox:not(.visualCardBox) .cardPadder,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardBox:not(.visualCardBox) .cardPadder {
     background-color: var(--pl-fill);
 }

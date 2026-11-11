@@ -3,7 +3,7 @@
 
   <h1>Prowlogue for Jellyfin Web</h1>
 
-  <img alt="Jellyfin 12" src="https://img.shields.io/badge/Jellyfin-12-9962be"/>
+  <img alt="Jellyfin 10.11 and 12" src="https://img.shields.io/badge/Jellyfin-10.11%20%7C%2012-9962be"/>
   <img alt="Pure CSS" src="https://img.shields.io/badge/pure-CSS-0a0a23"/>
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-lightgrey"/>
   <a href="https://prowlogue.app"><img alt="prowlogue.app" src="https://img.shields.io/badge/web-prowlogue.app-0a0a23"/></a>
@@ -60,12 +60,12 @@ That's it. The theme now applies to everyone on your server, and any device that
 
 | Requirement | Supported |
 | --- | --- |
-| **Jellyfin** | 12.x |
-| **Display mode** | **Auto** (Settings → Display). This is the default. |
+| **Jellyfin** | 12.x and 10.11.x |
+| **Display mode** | **Auto**, **Desktop** or **Mobile** (Settings → Display). Auto is the default. Jellyfin 12 lists the other two as **Desktop (Legacy)** and **Mobile (Legacy)**. |
 | **Theme** | **Dark** (Settings → Display). This is the default. |
 | **Browser** | Chrome 105, Safari 15.4 or Firefox 121, or newer |
 
-Everything else keeps the stock Jellyfin look, including the Legacy and TV display modes and the admin dashboard.
+The **TV** display mode and the admin dashboard keep the stock Jellyfin look. Servers older than 10.11 aren't supported, and neither is the **Experimental** display mode on 10.11.
 
 ### Updates
 
@@ -108,7 +108,7 @@ With the [JavaScript Injector](https://github.com/n00bcodr/Jellyfin-JavaScript-I
 (() => {
     const root = document.documentElement;
     const mark = 'data-prowlogue-lite';
-    const badge = '#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root';
+    const badge = '#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root, html:not(.layout-tv) #reactRoot > div > .skinHeader .headerRight > .currentTimeText';
     const minFps = 25;
     const sampleMs = 3000;
 
@@ -272,7 +272,8 @@ The theme works on a plain Jellyfin server. If you run any of these plugins, it 
 <summary><b>The theme doesn't show up</b></summary>
 
 - Check that the `@import` is the very first line of **Custom CSS code**.
-- Check that **Settings → Display → Display mode** is set to **Auto**.
+- Check that your server runs Jellyfin 10.11 or newer.
+- Check that **Settings → Display → Display mode** isn't set to **TV**, or to **Experimental** on Jellyfin 10.11.
 - Check that **Disable server-provided custom CSS code** is turned off in **Settings → Display**.
 - Check that your browser meets the [requirements](#requirements). Older browsers keep the stock look.
 

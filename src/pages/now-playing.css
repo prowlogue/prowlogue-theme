@@ -1,5 +1,5 @@
 /*
- * Now-playing bar and queue page (Modern layout): a floating bar with the player panel's surface
+ * Now-playing bar and queue page (both layouts): a floating bar with the player panel's surface
  * (src/pages/player-osd.css, which also carries its round controls).
  *
  * .appfooter stays pinned to the window edges, as headroom's translateY(100%) !important needs, and the
@@ -7,13 +7,15 @@
  * the footer, because the footer stays in the DOM (height 0) with nothing playing and a rim would show.
  */
 
-body:has(> #reactRoot > div > main) > .appfooter {
+body:has(> #reactRoot > div > main) > .appfooter,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter {
     padding: 0 max(var(--pl-osd-margin), env(safe-area-inset-right)) max(var(--pl-osd-margin), env(safe-area-inset-bottom)) max(var(--pl-osd-margin), env(safe-area-inset-left));
     background: none;
     pointer-events: none;
 }
 
-body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar {
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter .nowPlayingBar {
     padding: var(--pl-osd-padding);
     border-radius: var(--pl-osd-radius);
     background: var(--pl-osd-surface);
@@ -22,14 +24,16 @@ body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar {
     pointer-events: auto;
 }
 
-.layout-desktop body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar {
+.layout-desktop body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar,
+.layout-desktop:where([data-theme]) body:has(> #reactRoot > .skinBody) > .appfooter .nowPlayingBar {
     background: var(--pl-surface);
     box-shadow: var(--pl-osd-ring), var(--pl-banner-shadow);
     -webkit-backdrop-filter: var(--pl-menu-filter);
     backdrop-filter: var(--pl-menu-filter);
 }
 
-.layout-mobile body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar {
+.layout-mobile body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar,
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) > .appfooter .nowPlayingBar {
     background: var(--pl-surface);
     box-shadow: var(--pl-osd-ring), var(--pl-banner-shadow);
     -webkit-backdrop-filter: var(--pl-menu-filter);
@@ -37,30 +41,36 @@ body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar {
 }
 
 /* Clears the footer's padding on its way out. */
-body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar-hidden {
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar-hidden,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter .nowPlayingBar-hidden {
     transform: translate3d(0, calc(100% + var(--pl-osd-margin)), 0);
 }
 
 /* The bar sits inside the surface, above the row. */
-body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarTop {
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarTop,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter .nowPlayingBarTop {
     margin-top: var(--pl-osd-margin);
 }
 
-body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarPositionContainer {
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarPositionContainer,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter .nowPlayingBarPositionContainer {
     top: -1.5em;
     padding: 0 calc(var(--pl-osd-padding) * 0.75);
 }
 
-body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarInfoContainer {
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarInfoContainer,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter .nowPlayingBarInfoContainer {
     margin-left: calc(var(--pl-osd-padding) * 0.75);
 }
 
-body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar .nowPlayingImage {
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBar .nowPlayingImage,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter .nowPlayingBar .nowPlayingImage {
     width: 2.91em;
     border-radius: var(--pl-radius-tile);
 }
 
-body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarCurrentTime {
+body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarCurrentTime,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter .nowPlayingBarCurrentTime {
     width: 6em;
     padding-left: 0;
     color: var(--pl-text-secondary);
@@ -69,29 +79,35 @@ body:has(> #reactRoot > div > main) > .appfooter .nowPlayingBarCurrentTime {
 }
 
 /* Sliders on both surfaces: white, no jellyfin blue. */
-body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider-background-flex {
+body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider-background-flex,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider-background-flex {
     border-radius: var(--pl-radius-pill);
     background: var(--pl-progress-bar-track);
 }
 
-body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider-background-lower {
+body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider-background-lower,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider-background-lower {
     background-color: var(--pl-progress-fill);
 }
 
-body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider-background-upper {
+body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider-background-upper,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider-background-upper {
     background: var(--pl-osd-buffered);
 }
 
-body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider::-webkit-slider-thumb {
+body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider::-webkit-slider-thumb,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider::-webkit-slider-thumb {
     background: var(--pl-progress-fill);
 }
 
-body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider::-moz-range-thumb {
+body:has(> #reactRoot > div > main) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider::-moz-range-thumb,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) :is(#nowPlayingPage, .nowPlayingBar) .mdl-slider::-moz-range-thumb {
     background: var(--pl-progress-fill);
 }
 
 /* Queue page (/queue): borderless art. */
-#reactRoot > div > main #nowPlayingPage .nowPlayingPageImage {
+#reactRoot > div > main #nowPlayingPage .nowPlayingPageImage,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #nowPlayingPage .nowPlayingPageImage {
     border: none;
     border-radius: var(--pl-osd-radius);
 }

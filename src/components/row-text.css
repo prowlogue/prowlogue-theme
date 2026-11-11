@@ -1,5 +1,5 @@
 /*
- * Row titles and poster labels (Modern layout): full white. jellyfin colours the whole page with its
+ * Row titles and poster labels (both layouts): full white. jellyfin colours the whole page with its
  * secondary text (themes/_base/_theme.scss: `html { color: text-secondary }`, white @ 70 %), and these
  * inherit it. They get their own colour rather than a changed variable, which would brighten every grey
  * label on the site. Row titles also get the hero overview's shadow, so they read on a light spotlight
@@ -14,20 +14,24 @@
  * .cardText-tertiary, 90 %) come up to one size, just under the first line's 100 %.
  */
 
-html:has(> body > #reactRoot > div > main) {
+html:has(> body > #reactRoot > div > main),
+html:where([data-theme]:not(.layout-tv)):has(> body > #reactRoot > .skinBody) {
     --kefin-card-title-color: var(--pl-text);
 }
 
-#reactRoot > div > main :is(.sectionTitle-cards, .sectionTitleContainer-cards) {
+#reactRoot > div > main :is(.sectionTitle-cards, .sectionTitleContainer-cards),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody :is(.sectionTitle-cards, .sectionTitleContainer-cards) {
     color: var(--pl-text);
     font-weight: 600;
     text-shadow: var(--pl-label-shadow);
 }
 
-#reactRoot > div > main .cardText {
+#reactRoot > div > main .cardText,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardText {
     color: var(--pl-text);
 }
 
-#reactRoot > div > main .cardText:is(.cardText-secondary, .cardText-tertiary) {
+#reactRoot > div > main .cardText:is(.cardText-secondary, .cardText-tertiary),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardText:is(.cardText-secondary, .cardText-tertiary) {
     font-size: var(--pl-card-label);
 }

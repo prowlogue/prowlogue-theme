@@ -1,5 +1,5 @@
 /*
- * Poster rows (Modern layout).
+ * Poster rows (both layouts).
  *
  * Room for the poster lift (src/components/card-hover.css): KefinTweaks' rows clip (overflow: hidden) and
  * only 0.6em sits above a poster, about 3px once lifted, against a 6px glow. jellyfin has the answer for
@@ -12,23 +12,27 @@
  * keep them; a phone hides them anyway (KefinTweaks' homeScreen.css).
  */
 
-.layout-desktop #reactRoot > div > main .padded-top-focusscale {
+.layout-desktop #reactRoot > div > main .padded-top-focusscale,
+.layout-desktop:where([data-theme]) #reactRoot > .skinBody .padded-top-focusscale {
     margin-top: -1.5em;
     padding-top: 1.5em;
 }
 
-.layout-desktop #reactRoot > div > main :is(.sectionTitle-cards, .sectionTitleContainer-cards) {
+.layout-desktop #reactRoot > div > main :is(.sectionTitle-cards, .sectionTitleContainer-cards),
+.layout-desktop:where([data-theme]) #reactRoot > .skinBody :is(.sectionTitle-cards, .sectionTitleContainer-cards) {
     position: relative;
     z-index: 1;
 }
 
 @media (hover: hover) and (pointer: fine) {
-    #reactRoot > div > main .emby-scrollbuttons {
+    #reactRoot > div > main .emby-scrollbuttons,
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .emby-scrollbuttons {
         opacity: 0;
         transition: opacity var(--pl-focus-button);
     }
 
-    #reactRoot > div > main :is(.verticalSection, .emby-scroller-container):is(:hover, :focus-within) .emby-scrollbuttons {
+    #reactRoot > div > main :is(.verticalSection, .emby-scroller-container):is(:hover, :focus-within) .emby-scrollbuttons,
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody :is(.verticalSection, .emby-scroller-container):is(:hover, :focus-within) .emby-scrollbuttons {
         opacity: 1;
     }
 }
@@ -39,7 +43,8 @@
    poster already takes most of the height under the bar, and 43.75em is where jellyfin's tablet sizes start.
    KefinTweaks' skeleton cards carry the same class, so its rows keep their size when the real cards swap in. */
 @media (orientation: portrait) and (max-width: 43.75em) {
-    .layout-mobile #reactRoot > div > main .overflowPortraitCard {
+    .layout-mobile #reactRoot > div > main .overflowPortraitCard,
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody .overflowPortraitCard {
         width: 40vw;
     }
 }

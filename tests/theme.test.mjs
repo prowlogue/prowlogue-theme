@@ -150,8 +150,16 @@ test('potato-mode.js parses, matches the README, and names only what the stylesh
     assert.doesNotThrow(() => new Script(script), 'potato-mode.js has a syntax error');
     const readme = readFileSync(resolve(root, 'README.md'), 'utf8').replace(/\r\n/g, '\n');
     assert.ok(readme.includes(`\`\`\`js\n${script.trim()}\n\`\`\``), "the README's copy of potato-mode.js differs from the file");
-    const badge = script.match(/const badge = '([^']+)'/)?.[1];
-    assert.ok(badge && code.includes(`:root[data-prowlogue-lite] ${badge}::before{`), 'the badge selector or its mark is gone');
+    // One selector per layout. Legacy's carries its own TV check, which the stylesheet spells as a guard.
+    const badges = script.match(/const badge = '([^']+)'/)?.[1].split(', ') ?? [];
+    assert.equal(badges.length, 2, 'the script should name the badge in the Modern bar and in the Legacy header');
+    for (const badge of badges) {
+        const tvCheck = 'html:not(.layout-tv) ';
+        const rule = badge.startsWith(tvCheck)
+            ? `:root[data-prowlogue-lite]:where([data-theme]:not(.layout-tv)) ${badge.slice(tvCheck.length)}::before{`
+            : `:root[data-prowlogue-lite] ${badge}::before{`;
+        assert.ok(code.includes(rule), `the badge selector or its mark is gone: ${badge}`);
+    }
     assert.ok(script.includes("'pl-potato-announce'") && /@keyframes pl-potato-announce\{/.test(code), 'the announcement is gone');
 });
 
@@ -171,11 +179,13 @@ test('no CSS nesting (older engines drop nested rules)', () => {
 test('selectors newer than the @supports gate never share a selector list', () => {
     // One unsupported selector invalidates the whole list. Every engine inside the :has() gate knows
     // :is(), :where() and :focus-visible, so those are safe in a list; anything newer, and any vendor
-    // pseudo-element, gets its own rule.
-    const newer = /:open\b|::picker\b|::picker-icon\b|::checkmark\b|:popover-open\b|:state\(|::-webkit-|::-moz-/;
+    // pseudo-element, gets its own rule. A list whose selectors all need the same one is kept or dropped as a
+    // whole, as each would be alone: a rule's Modern and Legacy selectors.
+    const newer = /:open\b|::picker\b|::picker-icon\b|::checkmark\b|:popover-open\b|:state\(|::-webkit-[\w-]+|::-moz-[\w-]+/g;
+    const needs = (selector) => [...new Set(selector.match(newer) ?? [])].sort().join(' ');
     const offenders = styleRules
         .map((rule) => selectorList(rule.text))
-        .filter((list) => list.length > 1 && list.some((selector) => newer.test(selector)))
+        .filter((list) => new Set(list.map(needs)).size > 1)
         .map((list) => list.join(', '));
     assert.deepEqual(offenders, [], `split these rules:\n${offenders.join('\n')}`);
 });
@@ -189,8 +199,8 @@ test('every backdrop-filter has a -webkit- twin (iOS/iPadOS < 18 WebKit)', () =>
 test('live blur stays on the surfaces cheap enough for it', () => {
     // A backdrop-filter's cost is its area times how often what's behind it changes, in software on a
     // machine with no GPU. The Home panel and top bar are the two big ones; the rest are small and only
-    // there for a moment.
-    const allowed = /header\.MuiAppBar-root|\.homeSectionsContainer::before|\.actionSheet|\.MuiDrawer-paper|\.MuiTooltip-tooltip|::picker\(select\)|\.selectionCommandsPanel|\.videoOsdBottom|\.playerStats|\.nowPlayingBar/;
+    // there for a moment. Legacy's bar and drawer stand where Modern's do.
+    const allowed = /header\.MuiAppBar-root|\.skinHeader::before|\.homeSectionsContainer::before|\.actionSheet|\.MuiDrawer-paper|\.mainDrawer|\.MuiTooltip-tooltip|::picker\(select\)|\.selectionCommandsPanel|\.videoOsdBottom|\.playerStats|\.nowPlayingBar/;
     const offenders = [...code.matchAll(/([^{}]*)\{[^{}]*?(?<![\w-])backdrop-filter\s*:(?!\s*none\b)/g)]
         .map((match) => match[1].trim())
         .filter((selector) => !allowed.test(selector));
@@ -216,20 +226,66 @@ test('motion respects prefers-reduced-motion', () => {
     }
 });
 
-test('every selector is scoped to the Modern app (never Legacy or TV)', () => {
-    // Legacy has no <main>, and renders no MUI portals, so these paths can't reach it.
+// Where the Legacy app mounts what the theme styles: its two page containers, its header and drawer, and the page's
+// own background layer. Modern has the same header and drawer, hidden, and its page containers sit inside <main>.
+const legacyMount = String.raw`#reactRoot > (?:\.skinBody|\.mainAnimatedPages\.skinBody|div > \.skinHeader|div > \.mainDrawer|\.backgroundContainer)(?![\w-])`;
+
+// What a Legacy selector starts with: a guard on <html>, inside :where() so that it adds no weight. It keeps the
+// selector out of the TV display mode, which is the Legacy app too, with a layout class or :not(.layout-tv). And it
+// asks for data-theme, which <html> carries from jellyfin 10.11 on: 10.9 and 10.10 have Legacy's page shell around
+// other pages, and keep stock's look. .preload is on <html> up to jellyfin 10.11 and gone in 12, so with data-theme
+// it means 10.11.
+const tvOut = String.raw`(?::where\((?::root|\.preload)\[data-theme\]:not\(\.layout-tv\)\) |:root\[data-prowlogue-lite(?:="new")?\]:where\(\[data-theme\]:not\(\.layout-tv\)\) |\.layout-(?:desktop|mobile):where\(\[data-theme\]\) )`;
+const tvOutOnHtml = String.raw`html:where\((?:\.preload)?\[data-theme\]:not\(\.layout-tv\)\)`;
+
+// jellyfin 10.11 only: a stock rule restated at its own weight, the whole path inside :where(). Its mounts are
+// Legacy's page containers and header, and the layers jellyfin puts on <body>, which need no :has() there.
+const weightless = String.raw`:where\(\.preload\[data-theme\]:not\(\.layout-tv\) (?:#reactRoot > (?:\.skinBody|div > \.skinHeader)|body > \.(?:dialogContainer|appfooter|selectionCommandsPanel|playerStats))\) `;
+
+test('every selector is scoped to the Modern or the Legacy app', () => {
     // Tokens may sit on :root, its potato mode mark and the layout classes: custom properties only change values the
     // scoped rules read.
-    const anchors = [
-        /^(:root(\[data-prowlogue-lite\])?|\.layout-(tv|mobile|desktop))$/,
+    const tokens = /^(:root(\[data-prowlogue-lite\])?|\.layout-(tv|mobile|desktop))$/;
+    // Legacy has no <main>, and renders no MUI portals, so these paths can't reach it.
+    const modern = [
         /^(\.layout-(desktop|mobile) )?(:root\[data-prowlogue-lite(="new")?\] )?(\[dir="rtl"\] )?#reactRoot > div > (main|header\.MuiAppBar-root)\b/,
         /^(\.layout-(desktop|mobile) )?body:has\(> /,
         /^(\.layout-(desktop|mobile) )?#reactRoot ~ \* \.Mui/,
         /^html:has\(> body > /,
     ];
+    const legacy = [
+        new RegExp(`^${tvOut}(?:\\[dir="rtl"\\] )?(?:body:has\\(> #slides-container > \\.slide\\) )?${legacyMount}`),
+        new RegExp(`^${tvOut}body:has\\(> .*${legacyMount}`),
+        new RegExp(`^${tvOutOnHtml}:has\\(> body > ${legacyMount}`),
+        new RegExp(`^${weightless}`),
+    ];
     const offenders = styleRules
         .flatMap((rule) => selectorList(rule.text))
-        .filter((selector) => !anchors.some((anchor) => anchor.test(selector)));
+        .filter((selector) => !tokens.test(selector) && ![...modern, ...legacy].some((anchor) => anchor.test(selector)));
+    assert.deepEqual(offenders, []);
+});
+
+test('no Legacy selector reaches the TV display mode or a jellyfin older than 10.11', () => {
+    // Both have Legacy's page shell, so a path into it has to start with the guard that rules them out.
+    const reaches = new RegExp(legacyMount);
+    const guarded = new RegExp(`^(?:${tvOut}|${tvOutOnHtml}|${weightless})`);
+    const offenders = styleRules
+        .flatMap((rule) => selectorList(rule.text))
+        .filter((selector) => reaches.test(selector) && !guarded.test(selector));
+    assert.deepEqual(offenders, []);
+});
+
+test('a rule for something both apps render names both', () => {
+    // Legacy views are the same in Modern, which draws them inside its own shell, so a rule written for one and
+    // not the other is a page that looks different in the two display modes. What only Modern has is named here,
+    // and what only its layout needs.
+    const modernOnly = /\.Mui|\[data-testid|\.videoOsd-appBar|header\.MuiAppBar-root|#reactRoot ~ |> main > \.skinBody > |div:not\(\[class\]\)|\.alphaPicker-fixed-right|\[data-kefin-desktop-drawer\]/;
+    const inModern = /#reactRoot > div > main\b/;
+    const inLegacy = new RegExp(legacyMount);
+    const offenders = styleRules
+        .map((rule) => selectorList(rule.text))
+        .filter((list) => list.some((selector) => inModern.test(selector) && !modernOnly.test(selector)) && !list.some((selector) => inLegacy.test(selector)))
+        .map((list) => list.join(', '));
     assert.deepEqual(offenders, []);
 });
 
@@ -252,9 +308,15 @@ function hasArguments(selector, anchor) {
     return found;
 }
 
+// A selector without the :where() guards on <html>, which add nothing to what it matches below.
+const unguarded = (selector) => selector
+    .replace(new RegExp(`^${tvOutOnHtml}`), 'html')
+    .replace(/^(\.layout-(?:desktop|mobile)|:root\[data-prowlogue-lite(?:="new")?\]):where\([^()]*(?:\([^()]*\))?\)/, '$1')
+    .replace(/^:where\([^()]*(?:\([^()]*\))*\) /, '');
+
 test('a :has() high in the tree follows an exact path, it never scans', () => {
-    // On html, body, #reactRoot or main a re-check covers the whole page, and a descendant combinator makes
-    // each one walk every element below it.
+    // On html, body, #reactRoot, main or a page container a re-check covers the whole page, and a descendant
+    // combinator makes each one walk every element below it.
     const scanning = (argument) => selectorList(argument).some((relative) => {
         let flat = relative;
         for (let previous; previous !== flat;) {
@@ -265,8 +327,8 @@ test('a :has() high in the tree follows an exact path, it never scans', () => {
     });
     const offenders = styleRules
         .flatMap((rule) => selectorList(rule.text))
-        .filter((selector) => ['html', 'body', '#reactRoot', 'main', '.mainAnimatedPages']
-            .some((anchor) => hasArguments(selector, anchor).some(scanning)));
+        .filter((selector) => ['html', 'body', '#reactRoot', 'main', '.mainAnimatedPages', '.skinBody']
+            .some((anchor) => hasArguments(unguarded(selector), anchor).some(scanning)));
     assert.deepEqual(offenders, []);
 });
 
@@ -274,7 +336,7 @@ test('html:has() only sets values on html itself', () => {
     // A rule that hangs page content off html:has() restyles that content every time html is re-checked.
     const offenders = styleRules
         .flatMap((rule) => selectorList(rule.text))
-        .filter((selector) => selector.startsWith('html:has(') && !/\)(::-webkit-scrollbar)?$/.test(selector));
+        .filter((selector) => unguarded(selector).startsWith('html:has(') && !/\)(::-webkit-scrollbar)?$/.test(selector));
     assert.deepEqual(offenders, []);
 });
 

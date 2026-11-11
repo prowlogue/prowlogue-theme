@@ -1,5 +1,5 @@
 /*
- * Menus (Modern layout): a panel that picks up the art behind it, big corners, rows as pills. A row under
+ * Menus (both layouts): a panel that picks up the art behind it, big corners, rows as pills. A row under
  * the pointer or keyboard focus goes solid white with black text; red marks actions that destroy something
  * (Delete and Remove).
  *
@@ -21,7 +21,8 @@
  */
 
 /* The plugins' dropdowns go through :where(), so the id in there doesn't raise the priority of every menu. */
-body:has(> #reactRoot > div > main) :is(.actionSheet, .MuiPopover-paper, .MuiDialog-paper, .formDialog:not(.dialog-fullscreen), .toast, :where(.kefinTweaks-popover, .kefin-section-configure-popover, .kefin-anchored-popover-dialog, .kefin-scrubber-popover, .je-launcher-panel, .jellyseerr-hover-popover, #je-active-streams-panel, .dialog:has(.section-controls-more-menu))) {
+body:has(> #reactRoot > div > main) :is(.actionSheet, .MuiPopover-paper, .MuiDialog-paper, .formDialog:not(.dialog-fullscreen), .toast, :where(.kefinTweaks-popover, .kefin-section-configure-popover, .kefin-anchored-popover-dialog, .kefin-scrubber-popover, .je-launcher-panel, .jellyseerr-hover-popover, #je-active-streams-panel, .dialog:has(.section-controls-more-menu))),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) :is(.actionSheet, .MuiPopover-paper, .MuiDialog-paper, .formDialog:not(.dialog-fullscreen), .toast, :where(.kefinTweaks-popover, .kefin-section-configure-popover, .kefin-anchored-popover-dialog, .kefin-scrubber-popover, .je-launcher-panel, .jellyseerr-hover-popover, #je-active-streams-panel, .dialog:has(.section-controls-more-menu))) {
     border: 0;
     background: var(--pl-surface);
     box-shadow: var(--pl-menu-ring), var(--pl-banner-shadow);
@@ -34,23 +35,27 @@ body:has(> #reactRoot > div > main) :is(.actionSheet, .MuiPopover-paper, .MuiDia
 }
 
 /* The dim behind a dialog falls to navy rather than grey. */
-body:has(> #reactRoot > div > main) .dialogBackdrop {
+body:has(> #reactRoot > div > main) .dialogBackdrop,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .dialogBackdrop {
     background-color: var(--pl-navy);
 }
 
 /* ── Action sheet ── */
-body:has(> #reactRoot > div > main) .dialogBackdropOpened:has(+ .dialogContainer > .actionSheet) {
+body:has(> #reactRoot > div > main) .dialogBackdropOpened:has(+ .dialogContainer > .actionSheet),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .dialogBackdropOpened:has(+ .dialogContainer > .actionSheet) {
     opacity: 0;
 }
 
 /* !important: actionSheet.scss sets this padding with !important. */
-body:has(> #reactRoot > div > main) .actionSheetContent {
+body:has(> #reactRoot > div > main) .actionSheetContent,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .actionSheetContent {
     padding: var(--pl-menu-padding) !important;
 }
 
 /* A pill as half the row's height, not 999px: a taller row is a rounded rectangle, where 999px would make it
    a stadium whose ends clip the content (stock's .emby-button has overflow: hidden). */
-body:has(> #reactRoot > div > main) .actionSheetMenuItem {
+body:has(> #reactRoot > div > main) .actionSheetMenuItem,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .actionSheetMenuItem {
     min-height: var(--pl-item-menu-row);
     padding-block: 0;
     border-radius: calc(var(--pl-item-menu-row) / 2);
@@ -60,22 +65,26 @@ body:has(> #reactRoot > div > main) .actionSheetMenuItem {
 }
 
 /* The row's height comes from --pl-item-menu-row. !important: actionSheet.scss sets this padding with !important. */
-body:has(> #reactRoot > div > main) .actionsheetListItemBody {
+body:has(> #reactRoot > div > main) .actionsheetListItemBody,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .actionsheetListItemBody {
     padding-block: 0.15em !important;
 }
 
 /* Desktop only: phones keep jellyfin's larger sheet text (.actionsheet-xlargeFont). */
-.layout-desktop body:has(> #reactRoot > div > main) .actionSheetMenuItem {
+.layout-desktop body:has(> #reactRoot > div > main) .actionSheetMenuItem,
+.layout-desktop:where([data-theme]) body:has(> #reactRoot > .skinBody) .actionSheetMenuItem {
     font-size: var(--pl-item-menu-text);
 }
 
-body:has(> #reactRoot > div > main) .actionSheetMenuItem:is([data-id="delete"], [data-id^="remove"]) {
+body:has(> #reactRoot > div > main) .actionSheetMenuItem:is([data-id="delete"], [data-id^="remove"]),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .actionSheetMenuItem:is([data-id="delete"], [data-id^="remove"]) {
     color: var(--pl-red);
 }
 
 /* The in-player episode list reuses this class for whole episode cards: those keep stock's quiet .listItem
    states (src/plugins/episode-preview.css). */
-body:has(> #reactRoot > div > main) .actionSheetMenuItem:not(.previewListItem):is(:hover, :focus-visible) {
+body:has(> #reactRoot > div > main) .actionSheetMenuItem:not(.previewListItem):is(:hover, :focus-visible),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .actionSheetMenuItem:not(.previewListItem):is(:hover, :focus-visible) {
     background: var(--pl-focus-fill);
     color: var(--pl-focus-text);
 }
@@ -180,16 +189,19 @@ body:has(> #reactRoot > div > main) .actionSheetMenuItem:not(.previewListItem):i
 /* ── Phones: a tap leaves :hover stuck on what it touched (WebKit keeps it until the next tap somewhere else), so the solid
    white row would stay lit after the finger has gone, on a filter menu's accordion for one. On touch the white is
    the press itself. Rows that are selected or open keep their mark. ── */
-.layout-mobile body:has(> #reactRoot > div > main) .actionSheetMenuItem:not(.previewListItem):hover:not(:active, :focus-visible) {
+.layout-mobile body:has(> #reactRoot > div > main) .actionSheetMenuItem:not(.previewListItem):hover:not(:active, :focus-visible),
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) .actionSheetMenuItem:not(.previewListItem):hover:not(:active, :focus-visible) {
     background: none;
     color: var(--pl-text);
 }
 
-.layout-mobile body:has(> #reactRoot > div > main) .actionSheetMenuItem:is([data-id="delete"], [data-id^="remove"]):hover:not(:active, :focus-visible) {
+.layout-mobile body:has(> #reactRoot > div > main) .actionSheetMenuItem:is([data-id="delete"], [data-id^="remove"]):hover:not(:active, :focus-visible),
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) .actionSheetMenuItem:is([data-id="delete"], [data-id^="remove"]):hover:not(:active, :focus-visible) {
     color: var(--pl-red);
 }
 
-.layout-mobile body:has(> #reactRoot > div > main) .actionSheetMenuItem:not(.previewListItem):active {
+.layout-mobile body:has(> #reactRoot > div > main) .actionSheetMenuItem:not(.previewListItem):active,
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) .actionSheetMenuItem:not(.previewListItem):active {
     background: var(--pl-focus-fill);
     color: var(--pl-focus-text);
 }

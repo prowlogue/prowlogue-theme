@@ -1,5 +1,5 @@
 /*
- * Multi-select (Modern layout), kept quiet. Stock on the white accent is a solid white bar across the top,
+ * Multi-select (both layouts), kept quiet. Stock on the white accent is a solid white bar across the top,
  * and a dim and a hard frame over every poster and its caption.
  *
  * Bar: the frosted top bar's look (src/shell/nav-bar.css), and the real bar steps aside while it's up, so
@@ -15,7 +15,8 @@
 
 /* Tinted in potato mode (src/tokens.css), as the top bar is. !important: _theme.scss forces the bar's colour with
    !important. */
-body:has(> #reactRoot > div > main) > .selectionCommandsPanel {
+body:has(> #reactRoot > div > main) > .selectionCommandsPanel,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .selectionCommandsPanel {
     min-height: var(--pl-appbar-height);
     padding-block: env(safe-area-inset-top, 0px) 0;
     box-sizing: border-box;
@@ -25,36 +26,57 @@ body:has(> #reactRoot > div > main) > .selectionCommandsPanel {
     backdrop-filter: var(--pl-lite-none, blur(var(--pl-nav-blur)));
 }
 
-body:has(> .selectionCommandsPanel) > #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child {
+body:has(> .selectionCommandsPanel) > #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> .selectionCommandsPanel) > #reactRoot > div > .skinHeader > .headerTop {
     visibility: hidden;
 }
 
-body:has(> #reactRoot > div > main) > .selectionCommandsPanel :is(.btnCloseSelectionPanel, .btnSelectionPanelOptions):not(:disabled) {
+/* Legacy's tabs sit in that row from 80em, and from 40em on Home (src/shell/legacy-bar.css), so there they step
+   aside with it. Below that they have a row of their own and stay usable, as a library's toolbar does. */
+@media (min-width: 80em) {
+    :where(:root[data-theme]:not(.layout-tv)) body:has(> .selectionCommandsPanel) > #reactRoot > div > .skinHeader > .headerTabs {
+        visibility: hidden;
+    }
+}
+
+@media (min-width: 40em) {
+    :where(:root[data-theme]:not(.layout-tv)) body:has(> .selectionCommandsPanel) > #reactRoot > div > .skinHeader.noHomeButtonHeader > .headerTabs {
+        visibility: hidden;
+    }
+}
+
+body:has(> #reactRoot > div > main) > .selectionCommandsPanel :is(.btnCloseSelectionPanel, .btnSelectionPanelOptions):not(:disabled),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .selectionCommandsPanel :is(.btnCloseSelectionPanel, .btnSelectionPanelOptions):not(:disabled) {
     border-radius: var(--pl-rounding);
     color: var(--pl-text);
 }
 
-body:has(> #reactRoot > div > main) .itemSelectionCount {
+body:has(> #reactRoot > div > main) .itemSelectionCount,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .itemSelectionCount {
     font-size: 1.1rem;
     font-weight: 600;
 }
 
-#reactRoot > div > main .itemSelectionPanel {
+#reactRoot > div > main .itemSelectionPanel,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .itemSelectionPanel {
     padding: var(--pl-rounding);
     border: 0;
     background: none;
 }
 
 /* !important: multiSelect.scss sets the outline's radius with !important. */
-#reactRoot > div > main .multiSelectCheckboxOutline {
+#reactRoot > div > main .multiSelectCheckboxOutline,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .multiSelectCheckboxOutline {
     border-color: var(--pl-text);
     border-radius: var(--pl-rounding) !important;
 }
 
-#reactRoot > div > main .emby-checkbox:not(:checked) + span + .multiSelectCheckboxOutline {
+#reactRoot > div > main .emby-checkbox:not(:checked) + span + .multiSelectCheckboxOutline,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .emby-checkbox:not(:checked) + span + .multiSelectCheckboxOutline {
     background: var(--pl-card-button-glass);
 }
 
-#reactRoot > div > main .withMultiSelect > .cardScalable:has(~ .itemSelectionPanel .chkItemSelect:checked)::after {
+#reactRoot > div > main .withMultiSelect > .cardScalable:has(~ .itemSelectionPanel .chkItemSelect:checked)::after,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .withMultiSelect > .cardScalable:has(~ .itemSelectionPanel .chkItemSelect:checked)::after {
     opacity: 1;
 }

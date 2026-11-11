@@ -2,8 +2,10 @@
  * Prowlogue for Jellyfin Web: entry point. `npm run build` inlines every local @import below into
  * dist/v1/prowlogue.css (one request), and hoists remote @imports (fonts) to the top of the bundle.
  *
- * Target: jellyfin-web 12's Modern layout only (the MUI app, the default "Auto" layout), desktop and
- * mobile. Legacy and TV are out of scope.
+ * Target: jellyfin-web 12's Modern layout (the MUI app, the default "Auto" layout) and the Legacy layout,
+ * which is jellyfin 12's Desktop (Legacy) and Mobile (Legacy) display modes and every display mode of jellyfin
+ * 10.11 but two. Desktop and mobile. The TV display mode, 10.11's Experimental one and any jellyfin older than
+ * 10.11 are out of scope.
  *
  * Everything sits inside ONE compatibility gate: `:has()` (Chrome 105, Safari 15.4, Firefox 121),
  * which the anchors for anything outside the page need. Engines without it keep stock jellyfin-web
@@ -18,6 +20,18 @@
  *     body:has(> #reactRoot > div > main) .actionSheet …  a dialog or an MUI portal's paper on <body>
  *     #reactRoot ~ * .MuiPopover-paper .MuiMenuItem-root  inside an MUI paper: Legacy renders none
  *     html:has(> body > #reactRoot > div > main) { … }    tokens on html itself, nothing below it
+ *
+ * Legacy renders the same views with no shell around them, so a rule for a view names it a second time, from
+ * Legacy's mount: #reactRoot > .skinBody for page content, #reactRoot > div > .skinHeader and .mainDrawer for
+ * its header and drawer, body:has(> #reactRoot > .skinBody) for <body>. That path also exists in the TV display
+ * mode and in jellyfin 10.9 and 10.10, whose pages are built differently, so it starts with a guard on <html>:
+ * not .layout-tv, and data-theme, which jellyfin sets from 10.11 on. The guard sits in :where(), which adds no
+ * weight: a Legacy selector then differs in weight from its Modern twin by the same amount in every rule (a
+ * class for two tags), so two rules resolve the same way in both layouts.
+ *
+ *     :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody …
+ *     .layout-mobile:where([data-theme]) #reactRoot > .skinBody …
+ *     html:where([data-theme]:not(.layout-tv)):has(> body > #reactRoot > .skinBody) { … }
  *
  * Never hang page rules off a :has() on html or body, or write a sibling combinator after a :has(), or
  * end a rule under one in anything but a rare class: the browser re-checks those on any change below
@@ -35,6 +49,7 @@
     @import "./base/font-face.css"; /* Plus Jakarta Sans, embedded */
     @import "./base/font.css"; /* the text font */
     @import "./base/surfaces.css"; /* navy on every solid background */
+    @import "./base/palette-10.css"; /* the same colours on jellyfin 10.11, which has no palette variables */
     @import "./components/spinner.css"; /* the accent */
 
     /* Posters and rows */
@@ -55,8 +70,10 @@
 
     /* App shell */
     @import "./shell/nav-bar.css"; /* the transparent top bar */
+    @import "./shell/legacy-bar.css"; /* the same bar on the Legacy header, and where its pages start */
     @import "./shell/potato-badge.css"; /* potato mode's badge in the top bar */
     @import "./shell/drawer.css"; /* floating glass drawer for Modern's and KefinTweaks' */
+    @import "./shell/legacy-drawer.css"; /* the same drawer for Legacy's own */
 
     /* Pages */
     @import "./pages/home.css"; /* the frosted rows panel */

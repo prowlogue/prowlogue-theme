@@ -1,5 +1,5 @@
 /*
- * Page scrollbar (Modern layout): hidden on Home and details pages, and on every other page a thin
+ * Page scrollbar (both layouts): hidden on Home and details pages, and on every other page a thin
  * translucent white thumb on no track, instead of jellyfin's opaque grey bar
  * (themes/_base/_theme.scss `* { scrollbar-color }`).
  *
@@ -10,7 +10,8 @@
  * Cached pages stay in the DOM marked .hide, so only the page on screen counts.
  */
 
-html:has(> body > #reactRoot > div > main) {
+html:has(> body > #reactRoot > div > main),
+html:where([data-theme]:not(.layout-tv)):has(> body > #reactRoot > .skinBody) {
     scrollbar-color: var(--pl-scrollbar);
 }
 
@@ -18,14 +19,18 @@ html:has(> body > #reactRoot > div > main) {
    (posters, their buttons) Blink starts a transition from that colour to the same colour, on the main thread, whenever
    a fade restyles them. Inheriting the value avoids that and changes nothing on screen: <main> keeps jellyfin's, so
    everything inside it has the same colour. */
-#reactRoot > div > main * {
+#reactRoot > div > main *,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody * {
     scrollbar-color: unset;
 }
 
-html:has(> body > #reactRoot > div > main > .skinBody > div > #indexPage:not(.hide), > body > #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.hide)) {
+/* Legacy's Home is a page of the view container, as an item's is. */
+html:has(> body > #reactRoot > div > main > .skinBody > div > #indexPage:not(.hide), > body > #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.hide)),
+html:where([data-theme]:not(.layout-tv)):has(> body > #reactRoot > .mainAnimatedPages.skinBody > #indexPage:not(.hide), > body > #reactRoot > .mainAnimatedPages.skinBody > #itemDetailPage:not(.hide)) {
     scrollbar-width: none;
 }
 
-html:has(> body > #reactRoot > div > main > .skinBody > div > #indexPage:not(.hide), > body > #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.hide))::-webkit-scrollbar {
+html:has(> body > #reactRoot > div > main > .skinBody > div > #indexPage:not(.hide), > body > #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.hide))::-webkit-scrollbar,
+html:where([data-theme]:not(.layout-tv)):has(> body > #reactRoot > .mainAnimatedPages.skinBody > #indexPage:not(.hide), > body > #reactRoot > .mainAnimatedPages.skinBody > #itemDetailPage:not(.hide))::-webkit-scrollbar {
     display: none;
 }

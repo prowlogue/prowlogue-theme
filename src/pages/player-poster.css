@@ -1,5 +1,5 @@
 /*
- * Player loading poster (Modern layout): while a video loads, its poster zooms to fill the player at any
+ * Player loading poster (both layouts): while a video loads, its poster zooms to fill the player at any
  * window shape and is never stretched. Stock letterboxes it (`contain`).
  *
  * `object-fit` also rules the video's own frames, so this has to stop the moment playback starts, or the
@@ -13,6 +13,7 @@
  * quality changes reload the stream with no spinner, so a poster shown there stays stock.
  */
 
-body:has(> #reactRoot > div > main):has(> .docspinner.mdlSpinnerActive) > .videoPlayerContainer > .htmlvideoplayer {
+body:has(> #reactRoot > div > main):has(> .docspinner.mdlSpinnerActive) > .videoPlayerContainer > .htmlvideoplayer,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody):has(> .docspinner.mdlSpinnerActive) > .videoPlayerContainer > .htmlvideoplayer {
     object-fit: cover !important; /* beats the inline object-fit of the Aspect Ratio setting, so Fill can't stretch it */
 }

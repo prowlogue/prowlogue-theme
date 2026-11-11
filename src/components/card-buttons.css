@@ -1,5 +1,5 @@
 /*
- * Poster buttons (Modern layout, desktop hover overlay): their order and skin, on the white accent
+ * Poster buttons (both layouts, desktop hover overlay): their order and skin, on the white accent
  * (src/base/accent.css).
  *   - Order: ✓ watched, ♥ favourite, KefinTweaks' bookmark, ⋮ last. Episodes drop ♥ and the bookmark.
  *     Collections keep only ⋮. Home Screen Sections' Seerr "Discover" cards drop their request button.
@@ -29,40 +29,48 @@
  */
 
 /* ── Order. jellyfin already puts ✓ before ♥ in both builders; KefinTweaks inserts its bookmark first. ── */
-#reactRoot > div > main .cardOverlayButton-br > .watchlist-button {
+#reactRoot > div > main .cardOverlayButton-br > .watchlist-button,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardOverlayButton-br > .watchlist-button {
     order: 1;
 }
 
-#reactRoot > div > main .cardOverlayButton-br > [data-action="menu"] {
+#reactRoot > div > main .cardOverlayButton-br > [data-action="menu"],
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardOverlayButton-br > [data-action="menu"] {
     order: 2;
 }
 
 /* Episodes: no ♥ and no bookmark. */
-#reactRoot > div > main .card[data-type="Episode"] .cardOverlayButton-br > :is([is="emby-ratingbutton"], .watchlist-button, :has(> [data-testid="FavoriteIcon"])) {
+#reactRoot > div > main .card[data-type="Episode"] .cardOverlayButton-br > :is([is="emby-ratingbutton"], .watchlist-button, :has(> [data-testid="FavoriteIcon"])),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card[data-type="Episode"] .cardOverlayButton-br > :is([is="emby-ratingbutton"], .watchlist-button, :has(> [data-testid="FavoriteIcon"])) {
     display: none;
 }
 
 /* Collections: only ⋮. */
-#reactRoot > div > main .card[data-type="BoxSet"] .cardOverlayButton:not([data-action="menu"]) {
+#reactRoot > div > main .card[data-type="BoxSet"] .cardOverlayButton:not([data-action="menu"]),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card[data-type="BoxSet"] .cardOverlayButton:not([data-action="menu"]) {
     display: none;
 }
 
 /* Seerr "Discover" cards (Home Screen Sections): no request button. */
-#reactRoot > div > main .discover-card .cardOverlayButton-br {
+#reactRoot > div > main .discover-card .cardOverlayButton-br,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .discover-card .cardOverlayButton-br {
     display: none;
 }
 
 /* ── Skin ── */
-#reactRoot > div > main .card .cardOverlayContainer {
+#reactRoot > div > main .card .cardOverlayContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card .cardOverlayContainer {
     background: var(--pl-card-overlay-scrim);
 }
 
 /* No buttons on these, so nothing for a scrim to do. */
-#reactRoot > div > main .discover-card .cardOverlayContainer {
+#reactRoot > div > main .discover-card .cardOverlayContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .discover-card .cardOverlayContainer {
     background: none;
 }
 
-#reactRoot > div > main .card .cardOverlayContainer::before {
+#reactRoot > div > main .card .cardOverlayContainer::before,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card .cardOverlayContainer::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -73,24 +81,28 @@
     pointer-events: none;
 }
 
-#reactRoot > div > main .card .cardOverlayContainer:is(:hover, :focus-within):has(> .cardOverlayFab-primary:is(:hover, :focus-visible))::before {
+#reactRoot > div > main .card .cardOverlayContainer:is(:hover, :focus-within):has(> .cardOverlayFab-primary:is(:hover, :focus-visible))::before,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card .cardOverlayContainer:is(:hover, :focus-within):has(> .cardOverlayFab-primary:is(:hover, :focus-visible))::before {
     opacity: 1;
 }
 
 /* The play button loses its dark circle; jellyfin's hover square still shows on hover. */
-#reactRoot > div > main .cardOverlayContainer > .cardOverlayFab-primary:not(:hover) {
+#reactRoot > div > main .cardOverlayContainer > .cardOverlayFab-primary:not(:hover),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardOverlayContainer > .cardOverlayFab-primary:not(:hover) {
     background-color: transparent;
 }
 
 /* Size and centring pair up with card.scss's 3em box; the icon's own size doesn't depend on them. */
-#reactRoot > div > main .cardOverlayContainer > .cardOverlayFab-primary {
+#reactRoot > div > main .cardOverlayContainer > .cardOverlayFab-primary,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardOverlayContainer > .cardOverlayFab-primary {
     width: var(--pl-card-play-box);
     height: var(--pl-card-play-box);
     margin-top: calc(var(--pl-card-play-box) / -2);
     margin-left: calc(var(--pl-card-play-box) / -2);
 }
 
-#reactRoot > div > main .cardOverlayContainer .cardOverlayButton {
+#reactRoot > div > main .cardOverlayContainer .cardOverlayButton,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardOverlayContainer .cardOverlayButton {
     border-radius: var(--pl-rounding);
     color: var(--pl-text);
     filter: var(--pl-badge-shadow);
@@ -99,24 +111,28 @@
 @media (max-width: 70em) {
     /* !important: card.scss sets these icons' background with !important (.cardOverlayButtonIcon-hover
        transparent, .cardOverlayButtonIcon rgba(0, 0, 0, 0.7)). */
-    #reactRoot > div > main .cardOverlayContainer .cardOverlayButton > :is(.cardOverlayButtonIcon, .MuiSvgIcon-root) {
+    #reactRoot > div > main .cardOverlayContainer .cardOverlayButton > :is(.cardOverlayButtonIcon, .MuiSvgIcon-root),
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardOverlayContainer .cardOverlayButton > :is(.cardOverlayButtonIcon, .MuiSvgIcon-root) {
         background-color: var(--pl-card-button-glass) !important;
         border-radius: var(--pl-rounding);
     }
 }
 
 /* ── State: watched purple, favourite pink (jellyfin's own is its error red). ── */
-#reactRoot > div > main .cardOverlayButton > :is(.playstatebutton-icon-played, .MuiSvgIcon-colorError[data-testid="CheckIcon"]) {
+#reactRoot > div > main .cardOverlayButton > :is(.playstatebutton-icon-played, .MuiSvgIcon-colorError[data-testid="CheckIcon"]),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardOverlayButton > :is(.playstatebutton-icon-played, .MuiSvgIcon-colorError[data-testid="CheckIcon"]) {
     color: var(--pl-purple);
 }
 
-#reactRoot > div > main .cardOverlayButton > :is(.ratingbutton-icon-withrating, .MuiSvgIcon-colorError[data-testid="FavoriteIcon"]) {
+#reactRoot > div > main .cardOverlayButton > :is(.ratingbutton-icon-withrating, .MuiSvgIcon-colorError[data-testid="FavoriteIcon"]),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardOverlayButton > :is(.ratingbutton-icon-withrating, .MuiSvgIcon-colorError[data-testid="FavoriteIcon"]) {
     color: var(--pl-pink);
 }
 
 /* A bolder ✓, watched or not. Stock's icon font has one weight, so font-weight can't reach it: a stroke in the icon's
    own colour thickens the glyph, and MUI's 24-unit path by the same amount. */
-#reactRoot > div > main .cardOverlayButton > :is(.playstatebutton-icon-played, .playstatebutton-icon-unplayed) {
+#reactRoot > div > main .cardOverlayButton > :is(.playstatebutton-icon-played, .playstatebutton-icon-unplayed),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardOverlayButton > :is(.playstatebutton-icon-played, .playstatebutton-icon-unplayed) {
     -webkit-text-stroke-width: 0.1em;
 }
 

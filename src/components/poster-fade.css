@@ -16,18 +16,22 @@
  * Posters with a hanging progress bar fade too: src/components/poster-progress.css clips the bar for as long.
  */
 #reactRoot > div > main .lazy-image-fadein-fast,
-#reactRoot > div > main .lazy-image-fadein {
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .lazy-image-fadein-fast,
+#reactRoot > div > main .lazy-image-fadein,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .lazy-image-fadein {
     animation: fadein var(--pl-fade-in);
 }
 
-#reactRoot > div > main .cardImageContainer.lazy-loaded {
+#reactRoot > div > main .cardImageContainer.lazy-loaded,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardImageContainer.lazy-loaded {
     animation: pl-home-fade-in var(--pl-fade-in);
 }
 
 /* The blurhash stays until the art has faded in over it. KefinTweaks hides it the moment the art lands, which
    would dip the poster to its empty frame and back: a blink. jellyfin already waits for animationend, and for
    its rows this delay only keeps a canvas a moment longer behind a finished poster. */
-#reactRoot > div > main .blurhash-canvas.lazy-hidden {
+#reactRoot > div > main .blurhash-canvas.lazy-hidden,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .blurhash-canvas.lazy-hidden {
     transition: opacity 0s linear var(--pl-fade-in-time);
 }
 

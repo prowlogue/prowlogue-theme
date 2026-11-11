@@ -112,3 +112,99 @@
         opacity: 1;
     }
 }
+
+/* ── Legacy layout: the same badge and card in jellyfin's own header (src/shell/legacy-bar.css). Its box is the
+   header's clock, an empty element that only the TV display mode fills (scripts/libraryMenu.js updateClock), the
+   last thing in the row of buttons, so hovering or clicking it is hovering or clicking the badge and nothing
+   else. It sits before the user button, which goes last in potato mode. The card is its ::after and the red
+   title the user button's ::after, both placed from the row of buttons, which is why that button gives up its
+   own position while potato mode is on. ── */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight {
+    position: var(--pl-lite-relative, static);
+}
+
+/* The button is a stacking context of its own (emby-button.scss gives it z-index: 0), so it goes above the card,
+   or the title it carries would be drawn under it. */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .headerUserButton {
+    position: var(--pl-lite-static, relative);
+    z-index: var(--pl-lite-last, 0);
+}
+
+/* Shown beside the user's button only, which carries the card's title: not in the player's bar, where that button
+   is hidden (videoosd.scss), and not signed out, where it has .hide. !important: the clock carries .hide outside
+   the TV display mode. */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader:not(.osdHeader) .headerRight > .headerUserButton:not(.hide) + .currentTimeText {
+    display: var(--pl-lite-flex, none) !important;
+    order: 1;
+    padding: 0;
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .currentTimeText::before {
+    content: var(--pl-lite-shown, none) "\1F954";
+    flex: none;
+    width: var(--pl-nav-icon);
+    height: var(--pl-nav-user);
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    font-size: var(--pl-nav-glyph);
+    line-height: var(--pl-nav-user);
+    text-align: center;
+    cursor: help;
+}
+
+:root[data-prowlogue-lite]:where([data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .currentTimeText::before {
+    cursor: pointer;
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .currentTimeText::after,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .headerUserButton::after {
+    position: absolute;
+    inset-block-start: calc(100% + 6px);
+    inset-inline-end: 0;
+    box-sizing: border-box;
+    width: min(25rem, 100vw - 2 * var(--pl-inset));
+    padding: calc(var(--pl-menu-padding) + 6px) calc(var(--pl-menu-row-pad) + 4px);
+    font-size: var(--pl-size-caption);
+    line-height: calc(1.45 * var(--pl-size-caption));
+    text-align: center;
+    white-space: pre-line;
+    pointer-events: none;
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .currentTimeText::after {
+    z-index: 1;
+    border-radius: var(--pl-radius-menu);
+    background: var(--pl-surface);
+    box-shadow: var(--pl-menu-ring), var(--pl-banner-shadow);
+    color: var(--pl-text);
+    font-weight: 500;
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .headerUserButton::after {
+    z-index: 2;
+    color: var(--pl-red);
+    font-family: var(--pl-font);
+    font-size: var(--pl-size-body);
+    font-weight: 700;
+}
+
+:root[data-prowlogue-lite="new"]:where([data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .currentTimeText::after,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .currentTimeText:empty:hover::after {
+    content: var(--pl-lite-shown, none) "\A\A Whoa there! I noticed your device was sweating!\A\A This is the theme's lite version\A (Visual effects have been minimized)\A\A " var(--pl-lite-why, "");
+}
+
+:root[data-prowlogue-lite="new"]:where([data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .headerUserButton::after,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .headerUserButton:has(~ .currentTimeText:hover)::after {
+    content: var(--pl-lite-shown, none) "POTATO MODE ACTIVATED";
+}
+
+:root[data-prowlogue-lite="new"]:where([data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .currentTimeText::after,
+:root[data-prowlogue-lite="new"]:where([data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .headerUserButton::after {
+    animation: pl-potato-announce var(--pl-potato-announce) both;
+}
+
+/* After the announcement and with the same weight, as in the Modern bar: :empty is there for that, and always
+   true of the clock outside the TV display mode. */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .currentTimeText:empty:hover::after,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .headerUserButton:has(~ .currentTimeText:hover)::after {
+    animation: pl-home-fade-in var(--pl-focus-button);
+}

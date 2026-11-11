@@ -1,5 +1,5 @@
 /*
- * Poster progress bar (Modern layout). It hangs 8pt below the poster and fills the poster's bottom corners,
+ * Poster progress bar (both layouts). It hangs 8pt below the poster and fills the poster's bottom corners,
  * so poster and bar read as one block with rounded bottom corners; a white fill on a white @ 25 % track,
  * the trailing edge square; the caption moves down by the bar's height.
  *
@@ -28,17 +28,20 @@
  * (overlay-text cards) stay as they are. Recordings keep jellyfin's red.
  */
 
-#reactRoot > div > main .card:not(#homeTab :is(.ContinueWatching, .ContinueWatchingNextUp, [data-section-id^="continueWatching"]) *, #homeTab .verticalSection:not([data-page], [data-section-id]) [data-monitor="videoplayback,markplayed"] *, [data-type="Movie"]:is(.overflowBackdropCard, .backdropCard, .mixedBackdropCard), #itemDetailPage [data-type="Episode"], [data-timerid], [data-type="Program"], [data-type="TvChannel"], [data-type="Recording"], [data-type="Timer"]) {
+#reactRoot > div > main .card:not(#homeTab :is(.ContinueWatching, .ContinueWatchingNextUp, [data-section-id^="continueWatching"]) *, #homeTab .verticalSection:not([data-page], [data-section-id]) [data-monitor="videoplayback,markplayed"] *, [data-type="Movie"]:is(.overflowBackdropCard, .backdropCard, .mixedBackdropCard), #itemDetailPage [data-type="Episode"], [data-timerid], [data-type="Program"], [data-type="TvChannel"], [data-type="Recording"], [data-type="Timer"]),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card:not(#homeTab :is(.ContinueWatching, .ContinueWatchingNextUp, [data-section-id^="continueWatching"]) *, #homeTab .verticalSection:not([data-page], [data-section-id]) [data-monitor="videoplayback,markplayed"] *, [data-type="Movie"]:is(.overflowBackdropCard, .backdropCard, .mixedBackdropCard), #itemDetailPage [data-type="Episode"], [data-timerid], [data-type="Program"], [data-type="TvChannel"], [data-type="Recording"], [data-type="Timer"]) {
     --pl-progress-display: none;
     --pl-progress-height: 0px;
 }
 
-#reactRoot > div > main .cardBox:not(.visualCardBox) .cardScalable:has(.cardImageContainer > .innerCardFooterClear > .itemProgressBar, .cardImageContainer > .itemLinearProgress) {
+#reactRoot > div > main .cardBox:not(.visualCardBox) .cardScalable:has(.cardImageContainer > .innerCardFooterClear > .itemProgressBar, .cardImageContainer > .itemLinearProgress),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardBox:not(.visualCardBox) .cardScalable:has(.cardImageContainer > .innerCardFooterClear > .itemProgressBar, .cardImageContainer > .itemLinearProgress) {
     --pl-card-bar: var(--pl-progress-height);
     margin-bottom: var(--pl-progress-height);
 }
 
-#reactRoot > div > main .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer):has(> .innerCardFooterClear > .itemProgressBar, > .itemLinearProgress, > .cardImageContainer > .itemLinearProgress) {
+#reactRoot > div > main .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer):has(> .innerCardFooterClear > .itemProgressBar, > .itemLinearProgress, > .cardImageContainer > .itemLinearProgress),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardBox:not(.visualCardBox) :is(.cardContent, .cardImageContainer):has(> .innerCardFooterClear > .itemProgressBar, > .itemLinearProgress, > .cardImageContainer > .itemLinearProgress) {
     overflow: visible;
     contain: size style;
 }
@@ -54,16 +57,19 @@
     }
 }
 
-#reactRoot > div > main :is(.lazy-image-fadein-fast, .lazy-image-fadein) > .innerCardFooterClear:has(> .itemProgressBar) {
+#reactRoot > div > main :is(.lazy-image-fadein-fast, .lazy-image-fadein) > .innerCardFooterClear:has(> .itemProgressBar),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody :is(.lazy-image-fadein-fast, .lazy-image-fadein) > .innerCardFooterClear:has(> .itemProgressBar) {
     animation: pl-progress-clear-art var(--pl-fade-in-time) linear;
 }
 
-#reactRoot > div > main .cardImageContainer.lazy-loaded:has(> .innerCardFooterClear > .itemProgressBar) {
+#reactRoot > div > main .cardImageContainer.lazy-loaded:has(> .innerCardFooterClear > .itemProgressBar),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardImageContainer.lazy-loaded:has(> .innerCardFooterClear > .itemProgressBar) {
     animation: none;
 }
 
 /* The bar's box: from one corner radius above the poster's bottom edge to the bar's height below it. */
-#reactRoot > div > main .cardBox:not(.visualCardBox) .cardImageContainer > :is(.innerCardFooterClear:has(> .itemProgressBar), .itemLinearProgress) {
+#reactRoot > div > main .cardBox:not(.visualCardBox) .cardImageContainer > :is(.innerCardFooterClear:has(> .itemProgressBar), .itemLinearProgress),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardBox:not(.visualCardBox) .cardImageContainer > :is(.innerCardFooterClear:has(> .itemProgressBar), .itemLinearProgress) {
     display: var(--pl-progress-display);
     top: calc(100% - var(--pl-radius-poster));
     bottom: auto;
@@ -73,7 +79,8 @@
     background: var(--pl-progress-track);
 }
 
-#reactRoot > div > main .cardBox:not(.visualCardBox) .cardImageContainer > .innerCardFooterClear > .itemProgressBar {
+#reactRoot > div > main .cardBox:not(.visualCardBox) .cardImageContainer > .innerCardFooterClear > .itemProgressBar,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardBox:not(.visualCardBox) .cardImageContainer > .innerCardFooterClear > .itemProgressBar {
     height: 100%;
     background: none;
 }
@@ -84,7 +91,8 @@
 
 /* White fill; recordings keep jellyfin's red (the legacy -recording class; React marks them only by
    item type or timer, on the card). */
-#reactRoot > div > main .cardBox:not(.visualCardBox) .cardImageContainer > .innerCardFooterClear > .itemProgressBar > .itemProgressBarForeground:not(.itemProgressBarForeground-recording) {
+#reactRoot > div > main .cardBox:not(.visualCardBox) .cardImageContainer > .innerCardFooterClear > .itemProgressBar > .itemProgressBarForeground:not(.itemProgressBarForeground-recording),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardBox:not(.visualCardBox) .cardImageContainer > .innerCardFooterClear > .itemProgressBar > .itemProgressBarForeground:not(.itemProgressBarForeground-recording) {
     background-color: var(--pl-progress-fill);
 }
 

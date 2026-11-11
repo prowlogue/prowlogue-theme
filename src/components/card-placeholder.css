@@ -1,9 +1,11 @@
 /*
- * Placeholder tiles, for items with no art (Modern layout): a tint of the accent, in place of jellyfin's
+ * Placeholder tiles, for items with no art (both layouts): a tint of the accent, in place of jellyfin's
  * five hard-coded blues (themes/dark/theme.scss).
  */
 
 #reactRoot > div > main .defaultCardBackground,
-body:has(> #reactRoot > div > main) .formDialog .defaultCardBackground {
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .defaultCardBackground,
+body:has(> #reactRoot > div > main) .formDialog .defaultCardBackground,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .formDialog .defaultCardBackground {
     background-color: var(--pl-card-placeholder);
 }

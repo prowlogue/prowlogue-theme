@@ -1,5 +1,5 @@
 /*
- * Player OSD (Modern layout): a floating panel with the times either side of the bar and the buttons
+ * Player OSD (both layouts): a floating panel with the times either side of the bar and the buttons
  * below, cubic-bezier(.16,1,.3,1). White only: a capsule bar that thickens to scrub, chapter marks as
  * cuts, a 4pt white ring on keyboard focus.
  *
@@ -18,7 +18,8 @@
  */
 
 /* ── The panel ── */
-#reactRoot > div > main #videoOsdPage .videoOsdBottom {
+#reactRoot > div > main #videoOsdPage .videoOsdBottom,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom {
     left: max(var(--pl-osd-margin), env(safe-area-inset-left));
     right: max(var(--pl-osd-margin), env(safe-area-inset-right));
     bottom: max(var(--pl-osd-margin), env(safe-area-inset-bottom));
@@ -30,12 +31,14 @@
     animation: pl-osd-panel-in var(--pl-osd-motion);
 }
 
-#reactRoot > div > main #videoOsdPage .videoOsdBottom-hidden {
+#reactRoot > div > main #videoOsdPage .videoOsdBottom-hidden,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom-hidden {
     transform: translate3d(0, var(--pl-osd-slide), 0);
 }
 
 /* Fading out still leaves the controls in place until .hide lands. */
-#reactRoot > div > main #videoOsdPage .videoOsdBottom-hidden .osdControls {
+#reactRoot > div > main #videoOsdPage .videoOsdBottom-hidden .osdControls,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom-hidden .osdControls {
     pointer-events: none;
 }
 
@@ -46,7 +49,8 @@
     }
 }
 
-#reactRoot > div > main #videoOsdPage .osdControls {
+#reactRoot > div > main #videoOsdPage .osdControls,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .osdControls {
     display: flex;
     flex-direction: column;
     gap: calc(var(--pl-osd-padding) / 3);
@@ -55,17 +59,20 @@
 }
 
 /* !important: the template's inline margins, and stock's own on .osdSecondaryMediaInfo. */
-#reactRoot > div > main #videoOsdPage .osdTextContainer {
+#reactRoot > div > main #videoOsdPage .osdTextContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .osdTextContainer {
     margin: 0 !important;
     padding: 0 !important;
 }
 
 /* ── Times either side of the bar ── */
-#reactRoot > div > main #videoOsdPage .osdControls > [dir="ltr"] {
+#reactRoot > div > main #videoOsdPage .osdControls > [dir="ltr"],
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .osdControls > [dir="ltr"] {
     gap: var(--pl-osd-padding);
 }
 
-#reactRoot > div > main #videoOsdPage .osdControls > [dir="ltr"] > .osdTextContainer {
+#reactRoot > div > main #videoOsdPage .osdControls > [dir="ltr"] > .osdTextContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .osdControls > [dir="ltr"] > .osdTextContainer {
     display: block;
     flex: none;
     min-width: 3.4em;
@@ -75,98 +82,117 @@
     white-space: nowrap;
 }
 
-#reactRoot > div > main #videoOsdPage .osdControls > [dir="ltr"] > .osdDurationText {
+#reactRoot > div > main #videoOsdPage .osdControls > [dir="ltr"] > .osdDurationText,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .osdControls > [dir="ltr"] > .osdDurationText {
     color: var(--pl-text-secondary);
 }
 
 /* !important: the template's inline margin. */
-#reactRoot > div > main #videoOsdPage .osdControls > [dir="ltr"] > .sliderContainer {
+#reactRoot > div > main #videoOsdPage .osdControls > [dir="ltr"] > .sliderContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .osdControls > [dir="ltr"] > .sliderContainer {
     margin: 0 !important;
 }
 
 /* ── The bar: position and volume share the capsule, position takes 14pt ── */
-#reactRoot > div > main #videoOsdPage .mdl-slider-background-flex {
+#reactRoot > div > main #videoOsdPage .mdl-slider-background-flex,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .mdl-slider-background-flex {
     border-radius: var(--pl-radius-pill);
     background: var(--pl-progress-bar-track);
     transition: transform var(--pl-osd-motion);
 }
 
-#reactRoot > div > main #videoOsdPage .osdPositionSlider ~ .mdl-slider-background-flex-container .mdl-slider-background-flex {
+#reactRoot > div > main #videoOsdPage .osdPositionSlider ~ .mdl-slider-background-flex-container .mdl-slider-background-flex,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .osdPositionSlider ~ .mdl-slider-background-flex-container .mdl-slider-background-flex {
     height: var(--pl-progress-bar);
     margin-top: calc(var(--pl-progress-bar) / -2);
 }
 
-#reactRoot > div > main #videoOsdPage .osdVolumeSlider ~ .mdl-slider-background-flex-container .mdl-slider-background-flex {
+#reactRoot > div > main #videoOsdPage .osdVolumeSlider ~ .mdl-slider-background-flex-container .mdl-slider-background-flex,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .osdVolumeSlider ~ .mdl-slider-background-flex-container .mdl-slider-background-flex {
     height: calc(var(--pl-progress-bar) / 2);
     margin-top: calc(var(--pl-progress-bar) / -4);
 }
 
-#reactRoot > div > main #videoOsdPage .mdl-slider-background-lower {
+#reactRoot > div > main #videoOsdPage .mdl-slider-background-lower,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .mdl-slider-background-lower {
     background-color: var(--pl-progress-fill);
 }
 
-#reactRoot > div > main #videoOsdPage .mdl-slider-background-upper {
+#reactRoot > div > main #videoOsdPage .mdl-slider-background-upper,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .mdl-slider-background-upper {
     background: var(--pl-osd-buffered);
 }
 
 /* The knob grows out of the bar. A rule per engine: an unknown pseudo-element drops a whole list. */
-#reactRoot > div > main #videoOsdPage .mdl-slider::-webkit-slider-thumb {
+#reactRoot > div > main #videoOsdPage .mdl-slider::-webkit-slider-thumb,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .mdl-slider::-webkit-slider-thumb {
     background: var(--pl-progress-fill);
     box-shadow: var(--pl-control-shadow);
     transform: scale(0);
     transition: transform var(--pl-osd-motion);
 }
 
-#reactRoot > div > main #videoOsdPage .mdl-slider::-moz-range-thumb {
+#reactRoot > div > main #videoOsdPage .mdl-slider::-moz-range-thumb,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .mdl-slider::-moz-range-thumb {
     background: var(--pl-progress-fill);
     box-shadow: var(--pl-control-shadow);
     transform: scale(0);
     transition: transform var(--pl-osd-motion);
 }
 
-#reactRoot > div > main #videoOsdPage .mdl-slider:active::-webkit-slider-thumb {
+#reactRoot > div > main #videoOsdPage .mdl-slider:active::-webkit-slider-thumb,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .mdl-slider:active::-webkit-slider-thumb {
     transform: none;
 }
 
-#reactRoot > div > main #videoOsdPage .mdl-slider:active::-moz-range-thumb {
+#reactRoot > div > main #videoOsdPage .mdl-slider:active::-moz-range-thumb,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .mdl-slider:active::-moz-range-thumb {
     transform: none;
 }
 
-#reactRoot > div > main #videoOsdPage .mdl-slider:focus-visible::-webkit-slider-thumb {
+#reactRoot > div > main #videoOsdPage .mdl-slider:focus-visible::-webkit-slider-thumb,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .mdl-slider:focus-visible::-webkit-slider-thumb {
     transform: none;
 }
 
-#reactRoot > div > main #videoOsdPage .mdl-slider:focus-visible::-moz-range-thumb {
+#reactRoot > div > main #videoOsdPage .mdl-slider:focus-visible::-moz-range-thumb,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .mdl-slider:focus-visible::-moz-range-thumb {
     transform: none;
 }
 
 @media (hover: hover) {
-    #reactRoot > div > main #videoOsdPage .mdl-slider:hover::-webkit-slider-thumb {
+    #reactRoot > div > main #videoOsdPage .mdl-slider:hover::-webkit-slider-thumb,
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .mdl-slider:hover::-webkit-slider-thumb {
         transform: none;
     }
 
-    #reactRoot > div > main #videoOsdPage .mdl-slider:hover::-moz-range-thumb {
+    #reactRoot > div > main #videoOsdPage .mdl-slider:hover::-moz-range-thumb,
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .mdl-slider:hover::-moz-range-thumb {
         transform: none;
     }
 
     /* 14pt → 20pt while scrubbing. */
-    #reactRoot > div > main #videoOsdPage .osdPositionSlider:hover ~ .mdl-slider-background-flex-container .mdl-slider-background-flex {
+    #reactRoot > div > main #videoOsdPage .osdPositionSlider:hover ~ .mdl-slider-background-flex-container .mdl-slider-background-flex,
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .osdPositionSlider:hover ~ .mdl-slider-background-flex-container .mdl-slider-background-flex {
         transform: scaleY(1.43);
     }
 }
 
-#reactRoot > div > main #videoOsdPage .osdPositionSlider:active ~ .mdl-slider-background-flex-container .mdl-slider-background-flex {
+#reactRoot > div > main #videoOsdPage .osdPositionSlider:active ~ .mdl-slider-background-flex-container .mdl-slider-background-flex,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .osdPositionSlider:active ~ .mdl-slider-background-flex-container .mdl-slider-background-flex {
     transform: scaleY(1.43);
 }
 
 /* Chapter marks as cuts through the bar, above it (the DOM puts them below) and clear of the pointer. */
-#reactRoot > div > main #videoOsdPage .sliderMarkerContainer {
+#reactRoot > div > main #videoOsdPage .sliderMarkerContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .sliderMarkerContainer {
     top: 50%;
     z-index: 1;
     pointer-events: none;
 }
 
-#reactRoot > div > main #videoOsdPage .sliderMarker {
+#reactRoot > div > main #videoOsdPage .sliderMarker,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .sliderMarker {
     width: 3px;
     height: var(--pl-osd-bar-scrub);
     background-color: var(--pl-osd-cut);
@@ -180,16 +206,19 @@
    is a real row: the name truncates and the time keeps its place. min-width: 0 is what makes that work,
    because stock's `fit-content` lets a long name widen the label until the time is clipped. A scrim sits
    behind it, for bright frames. ── */
-#reactRoot > div > main #videoOsdPage .sliderBubble {
+#reactRoot > div > main #videoOsdPage .sliderBubble,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .sliderBubble {
     transform: translate3d(-50%, calc(-100% - var(--pl-osd-bubble-gap)), 0);
 }
 
 /* Every slider's bubble, the now-playing bar's and the queue page's too: stock is a #282828 square. */
-body:has(> #reactRoot > div > main) .sliderBubble {
+body:has(> #reactRoot > div > main) .sliderBubble,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .sliderBubble {
     background: none;
 }
 
-body:has(> #reactRoot > div > main) .sliderBubbleText {
+body:has(> #reactRoot > div > main) .sliderBubbleText,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .sliderBubbleText {
     padding: calc(var(--pl-osd-padding) / 2) var(--pl-osd-padding);
     border-radius: var(--pl-radius-pill);
     background: var(--pl-osd-surface);
@@ -200,7 +229,8 @@ body:has(> #reactRoot > div > main) .sliderBubbleText {
 }
 
 /* position: the label's containing block, or the rounded clip misses it. */
-#reactRoot > div > main #videoOsdPage .chapterThumbContainer {
+#reactRoot > div > main #videoOsdPage .chapterThumbContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .chapterThumbContainer {
     position: relative;
     border-radius: var(--pl-radius-tile);
     box-shadow: 0 0 0 1px var(--pl-glass-rim), 0 4px 18px rgba(0, 0, 0, 0.5); 
@@ -214,7 +244,8 @@ body:has(> #reactRoot > div > main) .sliderBubbleText {
     }
 }
 
-#reactRoot > div > main #videoOsdPage .chapterThumbTextContainer {
+#reactRoot > div > main #videoOsdPage .chapterThumbTextContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .chapterThumbTextContainer {
     display: flex;
     gap: var(--pl-osd-padding);
     align-items: baseline;
@@ -223,7 +254,8 @@ body:has(> #reactRoot > div > main) .sliderBubbleText {
     background: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0));
 }
 
-#reactRoot > div > main #videoOsdPage .chapterThumbText {
+#reactRoot > div > main #videoOsdPage .chapterThumbText,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .chapterThumbText {
     min-width: 0;
     padding: 0;
     font-size: var(--pl-size-caption);
@@ -231,12 +263,14 @@ body:has(> #reactRoot > div > main) .sliderBubbleText {
     line-height: 1.2;
 }
 
-#reactRoot > div > main #videoOsdPage div.chapterThumbText {
+#reactRoot > div > main #videoOsdPage div.chapterThumbText,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage div.chapterThumbText {
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-#reactRoot > div > main #videoOsdPage h2.chapterThumbText {
+#reactRoot > div > main #videoOsdPage h2.chapterThumbText,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage h2.chapterThumbText {
     flex: none;
     margin-left: auto; /* stays right when the chapter has no name */
     font-variant-numeric: tabular-nums;
@@ -244,39 +278,48 @@ body:has(> #reactRoot > div > main) .sliderBubbleText {
 }
 
 /* A chapter with no image has no frame to sit on. */
-#reactRoot > div > main #videoOsdPage .chapterThumbTextContainer.chapterBubblePosition {
+#reactRoot > div > main #videoOsdPage .chapterThumbTextContainer.chapterBubblePosition,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .chapterThumbTextContainer.chapterBubblePosition {
     padding: calc(var(--pl-osd-padding) * 0.75) var(--pl-osd-padding);
     background: var(--pl-osd-surface);
 }
 
 /* ── Buttons ── */
-#reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons {
+#reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom .buttons {
     padding: 0;
 }
 
-#reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > [dir="ltr"] {
+#reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > [dir="ltr"],
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom .buttons > [dir="ltr"] {
     display: flex;
     align-items: center;
 }
 
-#reactRoot > div > main #videoOsdPage .osdTimeText {
+#reactRoot > div > main #videoOsdPage .osdTimeText,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .osdTimeText {
     margin-left: 0;
     color: var(--pl-text-secondary);
     font-size: var(--pl-size-caption);
 }
 
-#reactRoot > div > main #videoOsdPage .volumeButtons {
+#reactRoot > div > main #videoOsdPage .volumeButtons,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .volumeButtons {
     margin: 0;
 }
 
-#reactRoot > div > main #videoOsdPage .osdVolumeSliderContainer {
+#reactRoot > div > main #videoOsdPage .osdVolumeSliderContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .osdVolumeSliderContainer {
     width: 6em;
     margin-right: var(--pl-osd-padding);
 }
 
 /* Every round control on both bars, plugins' included (Jellyfin Enhanced adds to both), and the now-playing bar's (src/pages/now-playing.css). */
 #reactRoot > div > main :is(#videoOsdPage .buttons .paper-icon-button-light, .videoOsd-appBar button),
-body:has(> #reactRoot > div > main) > .appfooter .mediaButton {
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .buttons .paper-icon-button-light,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader .headerButton,
+body:has(> #reactRoot > div > main) > .appfooter .mediaButton,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter .mediaButton {
     isolation: isolate;
     position: relative;
     justify-content: center;
@@ -295,7 +338,10 @@ body:has(> #reactRoot > div > main) > .appfooter .mediaButton {
    leaves a trail of them; and any scale re-rasterises the icon, which reads as it jumping a pixel. Keyboard
    focus takes a ring instead, and pressing shows the disc, which is the feedback on touch. */
 #reactRoot > div > main :is(#videoOsdPage .buttons .paper-icon-button-light, .videoOsd-appBar button)::before,
-body:has(> #reactRoot > div > main) > .appfooter .mediaButton::before {
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .buttons .paper-icon-button-light::before,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader .headerButton::before,
+body:has(> #reactRoot > div > main) > .appfooter .mediaButton::before,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter .mediaButton::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -308,27 +354,37 @@ body:has(> #reactRoot > div > main) > .appfooter .mediaButton::before {
 
 @media (hover: hover) and (pointer: fine) {
     #reactRoot > div > main :is(#videoOsdPage .buttons .paper-icon-button-light, .videoOsd-appBar button):hover:not(:disabled)::before,
-    body:has(> #reactRoot > div > main) > .appfooter .mediaButton:hover:not(:disabled)::before {
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .buttons .paper-icon-button-light:hover:not(:disabled)::before,
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader .headerButton:hover:not(:disabled)::before,
+    body:has(> #reactRoot > div > main) > .appfooter .mediaButton:hover:not(:disabled)::before,
+    :where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter .mediaButton:hover:not(:disabled)::before {
         opacity: 1;
         transition-duration: var(--pl-osd-hover-in);
     }
 }
 
 #reactRoot > div > main :is(#videoOsdPage .buttons .paper-icon-button-light, .videoOsd-appBar button):focus-visible::before,
-body:has(> #reactRoot > div > main) > .appfooter .mediaButton:focus-visible::before {
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .buttons .paper-icon-button-light:focus-visible::before,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader .headerButton:focus-visible::before,
+body:has(> #reactRoot > div > main) > .appfooter .mediaButton:focus-visible::before,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter .mediaButton:focus-visible::before {
     background: none;
     box-shadow: inset 0 0 0 calc(4 * var(--pl-pt)) var(--pl-focus-fill);
     opacity: 1;
 }
 
 #reactRoot > div > main :is(#videoOsdPage .buttons .paper-icon-button-light, .videoOsd-appBar button):active:not(:disabled)::before,
-body:has(> #reactRoot > div > main) > .appfooter .mediaButton:active:not(:disabled)::before {
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .buttons .paper-icon-button-light:active:not(:disabled)::before,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader .headerButton:active:not(:disabled)::before,
+body:has(> #reactRoot > div > main) > .appfooter .mediaButton:active:not(:disabled)::before,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .appfooter .mediaButton:active:not(:disabled)::before {
     opacity: 1;
     transition-duration: var(--pl-osd-hover-in);
 }
 
 /* Play is the one control with a fill at rest. */
-#reactRoot > div > main #videoOsdPage .buttons .btnPause {
+#reactRoot > div > main #videoOsdPage .buttons .btnPause,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .buttons .btnPause {
     width: var(--pl-osd-play);
     height: var(--pl-osd-play);
     margin: 0 calc(var(--pl-osd-padding) / 2);
@@ -373,9 +429,55 @@ body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hid
     border-radius: var(--pl-radius-pill);
 }
 
+/* Legacy: the top bar is jellyfin's own header, marked .osdHeader while the player is up: .headerTop holds
+   .headerLeft (the back button and the title, h3.pageTitle) and .headerRight (SyncPlay and cast). Stock makes it a
+   gradient 7.5em tall and its row 3.5em at most (videoosd.scss). The same bar as Modern's: the row in line with
+   the panel, a plain title, and the two ends on the panel's surface (below). The header's own colour and frost are
+   off in the player (src/shell/legacy-bar.css). */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader {
+    height: auto;
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader > .headerTop {
+    height: auto;
+    max-height: none;
+    padding: var(--pl-osd-margin);
+    transition: transform var(--pl-osd-motion);
+}
+
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .mainAnimatedPages.skinBody > #videoOsdPage:not(.hide) > .videoOsdBottom-hidden) #reactRoot > div > .skinHeader.osdHeader > .headerTop {
+    transform: translate3d(0, calc(var(--pl-osd-slide) * -1), 0);
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader .headerLeft {
+    gap: calc(var(--pl-osd-padding) * 0.75);
+}
+
+/* A block, not stock's flex box, so a long title ends in an ellipsis. */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader .pageTitle {
+    display: block;
+    overflow: hidden;
+    min-width: 0;
+    height: auto;
+    margin: 0;
+    font-size: var(--pl-size-callout);
+    font-weight: 600;
+    text-overflow: ellipsis;
+    text-shadow: var(--pl-label-shadow);
+    white-space: nowrap;
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader .headerRight {
+    flex: none;
+    border-radius: var(--pl-radius-pill);
+}
+
 /* ── The panel's surface: the top bar's pieces, up next, stats, the volume OSD ── */
 #reactRoot > div > main :is(.videoOsd-appBar > .MuiIconButton-root, .videoOsd-appBar > .MuiBox-root, #videoOsdPage .upNextContainer),
-body:has(> #reactRoot > div > main) > :is(.playerStats, .iconOsd) {
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .upNextContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader.osdHeader :is(.headerBackButton, .headerRight),
+body:has(> #reactRoot > div > main) > :is(.playerStats, .iconOsd),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > :is(.playerStats, .iconOsd) {
     background: var(--pl-osd-surface);
     box-shadow: inset 0 0 0 1px var(--pl-glass-rim);
     -webkit-backdrop-filter: none; /* jellyfin's blur(5px) on .iconOsd, over the video */
@@ -383,20 +485,25 @@ body:has(> #reactRoot > div > main) > :is(.playerStats, .iconOsd) {
 }
 
 .layout-desktop #reactRoot > div > main :is(#videoOsdPage .videoOsdBottom, .videoOsd-appBar > .MuiIconButton-root, .videoOsd-appBar > .MuiBox-root, #videoOsdPage .upNextContainer),
-.layout-desktop body:has(> #reactRoot > div > main) > :is(.playerStats, .iconOsd) {
+.layout-desktop:where([data-theme]) #reactRoot > .skinBody :is(#videoOsdPage .videoOsdBottom, #videoOsdPage .upNextContainer),
+.layout-desktop:where([data-theme]) #reactRoot > div > .skinHeader.osdHeader :is(.headerBackButton, .headerRight),
+.layout-desktop body:has(> #reactRoot > div > main) > :is(.playerStats, .iconOsd),
+.layout-desktop:where([data-theme]) body:has(> #reactRoot > .skinBody) > :is(.playerStats, .iconOsd) {
     background: var(--pl-surface);
     -webkit-backdrop-filter: var(--pl-menu-filter);
     backdrop-filter: var(--pl-menu-filter);
 }
 
-.layout-desktop #reactRoot > div > main #videoOsdPage .videoOsdBottom {
+.layout-desktop #reactRoot > div > main #videoOsdPage .videoOsdBottom,
+.layout-desktop:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom {
     box-shadow: var(--pl-osd-ring), var(--pl-banner-shadow);
 }
 
 /* ── Menus from the player's buttons (settings, subtitles, audio): jellyfin centres the sheet on its button
    with an inline top, which lands on the panel. They sit above the panel instead and grow up from it, and
    left stays jellyfin's, so a sheet still lines up with its button. !important: that inline top. ── */
-body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hide)) .actionSheet {
+body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hide)) .actionSheet,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .mainAnimatedPages.skinBody > #videoOsdPage:not(.hide)) .actionSheet {
     --pl-menu-ring: var(--pl-osd-ring);
     top: auto !important;
     bottom: var(--pl-osd-clearance);
@@ -405,27 +512,32 @@ body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hid
 }
 
 /* ── Up next: above the panel. margin needs [dir]'s specificity beaten, which the anchor's id does. ── */
-#reactRoot > div > main #videoOsdPage .upNextContainer {
+#reactRoot > div > main #videoOsdPage .upNextContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .upNextContainer {
     margin: 0 var(--pl-osd-margin) var(--pl-osd-clearance) 0;
     border-radius: var(--pl-osd-radius);
 }
 
-#reactRoot > div > main #videoOsdPage .upNextDialog-poster-img {
+#reactRoot > div > main #videoOsdPage .upNextDialog-poster-img,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .upNextDialog-poster-img {
     border-radius: var(--pl-radius-tile);
 }
 
-#reactRoot > div > main #videoOsdPage .upNextDialog-countdownText {
+#reactRoot > div > main #videoOsdPage .upNextDialog-countdownText,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .upNextDialog-countdownText {
     color: var(--pl-text);
     font-weight: 600;
 }
 
-#reactRoot > div > main #videoOsdPage .upNextDialog-button {
+#reactRoot > div > main #videoOsdPage .upNextDialog-button,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .upNextDialog-button {
     border-radius: var(--pl-radius-pill);
     background: var(--pl-glass-tint);
     color: var(--pl-text);
 }
 
-#reactRoot > div > main #videoOsdPage .upNextDialog .btnStartNow {
+#reactRoot > div > main #videoOsdPage .upNextDialog .btnStartNow,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #videoOsdPage .upNextDialog .btnStartNow {
     background: var(--pl-focus-fill);
     color: var(--pl-focus-text);
 }
@@ -442,40 +554,47 @@ body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hid
    Motion: a transition takes its timing from the state it's heading to, so the switch swaps that too. Up,
    they run a touch ahead of the panel. Down, they give its fade a head start: it only slides 16px and vanishes well
    above the bottom edge, so moving at once would carry them through it while it's still on screen. ── */
-body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hide) > .videoOsdBottom:not(.videoOsdBottom-hidden)) > .videoPlayerContainer {
+body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hide) > .videoOsdBottom:not(.videoOsdBottom-hidden)) > .videoPlayerContainer,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .mainAnimatedPages.skinBody > #videoOsdPage:not(.hide) > .videoOsdBottom:not(.videoOsdBottom-hidden)) > .videoPlayerContainer {
     --pl-osd-subtitle-lift: calc(var(--pl-osd-subtitle-rest) - var(--pl-osd-clearance));
     --pl-osd-ass-lift: calc(var(--pl-osd-clearance) * -1);
     --pl-osd-subtitle-motion: var(--pl-osd-subtitle-rise);
 }
 
-body:has(> #reactRoot > div > main) > .videoPlayerContainer > .htmlvideoplayer::-webkit-media-text-track-container {
+body:has(> #reactRoot > div > main) > .videoPlayerContainer > .htmlvideoplayer::-webkit-media-text-track-container,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .videoPlayerContainer > .htmlvideoplayer::-webkit-media-text-track-container {
     transform: translateY(var(--pl-osd-subtitle-lift));
     transition: transform var(--pl-osd-subtitle-motion);
 }
 
-body:has(> #reactRoot > div > main) > .videoPlayerContainer > .videoSubtitles {
+body:has(> #reactRoot > div > main) > .videoPlayerContainer > .videoSubtitles,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .videoPlayerContainer > .videoSubtitles {
     transform: translateY(var(--pl-osd-subtitle-lift));
     transition: transform var(--pl-osd-subtitle-motion);
 }
 
-body:has(> #reactRoot > div > main) > .videoPlayerContainer .libassjs-canvas {
+body:has(> #reactRoot > div > main) > .videoPlayerContainer .libassjs-canvas,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .videoPlayerContainer .libassjs-canvas {
     transform: translateY(var(--pl-osd-ass-lift));
     transition: transform var(--pl-osd-subtitle-motion);
 }
 
 /* ── Skip Intro / Credits: a white capsule, above the panel (on body, outside the page) ── */
-body:has(> #reactRoot > div > main) > .skip-button-container {
+body:has(> #reactRoot > div > main) > .skip-button-container,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .skip-button-container {
     bottom: var(--pl-osd-clearance);
     transition: transform var(--pl-osd-motion);
 }
 
 /* An outro brings both, and they share the corner: the capsule rises above the card, capped so a
    short window (a phone on its side) can't lift it off the screen. */
-body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hide) > .upNextContainer:not(.hide):not(.upNextDialog-hidden)) > .skip-button-container {
+body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hide) > .upNextContainer:not(.hide):not(.upNextDialog-hidden)) > .skip-button-container,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .mainAnimatedPages.skinBody > #videoOsdPage:not(.hide) > .upNextContainer:not(.hide):not(.upNextDialog-hidden)) > .skip-button-container {
     transform: translate3d(0, calc(min(var(--pl-osd-upnext-height), 100vh - var(--pl-osd-clearance) - 60px) * -1), 0);
 }
 
-body:has(> #reactRoot > div > main) > .skip-button-container .skip-button {
+body:has(> #reactRoot > div > main) > .skip-button-container .skip-button,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .skip-button-container .skip-button {
     margin-right: var(--pl-osd-margin);
     border-radius: var(--pl-radius-pill);
     background: var(--pl-focus-fill);
@@ -485,73 +604,88 @@ body:has(> #reactRoot > div > main) > .skip-button-container .skip-button {
 }
 
 /* ── Playback info and the volume / brightness OSD ── */
-body:has(> #reactRoot > div > main) > .playerStats {
+body:has(> #reactRoot > div > main) > .playerStats,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .playerStats {
     border-radius: var(--pl-osd-radius);
 }
 
-body:has(> #reactRoot > div > main) > .iconOsd {
+body:has(> #reactRoot > div > main) > .iconOsd,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .iconOsd {
     top: calc(var(--pl-osd-margin) * 4);
     right: var(--pl-osd-margin);
     border-radius: var(--pl-osd-radius);
 }
 
-body:has(> #reactRoot > div > main) > .iconOsd .iconOsdProgressOuter {
+body:has(> #reactRoot > div > main) > .iconOsd .iconOsdProgressOuter,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .iconOsd .iconOsdProgressOuter {
     background: var(--pl-progress-bar-track);
 }
 
-body:has(> #reactRoot > div > main) > .iconOsd .iconOsdProgressInner {
+body:has(> #reactRoot > div > main) > .iconOsd .iconOsdProgressInner,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .iconOsd .iconOsdProgressInner {
     background: var(--pl-progress-fill);
 }
 
 /* ── Phones: the desktop's player: the same frosted panel and stroke, the same bar, Play in the
    row with its neighbours, which also means nothing in the panel is position: fixed, so it can take the filter. ── */
 .layout-mobile #reactRoot > div > main :is(#videoOsdPage .videoOsdBottom, .videoOsd-appBar > .MuiIconButton-root, .videoOsd-appBar > .MuiBox-root, #videoOsdPage .upNextContainer),
-.layout-mobile body:has(> #reactRoot > div > main) > :is(.playerStats, .iconOsd) {
+.layout-mobile:where([data-theme]) #reactRoot > .skinBody :is(#videoOsdPage .videoOsdBottom, #videoOsdPage .upNextContainer),
+.layout-mobile:where([data-theme]) #reactRoot > div > .skinHeader.osdHeader :is(.headerBackButton, .headerRight),
+.layout-mobile body:has(> #reactRoot > div > main) > :is(.playerStats, .iconOsd),
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) > :is(.playerStats, .iconOsd) {
     background: var(--pl-surface);
     -webkit-backdrop-filter: var(--pl-menu-filter);
     backdrop-filter: var(--pl-menu-filter);
 }
 
-.layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom {
+.layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom,
+.layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom {
     box-shadow: var(--pl-osd-ring), var(--pl-banner-shadow);
 }
 
 /* Rewind and forward, which stock takes away below 50em with !important: the desktop's five, and there's room. */
-.layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom :is(.btnRewind, .btnFastForward):not(.hide) {
+.layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom :is(.btnRewind, .btnFastForward):not(.hide),
+.layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom :is(.btnRewind, .btnFastForward):not(.hide) {
     display: inline-flex !important;
 }
 
 /* The bar stays thin to look at and takes a fingertip's height to grab. The slider is centred on the bar, so it grows both ways,
    and the row below moves down by what it takes, or a press on the top of a button would seek instead. */
-.layout-mobile #reactRoot > div > main #videoOsdPage .osdPositionSlider {
+.layout-mobile #reactRoot > div > main #videoOsdPage .osdPositionSlider,
+.layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .osdPositionSlider {
     height: var(--pl-osd-button);
 }
 
-.layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons {
+.layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons,
+.layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom .buttons {
     margin-top: 10px;
 }
 
 /* Upright there's no room for the desktop's one row. Play and its neighbours take the middle of the first, and the rest share
    the second evenly, however many a server's plugins bring; a button narrower than its disc keeps a round disc. */
 @media (orientation: portrait) {
-    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > [dir="ltr"] {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > [dir="ltr"],
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom .buttons > [dir="ltr"] {
         flex: 1 0 100%;
         justify-content: center;
     }
 
-    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > .osdTimeText {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > .osdTimeText,
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom .buttons > .osdTimeText {
         display: none;
     }
 
     /* Any basis above 0, or they'd fit on the line after the 100 % row, at no width at all. */
-    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > .paper-icon-button-light {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > .paper-icon-button-light,
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom .buttons > .paper-icon-button-light {
         flex: 1 1 1px;
         width: auto;
         min-width: 0;
         margin: 0;
     }
 
-    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > .paper-icon-button-light::before {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > .paper-icon-button-light::before,
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom .buttons > .paper-icon-button-light::before {
         inset: 0 calc(50% - var(--pl-osd-button) / 2);
     }
 }
@@ -560,21 +694,25 @@ body:has(> #reactRoot > div > main) > .iconOsd .iconOsdProgressInner {
    second row would make the panel taller and bring it up under Skip. How many buttons there are depends on the
    browser and the plugins, so no width can say when, and the right-hand ones give way as needed. */
 @media (orientation: landscape) {
-    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons,
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom .buttons {
         flex-wrap: nowrap;
     }
 
-    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > [dir="ltr"] {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > [dir="ltr"],
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom .buttons > [dir="ltr"] {
         flex: none;
     }
 
-    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > .paper-icon-button-light {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > .paper-icon-button-light,
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom .buttons > .paper-icon-button-light {
         flex: 0 1 var(--pl-osd-button);
         width: auto;
         min-width: 0;
     }
 
-    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > .paper-icon-button-light::before {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .videoOsdBottom .buttons > .paper-icon-button-light::before,
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .videoOsdBottom .buttons > .paper-icon-button-light::before {
         inset: 0 calc(50% - var(--pl-osd-button) / 2);
     }
 }
@@ -585,26 +723,31 @@ body:has(> #reactRoot > div > main) > .iconOsd .iconOsdProgressInner {
 }
 
 /* Up next is 30em wide with fixed-width rows inside, wider than a phone. */
-.layout-mobile #reactRoot > div > main #videoOsdPage .upNextContainer {
+.layout-mobile #reactRoot > div > main #videoOsdPage .upNextContainer,
+.layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .upNextContainer {
     left: var(--pl-osd-margin);
     width: auto;
     margin-right: var(--pl-osd-margin);
 }
 
-.layout-mobile #reactRoot > div > main #videoOsdPage .upNextDialog-title {
+.layout-mobile #reactRoot > div > main #videoOsdPage .upNextDialog-title,
+.layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .upNextDialog-title {
     width: auto;
 }
 
-.layout-mobile #reactRoot > div > main #videoOsdPage .upNextDialog-buttons {
+.layout-mobile #reactRoot > div > main #videoOsdPage .upNextDialog-buttons,
+.layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .upNextDialog-buttons {
     width: auto;
 }
 
 /* A frame can be wider than a phone's bar. zoom scales its inline px too. */
-.layout-mobile #reactRoot > div > main #videoOsdPage .chapterThumbContainer {
+.layout-mobile #reactRoot > div > main #videoOsdPage .chapterThumbContainer,
+.layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .chapterThumbContainer {
     zoom: 0.6;
 }
 
-.layout-mobile body:has(> #reactRoot > div > main) > .skip-button-container .skip-button {
+.layout-mobile body:has(> #reactRoot > div > main) > .skip-button-container .skip-button,
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) > .skip-button-container .skip-button {
     margin-right: max(var(--pl-osd-margin), env(safe-area-inset-right, 0px));
 }
 
@@ -612,19 +755,22 @@ body:has(> #reactRoot > div > main) > .iconOsd .iconOsdProgressInner {
    with its own position, inline and !important, transform included, so the lift above never reaches it and the
    panel covers the text. translate is a separate property and adds to whatever transform says. Its bottom is a
    percentage CSS can't read, so that layer takes the whole clearance, which clears the panel at any setting. */
-.layout-mobile body:has(> #reactRoot > div > main) > .videoPlayerContainer > .videoSubtitles {
+.layout-mobile body:has(> #reactRoot > div > main) > .videoPlayerContainer > .videoSubtitles,
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) > .videoPlayerContainer > .videoSubtitles {
     transform: none;
     translate: 0 var(--pl-osd-subtitle-lift);
     transition: translate var(--pl-osd-subtitle-motion);
 }
 
-.layout-mobile body:has(> #reactRoot > div > main) > .videoPlayerContainer > [data-je-subtitle-styled].videoSubtitles {
+.layout-mobile body:has(> #reactRoot > div > main) > .videoPlayerContainer > [data-je-subtitle-styled].videoSubtitles,
+.layout-mobile:where([data-theme]) body:has(> #reactRoot > .skinBody) > .videoPlayerContainer > [data-je-subtitle-styled].videoSubtitles {
     translate: 0 var(--pl-osd-ass-lift);
 }
 
 /* The room for a menu is what's on screen, not 100vh, which counts the browser's bars as gone. */
 @supports (height: 100svh) {
-    .layout-mobile body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hide)) .actionSheet {
+    .layout-mobile body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hide)) .actionSheet,
+    .layout-mobile:where([data-theme]) body:has(> #reactRoot > .mainAnimatedPages.skinBody > #videoOsdPage:not(.hide)) .actionSheet {
         max-height: calc(100svh - var(--pl-osd-clearance) - var(--pl-osd-margin));
     }
 }
@@ -634,37 +780,44 @@ body:has(> #reactRoot > div > main) > .iconOsd .iconOsdProgressInner {
    desktop, with less in it: across the whole width it would cover half the picture. !important: the template's
    inline margins. */
 @media (orientation: landscape) {
-    .layout-mobile #reactRoot > div > main #videoOsdPage .upNextContainer {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .upNextContainer,
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .upNextContainer {
         left: auto;
         width: min(24em, 60vw);
         padding: 0.75em 1em;
     }
 
     /* The card is a row on its side (upnextdialog.scss), so its column has to be able to shrink below a long title. */
-    .layout-mobile #reactRoot > div > main #videoOsdPage .upNextContainer > .flex-grow {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .upNextContainer > .flex-grow,
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .upNextContainer > .flex-grow {
         min-width: 0;
     }
 
-    .layout-mobile #reactRoot > div > main #videoOsdPage .upNextDialog-nextVideoText {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .upNextDialog-nextVideoText,
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .upNextDialog-nextVideoText {
         margin-top: 0 !important;
         font-size: 1.15em;
     }
 
-    .layout-mobile #reactRoot > div > main #videoOsdPage .upNextDialog-mediainfo {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .upNextDialog-mediainfo,
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .upNextDialog-mediainfo {
         display: none;
     }
 
-    .layout-mobile #reactRoot > div > main #videoOsdPage .upNextDialog-buttons {
+    .layout-mobile #reactRoot > div > main #videoOsdPage .upNextDialog-buttons,
+    .layout-mobile:where([data-theme]) #reactRoot > .skinBody #videoOsdPage .upNextDialog-buttons {
         margin-top: 0.25em !important;
     }
 
-    .layout-mobile body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hide)) .actionSheet {
+    .layout-mobile body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hide)) .actionSheet,
+    .layout-mobile:where([data-theme]) body:has(> #reactRoot > .mainAnimatedPages.skinBody > #videoOsdPage:not(.hide)) .actionSheet {
         bottom: var(--pl-osd-margin);
         max-height: calc(100vh - 2 * var(--pl-osd-margin));
     }
 
     @supports (height: 100svh) {
-        .layout-mobile body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hide)) .actionSheet {
+        .layout-mobile body:has(> #reactRoot > div > main > .mainAnimatedPages > #videoOsdPage:not(.hide)) .actionSheet,
+        .layout-mobile:where([data-theme]) body:has(> #reactRoot > .mainAnimatedPages.skinBody > #videoOsdPage:not(.hide)) .actionSheet {
             max-height: calc(100svh - 2 * var(--pl-osd-margin));
         }
     }

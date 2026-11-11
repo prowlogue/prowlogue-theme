@@ -1,0 +1,111 @@
+/*
+ * The left drawer (Legacy layout): jellyfin's own, .mainDrawer, as the Modern drawer is drawn
+ * (src/shell/drawer.css): a panel in the menus' frost, attached to the left, top and bottom edges of the
+ * window, its free corners rounded, a rim on every side but the window's.
+ *
+ * Rows: the library you're in takes a translucent pill, the row under the pointer or keyboard focus goes solid
+ * white with black text. No fade: text and fill flip together.
+ *
+ * DOM (scripts/libraryMenu.js, lib/navdrawer, the same in 10.11 and 12): #reactRoot > div > .mainDrawer >
+ * .mainDrawer-scrollContainer > a.navMenuOption (span.navMenuOptionIcon + span.navMenuOptionText) and
+ * h3.sidebarHeader, in groups. The drawer keeps its own position, width and slide, which jellyfin writes inline
+ * and follows with the finger on a swipe. Its dim is a child of <body>.
+ */
+
+/* The panel is the drawer itself: contain: strict (navdrawer.scss) clips its content to the rounded corners. The
+   padding is inside jellyfin's inline width. */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .mainDrawer {
+    padding-block: calc(max(var(--pl-menu-padding), env(safe-area-inset-top, 0px)) - 2px) 0;
+    padding-inline: max(var(--pl-menu-padding), env(safe-area-inset-left, 0px)) calc(var(--pl-menu-padding) - 2px);
+    border: 2px solid var(--pl-frost-stroke);
+    border-inline-start: 0;
+    border-start-end-radius: var(--pl-radius-menu);
+    border-end-end-radius: var(--pl-radius-menu);
+    background: var(--pl-surface);
+    color: var(--pl-text);
+    -webkit-backdrop-filter: var(--pl-menu-filter);
+    backdrop-filter: var(--pl-menu-filter);
+}
+
+/* Closed, the drawer waits just outside the window's edge, where a shadow of its own would reach back in. */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .mainDrawer.drawer-open {
+    box-shadow: var(--pl-banner-shadow);
+}
+
+/* The last rows scroll clear of the now-playing bar, which sits above the drawer (appFooter.scss). */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .mainDrawer > .mainDrawer-scrollContainer {
+    padding-bottom: calc(var(--pl-menu-padding) + var(--pl-page-room));
+    scrollbar-width: none;
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .mainDrawer > .mainDrawer-scrollContainer::-webkit-scrollbar {
+    display: none;
+}
+
+/* !important on padding, radius and weight: .navMenuOption sets all three with !important. */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .mainDrawer .navMenuOption {
+    min-height: var(--pl-menu-row);
+    padding: 0 var(--pl-menu-row-pad) !important;
+    border-radius: var(--pl-radius-pill) !important;
+    color: var(--pl-text);
+    font-weight: 500 !important;
+    transition: none;
+}
+
+/* !important: the stock themes paint the selected row with !important. */
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .mainDrawer .navMenuOption-selected {
+    background: var(--pl-glass-tint) !important;
+    color: var(--pl-text);
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .mainDrawer .navMenuOption:is(:hover, :focus-visible) {
+    background: var(--pl-focus-fill) !important;
+    color: var(--pl-focus-text);
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .mainDrawer .navMenuOptionIcon {
+    min-width: var(--pl-drawer-icon);
+    margin: 0;
+    color: inherit;
+    text-align: start;
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .mainDrawer .navMenuOptionText {
+    color: inherit;
+    font: inherit;
+}
+
+/* Desktop only: phones keep jellyfin's row text. */
+.layout-desktop:where([data-theme]) #reactRoot > div > .mainDrawer .navMenuOption {
+    font-size: var(--pl-size-body);
+}
+
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .mainDrawer .sidebarHeader {
+    margin: 0;
+    padding: 0.75em var(--pl-menu-row-pad) 0.25em;
+    color: var(--pl-text-secondary);
+    font-size: var(--pl-card-label);
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* The dim behind it, as behind the Modern drawer. */
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) > .tmla-mask {
+    background-color: var(--pl-drawer-scrim);
+}
+
+/* Phones: a tap leaves :hover stuck, and the drawer stays in the page, so the row would still be solid white the
+   next time it opens. On touch the white is the press. !important: the rules above. */
+.layout-mobile:where([data-theme]) #reactRoot > div > .mainDrawer .navMenuOption:hover:not(:active, :focus-visible) {
+    background: none !important;
+    color: var(--pl-text);
+}
+
+.layout-mobile:where([data-theme]) #reactRoot > div > .mainDrawer .navMenuOption-selected:hover:not(:active, :focus-visible) {
+    background: var(--pl-glass-tint) !important;
+}
+
+.layout-mobile:where([data-theme]) #reactRoot > div > .mainDrawer .navMenuOption:active {
+    background: var(--pl-focus-fill) !important;
+    color: var(--pl-focus-text);
+}

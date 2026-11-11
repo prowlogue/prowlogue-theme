@@ -1,5 +1,5 @@
 /*
- * Card hover (Modern layout, desktop): the hover overlay (dim, play button, the round action buttons)
+ * Card hover (both layouts, desktop): the hover overlay (dim, play button, the round action buttons)
  * belongs to the poster, nothing else.
  *
  * Stock jellyfin-web keys the overlay on the whole card (components/cardbuilder/card.scss:
@@ -36,28 +36,35 @@
    overlay; left inside the overlay, the :has() sits on the overlay and only runs behind :focus-within. On
    .cardScalable it would put every overlay in the shared :has() set. */
 #reactRoot > div > main .card-hoverable .cardScalable:not(:hover):not(:focus-within) > .cardOverlayContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card-hoverable .cardScalable:not(:hover):not(:focus-within) > .cardOverlayContainer,
 #reactRoot > div > main .card-hoverable .cardScalable:not(:hover) > :focus:not(:focus-visible) ~ .cardOverlayContainer,
-#reactRoot > div > main .card-hoverable .cardScalable:not(:hover) > .cardOverlayContainer:focus-within:has(:focus:not(:focus-visible)) {
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card-hoverable .cardScalable:not(:hover) > :focus:not(:focus-visible) ~ .cardOverlayContainer,
+#reactRoot > div > main .card-hoverable .cardScalable:not(:hover) > .cardOverlayContainer:focus-within:has(:focus:not(:focus-visible)),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card-hoverable .cardScalable:not(:hover) > .cardOverlayContainer:focus-within:has(:focus:not(:focus-visible)) {
     opacity: 0;
 }
 
 /* The hand cursor only where a click does something: the poster (caption links are links already). */
-#reactRoot > div > main .card-hoverable {
+#reactRoot > div > main .card-hoverable,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card-hoverable {
     cursor: auto;
     contain: layout style;
 }
 
-#reactRoot > div > main .card-hoverable .cardScalable {
+#reactRoot > div > main .card-hoverable .cardScalable,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card-hoverable .cardScalable {
     cursor: pointer;
     transition: transform var(--pl-focus-poster);
 }
 
 /* jellyfin's own overlay and buttons fade at 0.2s (card.scss); same pace as the lift, so they arrive together. */
-#reactRoot > div > main .card-hoverable :is(.cardOverlayContainer, .cardOverlayButton-hover) {
+#reactRoot > div > main .card-hoverable :is(.cardOverlayContainer, .cardOverlayButton-hover),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card-hoverable :is(.cardOverlayContainer, .cardOverlayButton-hover) {
     transition-duration: var(--pl-card-hover);
 }
 
-#reactRoot > div > main .card-hoverable .cardScalable::after {
+#reactRoot > div > main .card-hoverable .cardScalable::after,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card-hoverable .cardScalable::after {
     content: "";
     position: absolute;
     inset: 0 0 calc(-1 * var(--pl-card-bar, 0px));
@@ -69,15 +76,18 @@
     pointer-events: none;
 }
 
-#reactRoot > div > main .card-hoverable .cardScalable:is(:hover, :focus-within:has(:focus-visible)) {
+#reactRoot > div > main .card-hoverable .cardScalable:is(:hover, :focus-within:has(:focus-visible)),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card-hoverable .cardScalable:is(:hover, :focus-within:has(:focus-visible)) {
     transform: scale(var(--pl-lift));
 }
 
-#reactRoot > div > main .card-hoverable .cardScalable:is(:hover, :focus-within:has(:focus-visible))::after {
+#reactRoot > div > main .card-hoverable .cardScalable:is(:hover, :focus-within:has(:focus-visible))::after,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card-hoverable .cardScalable:is(:hover, :focus-within:has(:focus-visible))::after {
     opacity: 1;
 }
 
-#reactRoot > div > main .card-hoverable:is(:hover, :focus-within) {
+#reactRoot > div > main .card-hoverable:is(:hover, :focus-within),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card-hoverable:is(:hover, :focus-within) {
     position: relative;
     z-index: 1;
 }

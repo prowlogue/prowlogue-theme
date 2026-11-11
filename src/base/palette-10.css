@@ -1,0 +1,319 @@
+/*
+ * Colours on jellyfin 10.11. jellyfin 12 paints its legacy views from palette variables, which this theme sets
+ * once on <html> (src/base/accent.css, src/base/surfaces.css). 10.11 has the same rules with every colour written
+ * in (themes/dark/theme.scss), so no variable reaches them, and each one is restated here with the value 12 ends
+ * up with: the white accent, the navy page, and the greys 12 changed far enough to see. A shade or a hairline
+ * that 12 only nudged stays as 10.11 has it.
+ *
+ * <html> carries .preload on every jellyfin before 12 and on none since, and data-theme from 10.11 on, so the
+ * two together mean 10.11: nothing here reaches 12, or a jellyfin older than 10.11.
+ *
+ * Weight: apart from the page's own background, each rule sits inside :where(), which adds nothing, so it weighs
+ * exactly what the stock rule it restates does, and wins only by coming later. Every other rule in the theme
+ * then relates to it as it relates to the stock rule on 12, and the two versions resolve the same way. A stock
+ * rule of the same weight that followed one of these in jellyfin's sheet is restated after it for the same
+ * reason. No :has() either: these classes are on hundreds of elements.
+ *
+ * Where 10.11 mounts what these classes are on: its page containers, its header, and on <body> the dialogs,
+ * the footer that holds the now-playing bar, the selection bar and the player's stats panel.
+ */
+
+/* ── The page: the navy gradient on <html> and on the fixed layer over the backdrops, as 12 draws it from
+   --jf-palette-background-defaultImage. Flat in potato mode. ── */
+html:where(.preload[data-theme]:not(.layout-tv)):has(> body > #reactRoot > .skinBody) {
+    background-color: var(--pl-navy-mid);
+    background-image: var(--pl-lite-none, var(--pl-bg-navy));
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Legacy's page containers follow this layer in #reactRoot; in the Experimental display mode they don't. */
+:where(.preload[data-theme]:not(.layout-tv)) #reactRoot > .backgroundContainer:has(~ .skinBody) {
+    background-color: var(--pl-navy-mid);
+    background-image: var(--pl-lite-none, var(--pl-bg-navy));
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+/* Over a library's backdrop 12 shows that layer at 86 %; 10.11 swaps its colour for 86 % black. */
+:where(.preload[data-theme]:not(.layout-tv)) #reactRoot > .backgroundContainer.withBackdrop:has(~ .skinBody) {
+    opacity: 0.86;
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .nowPlayingPlaylist,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .dialog {
+    background-color: var(--pl-navy-mid);
+}
+
+/* The book, comics and PDF readers and the book's contents list are dialogs with ids, which 10.11 colours by id. */
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) :is(#bookPlayer, #comicsPlayer, #pdfPlayer, #dialogToc),
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) #comicsPlayer .swiper-pagination {
+    background-color: var(--pl-navy-mid);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) #dialogToc :is(.bookplayerButtonIcon:hover, .toc li a:is(:active, :hover)) {
+    color: var(--pl-accent);
+}
+
+/* A phone's queue is a sheet over the page, with the page's gradient. A desktop's has no background
+   (remotecontrol.scss, a heavier rule). */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .nowPlayingPlaylist {
+    background-image: var(--pl-lite-none, var(--pl-bg-navy));
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+/* ── The accent ── */
+@media (hover: hover) and (pointer: fine) {
+    :where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .paper-icon-button-light:hover:not(:disabled),
+    :where(.preload[data-theme]:not(.layout-tv) #reactRoot > div > .skinHeader) .paper-icon-button-light:hover:not(:disabled),
+    :where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .paper-icon-button-light:hover:not(:disabled),
+    :where(.preload[data-theme]:not(.layout-tv) body > .appfooter) .paper-icon-button-light:hover:not(:disabled),
+    :where(.preload[data-theme]:not(.layout-tv) body > .playerStats) .paper-icon-button-light:hover:not(:disabled),
+    :where(.preload[data-theme]:not(.layout-tv) body > .selectionCommandsPanel) .paper-icon-button-light:hover:not(:disabled) {
+        background-color: rgb(var(--pl-accent-channel) / 0.2);
+        color: var(--pl-accent);
+    }
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .paper-icon-button-light:active:not(:disabled),
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > div > .skinHeader) .paper-icon-button-light:active:not(:disabled),
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .paper-icon-button-light:active:not(:disabled),
+:where(.preload[data-theme]:not(.layout-tv) body > .appfooter) .paper-icon-button-light:active:not(:disabled),
+:where(.preload[data-theme]:not(.layout-tv) body > .playerStats) .paper-icon-button-light:active:not(:disabled),
+:where(.preload[data-theme]:not(.layout-tv) body > .selectionCommandsPanel) .paper-icon-button-light:active:not(:disabled) {
+    background-color: rgb(var(--pl-accent-channel) / 0.2);
+    color: var(--pl-accent);
+}
+
+/* The selection bar's buttons under the pointer or with focus: 12's fill, which 10.11 has no rule for. 12's rule
+   outweighs the two above by the bar's class; this one weighs what they do and follows them. */
+:where(.preload[data-theme]:not(.layout-tv) body > .selectionCommandsPanel) .paper-icon-button-light:not(:disabled):is(:hover, :focus) {
+    background-color: var(--pl-accent-dark);
+}
+
+/* Plain buttons: 12's greys. Their focus fill stays 10.11's. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) :is(.fab, .raised),
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) :is(.fab, .raised) {
+    background: #424242;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) :is(.fab, .raised):hover,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) :is(.fab, .raised):hover {
+    background: #616161;
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) :is(.fab, .raised):focus,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) :is(.fab, .raised):focus {
+    background: #383838;
+}
+
+/* A white button with black text. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .button-submit,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .button-submit {
+    background: var(--pl-accent);
+    color: var(--pl-accent-text);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .button-submit:hover,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .button-submit:hover {
+    background: var(--pl-accent-dark);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .button-submit:focus,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .button-submit:focus {
+    background: var(--pl-accent);
+    color: var(--pl-accent-text);
+}
+
+/* jellyfin's red follows .button-submit in its sheet, for a button that carries both classes. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .button-delete,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .button-delete {
+    background: #c62828;
+    color: #fff;
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) :is(.inputLabelFocused, .selectLabelFocused, .textareaLabelFocused),
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) :is(.inputLabelFocused, .selectLabelFocused, .textareaLabelFocused) {
+    color: var(--pl-accent);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .progressring-spiner {
+    border-color: var(--pl-accent);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .button-flat:hover,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .button-flat:hover {
+    color: var(--pl-accent);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .button-link,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .button-link {
+    color: var(--pl-accent);
+}
+
+/* The rating badge: 12's outline, where 10.11 fills it. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .mediaInfoText {
+    border: 1px solid;
+    border-color: inherit;
+    background: none;
+    color: inherit;
+}
+
+/* Fields: 12's translucent fill and its border, and the accent on focus. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) :is(.emby-input, .emby-textarea),
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) :is(.emby-input, .emby-textarea) {
+    border-color: rgba(255, 255, 255, 0.09);
+    background: rgba(255, 255, 255, 0.09);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) :is(.emby-input, .emby-textarea):focus,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) :is(.emby-input, .emby-textarea):focus {
+    border-color: var(--pl-accent);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .emby-select-withcolor,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .emby-select-withcolor {
+    border: 0.16em solid rgba(255, 255, 255, 0.09);
+    border-radius: 0.2em;
+    background: #202020;
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .emby-select-withcolor > option,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .emby-select-withcolor > option {
+    background: #202020;
+}
+
+/* !important: 10.11's own, on the same selector. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .emby-select-withcolor:focus,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .emby-select-withcolor:focus {
+    border-color: var(--pl-accent) !important;
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .emby-checkbox:checked + span + .checkboxOutline,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .emby-checkbox:checked + span + .checkboxOutline {
+    border-color: var(--pl-accent);
+    background-color: var(--pl-accent);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .emby-checkbox:focus:not(:checked) + span + .checkboxOutline,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .emby-checkbox:focus:not(:checked) + span + .checkboxOutline {
+    border-color: var(--pl-accent);
+}
+
+/* A radio button's circles while it has focus, as 12 states them: one type heavier than emby-radio.scss's blue. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .mdl-radio.show-focus .mdl-radio__button:focus + .mdl-radio__circles svg :is(.mdl-radio__outer-circle, .mdl-radio__inner-circle),
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .mdl-radio.show-focus .mdl-radio__button:focus + .mdl-radio__circles svg :is(.mdl-radio__outer-circle, .mdl-radio__inner-circle) {
+    color: var(--pl-accent);
+}
+
+/* Progress, and jellyfin's red for a recording after it, as in its own sheet. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .itemProgressBarForeground {
+    background-color: var(--pl-accent);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .itemProgressBarForeground-recording {
+    background-color: #d15353;
+}
+
+/* Count, version and played badges: white with black text. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) :is(.countIndicator, .fullSyncIndicator, .mediaSourceIndicator, .playedIndicator) {
+    background: var(--pl-accent);
+    color: var(--pl-accent-text);
+}
+
+/* Tabs, a page's in the header and the guide's days in the page: 12's grey, white for the one that's open, the
+   accent under the pointer. 10.11 dims the guide's days further with a rule of this weight, which these follow. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > div > .skinHeader) .emby-tab-button,
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .emby-tab-button {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > div > .skinHeader) .emby-tab-button-active,
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .emby-tab-button-active {
+    color: #fff;
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > div > .skinHeader) .emby-tab-button:hover,
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .emby-tab-button:hover {
+    color: var(--pl-accent);
+}
+
+/* Live TV's guide. !important: 10.11's own, on the same selectors. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) :is(.guide-channelHeaderCell, .programCell):focus {
+    background-color: var(--pl-accent) !important;
+    color: var(--pl-accent-text) !important;
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .guide-date-tab-button:is(.emby-tab-button-active, :focus) {
+    color: var(--pl-accent);
+}
+
+/* A favourite's heart and a played tick where they keep jellyfin's red: 12's lighter one. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) :is(.ratingbutton-icon-withrating, .playstatebutton-icon-played) {
+    color: #d15353;
+}
+
+/* A button that's switched on, such as repeat in the now-playing bar. !important: 10.11's own. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .buttonActive,
+:where(.preload[data-theme]:not(.layout-tv) body > .appfooter) .buttonActive {
+    color: var(--pl-accent) !important;
+}
+
+/* ── Greys 12 changed ── */
+/* The ‹ › buttons beside a row. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .emby-scrollbuttons {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) :is(.cardText-secondary, .fieldDescription, .guide-programNameCaret, .nowPlayingBarSecondaryText, .programSecondaryTitle, .secondaryText),
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) :is(.cardText-secondary, .fieldDescription, .secondaryText),
+:where(.preload[data-theme]:not(.layout-tv) body > .appfooter) :is(.nowPlayingBarSecondaryText, .secondaryText) {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .listItem .secondary,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .listItem .secondary {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* List rows: 12's see-through hover and focus, where 10.11 has solid greys that would sit like blocks on a glass
+   panel. !important on the border: 10.11's own. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .listItem-border,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .listItem-border {
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .listItem:focus,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .listItem:focus {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .listItem:hover,
+:where(.preload[data-theme]:not(.layout-tv) body > .dialogContainer) .listItem:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* The letters down the side of a library, and the one that's picked after them, as in jellyfin's sheet. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .alphaPickerButton {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .alphaPickerButton-selected {
+    color: #fff;
+}
+
+/* Poster captions start 2px in, and the icon under a poster with no art is 12's grey (cardbuilder/card.scss). The
+   sides only: card.scss pads a first line's top with a later rule of this weight. */
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .cardText {
+    padding-inline: 2px;
+}
+
+:where(.preload[data-theme]:not(.layout-tv) #reactRoot > .skinBody) .cardPadder .cardImageIcon {
+    color: #202020;
+}

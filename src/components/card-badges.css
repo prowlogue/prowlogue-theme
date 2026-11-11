@@ -1,5 +1,5 @@
 /*
- * Poster badges (Modern layout): no unwatched count and no watched ✓ in the poster's top-right corner.
+ * Poster badges (both layouts): no unwatched count and no watched ✓ in the poster's top-right corner.
  * Watched state still shows on the hover overlay's ✓ button (src/components/card-buttons.css). The count
  * also covers the group count on grouped "Latest" cards. Other badges (timer, sync, missing, version
  * count) stay.
@@ -10,6 +10,7 @@
  * rows (.listItemIndicators) keep theirs.
  */
 
-#reactRoot > div > main .card :is(.countIndicator, .playedIndicator) {
+#reactRoot > div > main .card :is(.countIndicator, .playedIndicator),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card :is(.countIndicator, .playedIndicator) {
     display: none;
 }

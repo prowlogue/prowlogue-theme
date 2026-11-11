@@ -73,6 +73,9 @@
     --pl-lite-flex: var(--pl-lite) flex;
     --pl-lite-relative: var(--pl-lite) relative;
     --pl-lite-badge: var(--pl-lite) var(--pl-nav-icon); /* the badge's width, kept free before the user button arrives */
+    --pl-lite-contain: var(--pl-lite) layout style; /* the Legacy bar lets the badge's card hang below it (src/shell/legacy-bar.css) */
+    --pl-lite-last: var(--pl-lite) 2; /* the Legacy bar's user button: after the badge in the row, and above its card */
+    --pl-lite-static: var(--pl-lite) static; /* that button, so the card's title is placed from the same box as the card */
 
     /* ── Corner radii ── */
     --pl-radius-poster: calc(14 * var(--pl-vpt)); /* every poster */
@@ -201,6 +204,8 @@
     --pl-nav-blur: 8px;
     --pl-nav-rounding: var(--pl-rounding);
     --pl-nav-user: 40px; /* the user button: MUI Avatar's default size (components/UserAvatar.tsx) */
+    --pl-nav-row: 48px; /* the Legacy bar's row, as tall as Modern's bar (src/shell/legacy-bar.css) */
+    --pl-tabs-row: 40px; /* a page's tabs, where they have a row of their own under that bar */
     --pl-nav-glyph: 1.5rem; /* MUI's icon in the bar's large icon buttons */
     --pl-nav-icon: calc(var(--pl-nav-glyph) + 24px); /* one of those buttons: the icon and 12px of padding each side */
     --pl-nav-tint: rgba(0, 0, 0, 0.35); /* no-blur fallback for floating surfaces */
@@ -292,6 +297,7 @@
 .layout-mobile {
     --pl-pt: 0.45px;
     --pl-appbar-height: calc(48px + env(safe-area-inset-top, 0px)); /* the bar takes on the status bar's height, where the page runs under it (src/shell/nav-bar.css) */
+    --pl-tabs-row: 44px; /* touch floor */
     --pl-button: min(62px, (90vw - 4 * var(--pl-button-gap)) / 5); /* action squares and Play: sized for a thumb; five always fit between the page's 5 % edges */
     --pl-button-gap: 8px;
     --pl-button-row-gap: 8px;

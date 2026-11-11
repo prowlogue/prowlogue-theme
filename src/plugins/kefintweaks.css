@@ -1,5 +1,5 @@
 /*
- * KefinTweaks (Modern layout).
+ * KefinTweaks (both layouts).
  *
  * Watchlist "on": blue instead of KefinTweaks' green, on the poster buttons and the details page (the
  * Spotlight's is hidden, src/plugins/media-bar.css). KefinTweaks sets the green on .watchlist-button /
@@ -37,35 +37,42 @@
  * same frame (src/pages/home.css).
  */
 
-#reactRoot > div > main :is(.watchlist-button, .watchlist-icon)[data-active="true"] {
+#reactRoot > div > main :is(.watchlist-button, .watchlist-icon)[data-active="true"],
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody :is(.watchlist-button, .watchlist-icon)[data-active="true"] {
     color: var(--pl-blue) !important;
 }
 
-#reactRoot > div > main :is(.section-refresh-button, .show-all-button) {
+#reactRoot > div > main :is(.section-refresh-button, .show-all-button),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody :is(.section-refresh-button, .show-all-button) {
     display: none;
 }
 
 /* Inline next to the button on desktop; through KefinTweaks' ModalSystem, on <body>, below 900px and on phones. */
-body:has(> #reactRoot > div > main) .section-controls-more-item:has(> :is(.refresh, .grid_view, .view_array)) {
+body:has(> #reactRoot > div > main) .section-controls-more-item:has(> :is(.refresh, .grid_view, .view_array)),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .section-controls-more-item:has(> :is(.refresh, .grid_view, .view_array)) {
     display: none;
 }
 
 /* !important: KefinTweaks shows this button with `display: inline-flex !important`. */
-#reactRoot > div > main .section-controls:not(:has(.section-configure-button)) .section-controls-more {
+#reactRoot > div > main .section-controls:not(:has(.section-configure-button)) .section-controls-more,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .section-controls:not(:has(.section-configure-button)) .section-controls-more {
     display: none !important;
 }
 
 /* ── Home's skeleton rows ── */
-#reactRoot > div > main #homeTab .skeleton-card .cardTextStack {
+#reactRoot > div > main #homeTab .skeleton-card .cardTextStack,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab .skeleton-card .cardTextStack {
     display: none;
 }
 
-#reactRoot > div > main #homeTab .skeleton-shimmer {
+#reactRoot > div > main #homeTab .skeleton-shimmer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab .skeleton-shimmer {
     display: none;
 }
 
 /* A title still resolving keeps its height, so the row doesn't move when it arrives. */
-#reactRoot > div > main #homeTab .skeleton-text-line {
+#reactRoot > div > main #homeTab .skeleton-text-line,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab .skeleton-text-line {
     visibility: hidden;
 }
 

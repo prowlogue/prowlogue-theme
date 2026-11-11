@@ -1,5 +1,5 @@
 /*
- * Card captions (Modern layout): posters speak for themselves; captions stay only where they add something.
+ * Card captions (both layouts): posters speak for themselves; captions stay only where they add something.
  *   - Movies and series: no title, anywhere. On the Home tab and the Movies and TV libraries, no year
  *     either (poster only); elsewhere (details pages' More Like This, search, Favorites) the year stays.
  *   - Home tab and the Movies and TV libraries: seasons, episodes and library tiles lose their first line
@@ -21,31 +21,37 @@
  */
 
 /* Movies and series: no title, anywhere. */
-#reactRoot > div > main .card:is([data-type="Movie"], [data-type="Series"]) .cardText.cardText-first {
+#reactRoot > div > main .card:is([data-type="Movie"], [data-type="Series"]) .cardText.cardText-first,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card:is([data-type="Movie"], [data-type="Series"]) .cardText.cardText-first {
     display: none;
 }
 
 /* Collections: no caption, anywhere. */
-#reactRoot > div > main .card[data-type="BoxSet"] .cardText:is(.cardText-first, .cardText-secondary) {
+#reactRoot > div > main .card[data-type="BoxSet"] .cardText:is(.cardText-first, .cardText-secondary),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card[data-type="BoxSet"] .cardText:is(.cardText-first, .cardText-secondary) {
     display: none;
 }
 
 /* Home tab, Movies and TV libraries: movies and series lose the year too. */
-#reactRoot > div > main :is(#homeTab, #moviesPage, #tvshowsPage) .card:is([data-type="Movie"], [data-type="Series"]) .cardText.cardText-secondary {
+#reactRoot > div > main :is(#homeTab, #moviesPage, #tvshowsPage) .card:is([data-type="Movie"], [data-type="Series"]) .cardText.cardText-secondary,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody :is(#homeTab, #moviesPage, #tvRecommendedPage) .card:is([data-type="Movie"], [data-type="Series"]) .cardText.cardText-secondary {
     display: none;
 }
 
 /* Home tab, Movies and TV libraries: seasons, episodes and library tiles lose the series or library name. */
-#reactRoot > div > main :is(#homeTab, #moviesPage, #tvshowsPage) .card:is([data-type="Season"], [data-type="Episode"], [data-type="CollectionFolder"]) .cardText.cardText-first {
+#reactRoot > div > main :is(#homeTab, #moviesPage, #tvshowsPage) .card:is([data-type="Season"], [data-type="Episode"], [data-type="CollectionFolder"]) .cardText.cardText-first,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody :is(#homeTab, #moviesPage, #tvRecommendedPage) .card:is([data-type="Season"], [data-type="Episode"], [data-type="CollectionFolder"]) .cardText.cardText-first {
     display: none;
 }
 
 /* Home Screen Sections: Seerr "Discover" cards, no caption. */
-#reactRoot > div > main .discover-card .cardText:is(.cardText-first, .cardText-secondary) {
+#reactRoot > div > main .discover-card .cardText:is(.cardText-first, .cardText-secondary),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .discover-card .cardText:is(.cardText-first, .cardText-secondary) {
     display: none;
 }
 
 /* Home Screen Sections: Sonarr/Radarr "Upcoming" cards, no title. */
-#reactRoot > div > main .card:is(.upcoming-movie-card, .upcoming-show-card) .cardText.cardText-first {
+#reactRoot > div > main .card:is(.upcoming-movie-card, .upcoming-show-card) .cardText.cardText-first,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .card:is(.upcoming-movie-card, .upcoming-show-card) .cardText.cardText-first {
     display: none;
 }

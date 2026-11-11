@@ -8,7 +8,7 @@
 (() => {
     const root = document.documentElement;
     const mark = 'data-prowlogue-lite';
-    const badge = '#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root';
+    const badge = '#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root, html:not(.layout-tv) #reactRoot > div > .skinHeader .headerRight > .currentTimeText';
     const minFps = 25;
     const sampleMs = 3000;
 

@@ -1,5 +1,5 @@
 /*
- * Accent (Modern layout): white, on jellyfin's dark theme.
+ * Accent (both layouts): white, on jellyfin's dark theme.
  *
  * jellyfin 12 paints its accent (#00a4dc) from MUI's CSS variables, which both the MUI shell and the
  * legacy views read (themes/_base/_theme.scss: `var(--jf-palette-primary-main, $fallback)` and friends).
@@ -8,7 +8,8 @@
  * submit buttons, checkboxes, switches, progress bars, focused fields and labels, the
  * selection bar. Secondary is jellyfin's focus colour, the same blue, so it follows. Each
  * *Channel twin is set too: legacy CSS builds translucent fills from it
- * (`rgba(var(--jf-palette-primary-mainChannel) / …)`).
+ * (`rgba(var(--jf-palette-primary-mainChannel) / …)`). jellyfin 10.11 reads none of these: its rules hold the
+ * colour itself, and src/base/palette-10.css restates them.
  *
  * Text on an accent fill uses contrastText, which becomes black: a white control with black text. One
  * exception: jellyfin's legacy checkbox tick is hard-coded white
@@ -16,7 +17,8 @@
  * it takes the contrast colour instead.
  */
 
-html:has(> body > #reactRoot > div > main) {
+html:has(> body > #reactRoot > div > main),
+html:where([data-theme]:not(.layout-tv)):has(> body > #reactRoot > .skinBody) {
     --jf-palette-primary-main: var(--pl-accent);
     --jf-palette-primary-mainChannel: var(--pl-accent-channel);
     --jf-palette-primary-light: var(--pl-accent);
@@ -35,6 +37,7 @@ html:has(> body > #reactRoot > div > main) {
     --jf-palette-secondary-contrastTextChannel: var(--pl-accent-text-channel);
 }
 
-body:has(> #reactRoot > div > main) .emby-checkbox:checked + span + .checkboxOutline > .checkboxIcon-checked {
+body:has(> #reactRoot > div > main) .emby-checkbox:checked + span + .checkboxOutline > .checkboxIcon-checked,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) .emby-checkbox:checked + span + .checkboxOutline > .checkboxIcon-checked {
     color: var(--pl-accent-text);
 }

@@ -3,7 +3,8 @@
  * The legacy views inherit it from body. Headings need nothing: jellyfin sets their size and weight, not a family.
  */
 
-body:has(> #reactRoot > div > main) {
+body:has(> #reactRoot > div > main),
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #reactRoot > .skinBody) {
     font-family: var(--pl-font);
 }
 
@@ -20,6 +21,8 @@ body:has(> #reactRoot > div > main) {
 /* This font's digits vary in width, where Noto Sans's don't, so a number that counts would jitter. These are the
    ones the player's and the now-playing bar's rules don't cover already. */
 #reactRoot > div > main .positionTime,
-#reactRoot > div > main .upNextDialog-countdownText {
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .positionTime,
+#reactRoot > div > main .upNextDialog-countdownText,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .upNextDialog-countdownText {
     font-variant-numeric: tabular-nums;
 }

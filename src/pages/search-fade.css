@@ -1,5 +1,5 @@
 /*
- * Search eases in and out (Modern layout).
+ * Search eases in and out (both layouts).
  *
  * Coming in: jellyfin takes the last results off the page the moment a search starts and mounts rows as they land
  * (features/search/components/SearchResults.tsx), so every row is a fresh element and a fade on it runs by itself.
@@ -12,15 +12,19 @@
  * doesn't wait.
  */
 #reactRoot > div > main #searchPage .verticalSection,
-#reactRoot > div > main #searchPage > .noItemsMessage {
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #searchPage .verticalSection,
+#reactRoot > div > main #searchPage > .noItemsMessage,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #searchPage > .noItemsMessage {
     animation: pl-home-fade-in var(--pl-home-fade) backwards;
 }
 
-#reactRoot > div > main #searchPage > .jellyseerr-section {
+#reactRoot > div > main #searchPage > .jellyseerr-section,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #searchPage > .jellyseerr-section {
     animation-delay: var(--pl-search-hold);
 }
 
-#reactRoot > div > main #searchPage > .noItemsMessage ~ .jellyseerr-section {
+#reactRoot > div > main #searchPage > .noItemsMessage ~ .jellyseerr-section,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #searchPage > .noItemsMessage ~ .jellyseerr-section {
     animation-delay: 0s;
 }
 
@@ -28,18 +32,22 @@
    and the box changes at once, so what's about to leave can fade first: the suggestions on the first letter, the
    results when the box is emptied. Changing one search for another has no such signal, so those rows cut out. Both
    states last those 500ms at most, because jellyfin then removes what they hid. */
-#reactRoot > div > main #searchPage > .searchSuggestions {
+#reactRoot > div > main #searchPage > .searchSuggestions,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #searchPage > .searchSuggestions {
     transition: opacity var(--pl-home-fade);
 }
 
-#reactRoot > div > main #searchPage > .searchResults {
+#reactRoot > div > main #searchPage > .searchResults,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #searchPage > .searchResults {
     transition: opacity var(--pl-home-fade);
 }
 
-#reactRoot > div > main #searchPage:has(> .searchFields > .searchFieldsInner > .inputContainer > #searchTextInput:not(:placeholder-shown)) > .searchSuggestions {
+#reactRoot > div > main #searchPage:has(> .searchFields > .searchFieldsInner > .inputContainer > #searchTextInput:not(:placeholder-shown)) > .searchSuggestions,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #searchPage:has(> .searchFields > .searchFieldsInner > .inputContainer > #searchTextInput:not(:placeholder-shown)) > .searchSuggestions {
     opacity: 0;
 }
 
-#reactRoot > div > main #searchPage:has(> .searchFields > .searchFieldsInner > .inputContainer > #searchTextInput:placeholder-shown) > .searchResults {
+#reactRoot > div > main #searchPage:has(> .searchFields > .searchFieldsInner > .inputContainer > #searchTextInput:placeholder-shown) > .searchResults,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #searchPage:has(> .searchFields > .searchFieldsInner > .inputContainer > #searchTextInput:placeholder-shown) > .searchResults {
     opacity: 0;
 }

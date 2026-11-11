@@ -1,5 +1,5 @@
 /*
- * Poster corners (Modern layout): rounded corners on every poster, scaled with the canvas like the posters
+ * Poster corners (both layouts): rounded corners on every poster, scaled with the canvas like the posters
  * themselves (--pl-radius-poster, 14 points of a 1920-wide screen: 14px there, 10px in a 1400px window,
  * about 7px on a phone).
  *
@@ -11,6 +11,7 @@
  * Cards with a visual box (.visualCardBox: a poster on a panel with text under it) keep jellyfin's shape.
  */
 
-#reactRoot > div > main .cardBox:not(.visualCardBox) :is(.cardScalable, .cardPadder, .cardContent, .cardImageContainer, .blurhash-canvas, .cardOverlayContainer) {
+#reactRoot > div > main .cardBox:not(.visualCardBox) :is(.cardScalable, .cardPadder, .cardContent, .cardImageContainer, .blurhash-canvas, .cardOverlayContainer),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardBox:not(.visualCardBox) :is(.cardScalable, .cardPadder, .cardContent, .cardImageContainer, .blurhash-canvas, .cardOverlayContainer) {
     border-radius: var(--pl-radius-poster);
 }

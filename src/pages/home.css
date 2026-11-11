@@ -1,5 +1,5 @@
 /*
- * Home (Modern layout): the rows sit on a frosted panel over the Spotlight hero. Rounded 30pt top corners,
+ * Home (both layouts): the rows sit on a frosted panel over the Spotlight hero. Rounded 30pt top corners,
  * a 4pt white @ 40 % inside stroke, and behind the rows the spotlight, blurred σ20 and opaque.
  *
  * The blur: CSS can't copy the hero's <img> into another layer. So on a desktop with a fine pointer, and on
@@ -34,19 +34,23 @@
  * on the flex row instead, and posters keep jellyfin's size. KefinTweaks' gapless rows are left alone.
  */
 
-#reactRoot > div > main #homeTab :is(.padded-left, .emby-scroller) {
+#reactRoot > div > main #homeTab :is(.padded-left, .emby-scroller),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab :is(.padded-left, .emby-scroller) {
     padding-inline-start: max(var(--pl-inset), env(safe-area-inset-left, 0px));
 }
 
-#reactRoot > div > main #homeTab :is(.padded-right, .emby-scroller) {
+#reactRoot > div > main #homeTab :is(.padded-right, .emby-scroller),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab :is(.padded-right, .emby-scroller) {
     padding-inline-end: max(var(--pl-inset), env(safe-area-inset-right, 0px));
 }
 
-#reactRoot > div > main #homeTab .itemsContainer:not([data-gapless="true"]) {
+#reactRoot > div > main #homeTab .itemsContainer:not([data-gapless="true"]),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab .itemsContainer:not([data-gapless="true"]) {
     column-gap: calc(var(--pl-gap) - 1.2em);
 }
 
-#reactRoot > div > main #homeTab > .homeSectionsContainer {
+#reactRoot > div > main #homeTab > .homeSectionsContainer,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab > .homeSectionsContainer {
     gap: 0;
     padding-top: var(--pl-row-spacing);
 }
@@ -70,11 +74,13 @@
     }
 }
 
-#reactRoot > div > main #homeTab > .homeSectionsContainer > .verticalSection {
+#reactRoot > div > main #homeTab > .homeSectionsContainer > .verticalSection,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab > .homeSectionsContainer > .verticalSection {
     animation: pl-home-fade-in var(--pl-home-fade) backwards;
 }
 
-#reactRoot > div > main #homeTab > .homeSectionsContainer > :nth-child(1 of [data-page]).hide ~ .verticalSection {
+#reactRoot > div > main #homeTab > .homeSectionsContainer > :nth-child(1 of [data-page]).hide ~ .verticalSection,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab > .homeSectionsContainer > :nth-child(1 of [data-page]).hide ~ .verticalSection {
     animation-delay: var(--pl-home-hold-limit), 0s;
 }
 
@@ -101,14 +107,17 @@
         }
     }
 
-    #reactRoot > div > main #homeTab > .homeSectionsContainer > .verticalSection {
+    #reactRoot > div > main #homeTab > .homeSectionsContainer > .verticalSection,
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab > .homeSectionsContainer > .verticalSection {
         animation: pl-home-fade-in var(--pl-home-fade) backwards, pl-row-below-screen linear both;
         animation-timeline: auto, view();
         animation-range: normal, entry 0% entry 1%;
     }
 
     #reactRoot > div > main #homeTab > .homeSectionsContainer > .verticalSection > .sectionTitleContainer,
-    #reactRoot > div > main #homeTab > .homeSectionsContainer > .verticalSection > .emby-scroller {
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab > .homeSectionsContainer > .verticalSection > .sectionTitleContainer,
+    #reactRoot > div > main #homeTab > .homeSectionsContainer > .verticalSection > .emby-scroller,
+    :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab > .homeSectionsContainer > .verticalSection > .emby-scroller {
         --pl-row-off: inherit;
         opacity: calc(1 - var(--pl-row-off));
         transition: opacity var(--pl-home-fade);
@@ -120,8 +129,11 @@
    (librarybrowser.scss). So Next Up and any other linked Home Screen Sections row stand apart. KefinTweaks
    resets the same two on its own rows. */
 #reactRoot > div > main #homeTab > .homeSectionsContainer .sectionTitleContainer-cards,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab > .homeSectionsContainer .sectionTitleContainer-cards,
 #reactRoot > div > main #homeTab > .homeSectionsContainer .sectionTitleTextButton > .sectionTitle-cards,
-#reactRoot > div > main #homeTab > .homeSectionsContainer .sectionTitleTextButton > .material-icons {
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab > .homeSectionsContainer .sectionTitleTextButton > .sectionTitle-cards,
+#reactRoot > div > main #homeTab > .homeSectionsContainer .sectionTitleTextButton > .material-icons,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab > .homeSectionsContainer .sectionTitleTextButton > .material-icons {
     margin-block: 0;
     padding-top: 0;
 }
@@ -136,17 +148,20 @@ html:has(> body > .appfooter > .nowPlayingBar:not(.nowPlayingBar-hidden)):where(
     --pl-page-room: calc(max(var(--pl-osd-margin), env(safe-area-inset-bottom, 0px)) + 104px);
 }
 
-#reactRoot > div > main #homeTab {
+#reactRoot > div > main #homeTab,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab {
     padding-bottom: 0 !important;
 }
 
-#reactRoot > div > main #indexPage {
+#reactRoot > div > main #indexPage,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #indexPage {
     padding-bottom: var(--pl-page-room) !important;
 }
 
 /* The ‹ › row buttons hang off the row's top edge with their own padding (emby-scrollbuttons.scss), which
    only lines up with a padded title. As tall as the title line, they centre on it (align-items). */
-#reactRoot > div > main #homeTab > .homeSectionsContainer .emby-scrollbuttons {
+#reactRoot > div > main #homeTab > .homeSectionsContainer .emby-scrollbuttons,
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody #homeTab > .homeSectionsContainer .emby-scrollbuttons {
     height: var(--pl-row-title-line);
     min-height: 0;
     padding-top: 0;
@@ -154,12 +169,14 @@ html:has(> body > .appfooter > .nowPlayingBar:not(.nowPlayingBar-hidden)):where(
 
 /* The panel doesn't wait for the rows, so it needs height of its own: with none it's only its padding tall,
    its top and bottom edges together. A screen's height puts the bottom edge off screen from the start. */
-body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer {
+body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #slides-container > .slide) #reactRoot > .skinBody #homeTab > .homeSectionsContainer {
     min-height: 100vh;
     border-radius: var(--pl-radius-panel) var(--pl-radius-panel) 0 0;
 }
 
-body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before {
+body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #slides-container > .slide) #reactRoot > .skinBody #homeTab > .homeSectionsContainer::before {
     content: "";
     position: absolute;
     inset: 0 0 calc(-1 * var(--pl-page-room));
@@ -170,7 +187,8 @@ body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeS
     animation: pl-home-fade-in var(--pl-home-fade);
 }
 
-body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::after {
+body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::after,
+:where(:root[data-theme]:not(.layout-tv)) body:has(> #slides-container > .slide) #reactRoot > .skinBody #homeTab > .homeSectionsContainer::after {
     content: "";
     position: absolute;
     inset: 0 0 calc(-1 * var(--pl-page-room));
@@ -184,7 +202,8 @@ body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeS
 /* Desktop with a fine pointer: the panel frosts the pinned spotlight. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
     @media (hover: hover) and (pointer: fine) {
-        .layout-desktop body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before {
+        .layout-desktop body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before,
+        .layout-desktop:where([data-theme]) body:has(> #slides-container > .slide) #reactRoot > .skinBody #homeTab > .homeSectionsContainer::before {
             background: var(--pl-lite-panel, transparent);
             -webkit-backdrop-filter: var(--pl-lite-none, blur(var(--pl-frost-blur)));
             backdrop-filter: var(--pl-lite-none, blur(var(--pl-frost-blur)));
@@ -194,7 +213,8 @@ body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeS
 
 /* Phones: the panel frosts the pinned spotlight too. */
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    .layout-mobile body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before {
+    .layout-mobile body:has(> #slides-container > .slide) #reactRoot > div > main #homeTab > .homeSectionsContainer::before,
+    .layout-mobile:where([data-theme]) body:has(> #slides-container > .slide) #reactRoot > .skinBody #homeTab > .homeSectionsContainer::before {
         background: var(--pl-lite-panel, transparent);
         -webkit-backdrop-filter: var(--pl-lite-none, blur(var(--pl-frost-blur)));
         backdrop-filter: var(--pl-lite-none, blur(var(--pl-frost-blur)));
