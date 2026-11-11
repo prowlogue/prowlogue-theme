@@ -56,7 +56,7 @@ If your device can't keep up with the theme or you can't add the script in step 
 ```
 
 > [!TIP]
-> **Not the server admin?** Paste in **Settings → Display → Custom CSS code** instead. It applies to you, in that browser. Step 4 needs an admin, so on a slow device use the [potato version](#-potato-mode--slow-devices) instead.
+> **Not the server admin?** Paste in **Settings → Display → Custom CSS code** instead. It applies to you, in that browser. Step 4 needs an admin, so on a slow device use the [potato version](#-potato-mode--slow-devices) instead.<br>
 > Tick **Disable server-provided custom CSS code** so the browser doesn't load other themes.
 
 > [!IMPORTANT]
