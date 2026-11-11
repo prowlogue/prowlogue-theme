@@ -4,15 +4,12 @@
   <h1>Prowlogue for Jellyfin Web</h1>
 
   <img alt="Jellyfin 10.11 and 12" src="https://img.shields.io/badge/Jellyfin-10.11%20%7C%2012-9962be"/>
-  <img alt="Pure CSS" src="https://img.shields.io/badge/pure-CSS-0a0a23"/>
-  <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-lightgrey"/>
-  <a href="https://prowlogue.app"><img alt="prowlogue.app" src="https://img.shields.io/badge/web-prowlogue.app-0a0a23"/></a>
   <a href="https://discord.gg/e8A3D9P7fk"><img alt="Join the community on Discord" src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white"/></a>
 </div>
 
 <p align="center">
-  The look and feel of <a href="https://prowlogue.app"><b>Prowlogue</b></a>, the Jellyfin client for Apple TV, in your browser.<br>
-  One line to install. Nothing to host. Updates itself.
+  A polished, minimal browser theme built on the look and feel of the <a href="https://prowlogue.app"><b>Prowlogue</b></a> tvOS app.<br>
+  One-line install. Nothing to host. Updates automatically.
 </p>
 
 <p align="center">
@@ -48,10 +45,20 @@
    3. Leave the code box empty and **Requires Authentication** off, then select **Save**.
 5. Reload the page.
 
-That's it. The theme now applies to everyone on your server, and any device that can't keep up with it switches to potato mode on its own.
+That's it.
+
+### 🥔 Potato mode | Slow devices
+
+If your device can't keep up with the theme or you can't add the script in step 4, use the lite version instead:
+
+```css
+@import url("https://theme.prowlogue.app/v1/prowlogue-lite.css");
+```
+
+Tick **Disable server-provided custom CSS code** so the browser doesn't load other themes.
 
 > [!TIP]
-> **Not the server admin?** Paste the theme's line into **Settings → Display → Custom CSS code** instead. It applies to you, in that browser. Step 4 needs an admin, so on a slow device use the [lite version](#for-everyone) instead.
+> **Not the server admin?** Paste in **Settings → Display → Custom CSS code** instead. It applies to you, in that browser. Step 4 needs an admin, so on a slow device use the [potato version](#-potato-mode--slow-devices) instead.
 
 > [!IMPORTANT]
 > Keep it as the first line. Browsers ignore an `@import` that comes after any other CSS.
@@ -61,15 +68,17 @@ That's it. The theme now applies to everyone on your server, and any device that
 | Requirement | Supported |
 | --- | --- |
 | **Jellyfin** | 12.x and 10.11.x |
-| **Display mode** | **Auto**, **Desktop** or **Mobile** (Settings → Display). Auto is the default. Jellyfin 12 lists the other two as **Desktop (Legacy)** and **Mobile (Legacy)**. |
+| **Display mode** | **Auto**, **Desktop** or **Mobile**. |
 | **Theme** | **Dark** (Settings → Display). This is the default. |
-| **Browser** | Chrome 105, Safari 15.4 or Firefox 121, or newer |
 
-The **TV** display mode and the admin dashboard keep the stock Jellyfin look. Servers older than 10.11 aren't supported, and neither is the **Experimental** display mode on 10.11.
+**TV** display mode and the admin dashboard keep the stock Jellyfin look.
+Servers older than 10.11 aren't supported, neither is the **Experimental** display mode on 10.11.
+[Let me know](https://discord.gg/e8A3D9P7fk) if there is interest for a TV mode theme
 
-### Updates
+### How to Update
 
-There's nothing to do. Your browser starts from the copy it already has, so the theme never holds up a page, and fetches any new release in the background. The release shows from the next reload. The potato mode script updates the same way when it's added by its address, as in step 4.
+Nothing to do!<br>
+The themes and potato mode script update automatically when they are added by their addresses.
 
 ## ✨ Features
 
@@ -213,20 +222,16 @@ With the [JavaScript Injector](https://github.com/n00bcodr/Jellyfin-JavaScript-I
 
 ### For everyone
 
-To turn potato mode on for every device, replace the theme's line in **Dashboard → Branding** with this one:
+To turn potato mode on for every device, just paste the lite theme in the dashboard instead:
 
 ```css
 @import url("https://theme.prowlogue.app/v1/prowlogue-lite.css");
 ```
 
-Select **Save**, then reload the page. To go back, put the theme's line back.
-
-To use it in one browser only, paste the same line at the top of **Settings → Display → Custom CSS code** in that browser. Also tick **Disable server-provided custom CSS code** there, so the browser doesn't load the full theme as well.
-
 The full theme also turns potato mode on by itself when a system asks for less transparency: **Transparency effects** off on Windows, or **Reduce transparency** on a Mac, in Chrome, Edge and other Chromium browsers.
 
 > [!TIP]
-> Check that hardware acceleration is on first. In Chrome it's **Settings → System → Use graphics acceleration when available**. With it on, most computers run the full look smoothly.
+> Check that hardware acceleration is on. In Chrome it's **Settings → System → Use graphics acceleration when available**. Most devices should run the full theme smoothly.
 
 ## 📸 Screenshots
 
@@ -290,7 +295,6 @@ The theme works on a plain Jellyfin server. If you run any of these plugins, it 
 - Check that your server runs Jellyfin 10.11 or newer.
 - Check that **Settings → Display → Display mode** isn't set to **TV**, or to **Experimental** on Jellyfin 10.11.
 - Check that **Disable server-provided custom CSS code** is turned off in **Settings → Display**.
-- Check that your browser meets the [requirements](#requirements). Older browsers keep the stock look.
 
 </details>
 
@@ -311,7 +315,7 @@ If you add the potato mode script by its address, add `https://theme.prowlogue.a
 <details>
 <summary><b>Scrolling stutters on one device</b></summary>
 
-Turn on hardware acceleration in that browser's settings. If it still stutters, install the [potato mode script](#for-the-devices-that-need-it), or use the [lite version](#for-everyone) in that browser.
+Turn on hardware acceleration in that browser's settings. If it still stutters, install the [potato mode script](#for-the-devices-that-need-it), or use the [lite version](#-potato-mode--slow-devices) in that browser.
 
 </details>
 
@@ -331,7 +335,7 @@ Delete the `@import` line from **Custom CSS code**, select **Save**, and reload 
 
 ## 🙌 Credits
 
-Inspiration was taken from [Abyss](https://github.com/AumGupta/abyss-jellyfin) by Om Gupta.
+Inspiration was taken from [Abyss](https://github.com/AumGupta/abyss-jellyfin) by Om Gupta for the player UI.
 
 ## 📜 License
 
