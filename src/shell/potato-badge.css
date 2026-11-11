@@ -13,7 +13,8 @@
  *
  * src/potato-mode.js marks <html> with data-prowlogue-lite. While it does, a click on the badge tests the device
  * again, and the value "new" opens the card by itself for a few seconds when it turns potato mode on, unless the
- * test was started from the badge.
+ * test was started from the badge. When that test turns it straight back on, the value "still" has the card's
+ * title say so.
  */
 
 #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root {
@@ -100,6 +101,13 @@
     animation: pl-home-fade-in var(--pl-focus-button);
 }
 
+/* A click whose test turned potato mode straight back on: the title blinks and says so, for as long as this
+   animation runs, which is as long as src/potato-mode.js keeps "still". */
+:root[data-prowlogue-lite="still"] #reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root:hover > .MuiIconButton-root:not(:hover)::after {
+    content: var(--pl-lite-shown, none) "STILL A POTATO";
+    animation: pl-potato-still var(--pl-potato-still);
+}
+
 /* In, held long enough to read, out. */
 @keyframes pl-potato-announce {
     from,
@@ -110,6 +118,31 @@
     3%,
     94% {
         opacity: 1;
+    }
+}
+
+/* Three blinks, then held long enough to read. With reduced motion, held without them. */
+@keyframes pl-potato-still {
+    0%,
+    12%,
+    24% {
+        opacity: 0;
+    }
+
+    6%,
+    18%,
+    30%,
+    100% {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    @keyframes pl-potato-still {
+        from,
+        to {
+            opacity: 1;
+        }
     }
 }
 
@@ -207,4 +240,9 @@
 :where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .currentTimeText:empty:hover::after,
 :where(:root[data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .headerUserButton:has(~ .currentTimeText:hover)::after {
     animation: pl-home-fade-in var(--pl-focus-button);
+}
+
+:root[data-prowlogue-lite="still"]:where([data-theme]:not(.layout-tv)) #reactRoot > div > .skinHeader .headerRight > .headerUserButton:has(~ .currentTimeText:hover)::after {
+    content: var(--pl-lite-shown, none) "STILL A POTATO";
+    animation: pl-potato-still var(--pl-potato-still);
 }

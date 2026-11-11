@@ -161,6 +161,7 @@ test('potato-mode.js parses, matches the README, and names only what the stylesh
         assert.ok(code.includes(rule), `the badge selector or its mark is gone: ${badge}`);
     }
     assert.ok(script.includes("'pl-potato-announce'") && /@keyframes pl-potato-announce\{/.test(code), 'the announcement is gone');
+    assert.ok(script.includes("'pl-potato-still'") && /@keyframes pl-potato-still\{/.test(code), 'the answer to a click is gone');
 });
 
 test('no hashed MUI/emotion classes (they change on every jellyfin-web build)', () => {
@@ -235,7 +236,7 @@ const legacyMount = String.raw`#reactRoot > (?:\.skinBody|\.mainAnimatedPages\.s
 // asks for data-theme, which <html> carries from jellyfin 10.11 on: 10.9 and 10.10 have Legacy's page shell around
 // other pages, and keep stock's look. .preload is on <html> up to jellyfin 10.11 and gone in 12, so with data-theme
 // it means 10.11.
-const tvOut = String.raw`(?::where\((?::root|\.preload)\[data-theme\]:not\(\.layout-tv\)\) |:root\[data-prowlogue-lite(?:="new")?\]:where\(\[data-theme\]:not\(\.layout-tv\)\) |\.layout-(?:desktop|mobile):where\(\[data-theme\]\) )`;
+const tvOut = String.raw`(?::where\((?::root|\.preload)\[data-theme\]:not\(\.layout-tv\)\) |:root\[data-prowlogue-lite(?:="(?:new|still)")?\]:where\(\[data-theme\]:not\(\.layout-tv\)\) |\.layout-(?:desktop|mobile):where\(\[data-theme\]\) )`;
 const tvOutOnHtml = String.raw`html:where\((?:\.preload)?\[data-theme\]:not\(\.layout-tv\)\)`;
 
 // jellyfin 10.11 only: a stock rule restated at its own weight, the whole path inside :where(). Its mounts are
@@ -248,7 +249,7 @@ test('every selector is scoped to the Modern or the Legacy app', () => {
     const tokens = /^(:root(\[data-prowlogue-lite\])?|\.layout-(tv|mobile|desktop))$/;
     // Legacy has no <main>, and renders no MUI portals, so these paths can't reach it.
     const modern = [
-        /^(\.layout-(desktop|mobile) )?(:root\[data-prowlogue-lite(="new")?\] )?(\[dir="rtl"\] )?#reactRoot > div > (main|header\.MuiAppBar-root)\b/,
+        /^(\.layout-(desktop|mobile) )?(:root\[data-prowlogue-lite(="(new|still)")?\] )?(\[dir="rtl"\] )?#reactRoot > div > (main|header\.MuiAppBar-root)\b/,
         /^(\.layout-(desktop|mobile) )?body:has\(> /,
         /^(\.layout-(desktop|mobile) )?#reactRoot ~ \* \.Mui/,
         /^html:has\(> body > /,
@@ -311,7 +312,7 @@ function hasArguments(selector, anchor) {
 // A selector without the :where() guards on <html>, which add nothing to what it matches below.
 const unguarded = (selector) => selector
     .replace(new RegExp(`^${tvOutOnHtml}`), 'html')
-    .replace(/^(\.layout-(?:desktop|mobile)|:root\[data-prowlogue-lite(?:="new")?\]):where\([^()]*(?:\([^()]*\))?\)/, '$1')
+    .replace(/^(\.layout-(?:desktop|mobile)|:root\[data-prowlogue-lite(?:="(?:new|still)")?\]):where\([^()]*(?:\([^()]*\))?\)/, '$1')
     .replace(/^:where\([^()]*(?:\([^()]*\))*\) /, '');
 
 test('a :has() high in the tree follows an exact path, it never scans', () => {

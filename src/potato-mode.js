@@ -1,7 +1,7 @@
 /*
  * Prowlogue potato mode, for the JavaScript Injector plugin with Requires Authentication off, so it runs from the
  * first page. It turns the theme's lite look on for a device that can't draw frosted glass smoothly: one without
- * a hardware GPU, found at once, or one that scrolls at under 25 frames a second for 3 seconds. It only marks
+ * a hardware GPU, found at once, or one that scrolls at under 25 frames a second for 2.25 seconds. It only marks
  * <html> with data-prowlogue-lite, and the stylesheet does the rest. The verdict lasts until the browser closes,
  * and a click on the potato in the top bar tests the device again.
  */
@@ -10,10 +10,12 @@
     const mark = 'data-prowlogue-lite';
     const badge = '#reactRoot > div > header.MuiAppBar-root > .MuiToolbar-root:first-child > .MuiBox-root ~ .MuiBox-root, html:not(.layout-tv) #reactRoot > div > .skinHeader .headerRight > .currentTimeText';
     const minFps = 25;
-    const sampleMs = 3000;
+    const windowMs = 2250;
+    const slowMs = 1000 / minFps;
 
-    let frames = 0;
+    let lengths = [];
     let time = 0;
+    let slow = 0;
     let last = 0;
     let lastScroll = 0;
     let watching = false;
@@ -32,22 +34,27 @@
         root.setAttribute(mark, announce ? 'new' : '');
     };
 
-    // Frame rate while something scrolls, which is when frosted glass costs most. A gap over half a second is a
-    // pause, such as a hidden tab, not a frame.
+    // The frame rate over the last 2.25 seconds of scrolling, which is when frosted glass costs most, judged on every
+    // frame. Struggling is slow on average and slow most of the time: more than half the frames take longer than
+    // 1/25 s, so a few long freezes among fast frames don't count. A gap over half a second is a pause, such as a
+    // hidden tab, not a frame.
     const frame = (now) => {
-        if (last && now - last < 500) {
-            frames++;
-            time += now - last;
-        }
-        last = now;
-        if (time >= sampleMs) {
-            if (frames < (minFps * time) / 1000) {
+        const length = now - last;
+        if (last && length < 500) {
+            lengths.push(length);
+            time += length;
+            if (length > slowMs) slow++;
+            while (time - lengths[0] >= windowMs) {
+                const oldest = lengths.shift();
+                time -= oldest;
+                if (oldest > slowMs) slow--;
+            }
+            if (time >= windowMs && lengths.length < (minFps * time) / 1000 && slow * 2 > lengths.length) {
                 watching = false;
                 return lite();
             }
-            frames = 0;
-            time = 0;
         }
+        last = now;
         if (now - lastScroll < 200) requestAnimationFrame(frame);
         else watching = false;
     };
@@ -61,8 +68,9 @@
     };
 
     const watch = () => {
-        frames = 0;
+        lengths = [];
         time = 0;
+        slow = 0;
         save(0);
         addEventListener('scroll', onScroll, { capture: true, passive: true });
     };
@@ -76,17 +84,24 @@
         watch();
     };
 
-    const announced = (event) => {
-        if (event.animationName === 'pl-potato-announce' && root.getAttribute(mark) === 'new') root.setAttribute(mark, '');
+    // "new" lasts as long as the card's announcement, and "still" as long as its title's blinks.
+    const settle = (event) => {
+        const value = root.getAttribute(mark);
+        const done = (event.animationName === 'pl-potato-announce' && value === 'new')
+            || (event.animationName === 'pl-potato-still' && value === 'still');
+        if (done) root.setAttribute(mark, '');
     };
-    addEventListener('animationend', announced);
-    addEventListener('animationcancel', announced);
+    addEventListener('animationend', settle);
+    addEventListener('animationcancel', settle);
 
+    // Without a hardware GPU the test answers at once and nothing on the page changes, so "still" has the card's
+    // title say so.
     addEventListener('click', (event) => {
         if (!root.hasAttribute(mark) || !event.target.matches?.(badge)) return;
         announce = false;
         root.removeAttribute(mark);
         test();
+        if (root.hasAttribute(mark)) root.setAttribute(mark, 'still');
     });
 
     const saved = document.cookie.match(/(?:^|; )prowlogue-lite=([01])/)?.[1];

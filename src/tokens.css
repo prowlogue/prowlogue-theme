@@ -285,6 +285,7 @@
     --pl-fade-in: var(--pl-fade-in-time) ease-out; /* poster art landing, on every page (src/components/poster-fade.css): short, because fast scrolling leaves a longer fade unfinished on screen */
     --pl-home-fade: 0.2s ease-out; /* Home's panel and rows arriving: quick, so the page never just appears */
     --pl-potato-announce: 10s linear; /* the potato's card opening by itself (src/shell/potato-badge.css): long enough to read */
+    --pl-potato-still: 3.5s linear; /* its title after a click finds the device as it was: three blinks, then held */
     --pl-collection-hold: 0.1s; /* a collection's rows wait this long (src/pages/details-glass.css), which keeps the biggest jump in a frame to an ordinary step of the fade */
 }
 
