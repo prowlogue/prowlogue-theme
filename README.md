@@ -55,9 +55,10 @@ If your device can't keep up with the theme or you can't add the script in step 
 @import url("https://theme.prowlogue.app/v1/prowlogue-lite.css");
 ```
 
+Tick **Disable server-provided custom CSS code** so the browser doesn't load other themes.
+
 > [!TIP]
-> **Not the server admin?** Paste in **Settings → Display → Custom CSS code** instead. It applies to you, in that browser. Step 4 needs an admin, so on a slow device use the [potato version](#-potato-mode--slow-devices) instead.<br>
-> Tick **Disable server-provided custom CSS code** so the browser doesn't load other themes.
+> **Not the server admin?** Paste in **Settings → Display → Custom CSS code** instead. It applies to you, in that browser. Step 4 needs an admin, so on a slow device use the [potato version](#-potato-mode--slow-devices) instead.
 
 > [!IMPORTANT]
 > Keep it as the first line. Browsers ignore an `@import` that comes after any other CSS.
