@@ -4,15 +4,12 @@
   <h1>Prowlogue for Jellyfin Web</h1>
 
   <img alt="Jellyfin 10.11 and 12" src="https://img.shields.io/badge/Jellyfin-10.11%20%7C%2012-9962be"/>
-  <img alt="Pure CSS" src="https://img.shields.io/badge/pure-CSS-0a0a23"/>
-  <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-lightgrey"/>
-  <a href="https://prowlogue.app"><img alt="prowlogue.app" src="https://img.shields.io/badge/web-prowlogue.app-0a0a23"/></a>
   <a href="https://discord.gg/e8A3D9P7fk"><img alt="Join the community on Discord" src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white"/></a>
 </div>
 
 <p align="center">
-  The look and feel of <a href="https://prowlogue.app"><b>Prowlogue</b></a>, the Jellyfin client for Apple TV, in your browser.<br>
-  One line to install. Nothing to host. Updates itself.
+  A polished, minimal browser theme built on the look and feel of the <a href="https://prowlogue.app"><b>Prowlogue</b></a> tvOS app.<br>
+  One-line install. Nothing to host. Updates automatically.
 </p>
 
 <p align="center">
@@ -51,10 +48,21 @@
 That's it. The theme now applies to everyone on your server, and any device that can't keep up with it switches to potato mode on its own.
 
 > [!TIP]
-> **Not the server admin?** Paste the theme's line into **Settings → Display → Custom CSS code** instead. It applies to you, in that browser. Step 4 needs an admin, so on a slow device use the [lite version](#for-everyone) instead.
+> **Not the server admin?** Paste the theme's line into **Settings → Display → Custom CSS code** instead. It applies to you, in that browser. Step 4 needs an admin, so on a slow device use the [lite version](#-potato-mode-for-slow-devices) instead.
 
 > [!IMPORTANT]
 > Keep it as the first line. Browsers ignore an `@import` that comes after any other CSS.
+
+### 🥔 Potato mode for slow devices
+
+If a device stutters with the full theme, or you can't add the script in step 4, use the lite version in place of the theme's line. It's the same theme with [potato mode](#-potato-mode) always on: frosted glass becomes a see-through tint, so scrolling stays smooth.
+
+```css
+@import url("https://theme.prowlogue.app/v1/prowlogue-lite.css");
+```
+
+- **Just you:** paste it at the top of **Settings → Display → Custom CSS code**. It applies in that browser. If your server already loads the full theme, also tick **Disable server-provided custom CSS code** there, so the browser doesn't load both.
+- **Everyone:** put it in **Dashboard → Branding** instead of the theme's line.
 
 ### Requirements
 
