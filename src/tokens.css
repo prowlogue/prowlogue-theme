@@ -204,6 +204,7 @@
     --pl-nav-glyph: 1.5rem; /* MUI's icon in the bar's large icon buttons */
     --pl-nav-icon: calc(var(--pl-nav-glyph) + 24px); /* one of those buttons: the icon and 12px of padding each side */
     --pl-nav-tint: rgba(0, 0, 0, 0.35); /* no-blur fallback for floating surfaces */
+    --pl-nav-crumbs: 28px; /* KefinTweaks' breadcrumb row under the bar: a 20px line and the 8px under it (src/plugins/kefintweaks.css) */
     --pl-nav-solid: #1c1c1e; /* a native list's options, where a browser draws its own (src/pages/details-glass.css) */
     --pl-menu-padding: calc(17 * var(--pl-pt));
 

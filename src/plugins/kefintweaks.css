@@ -11,6 +11,14 @@
  * on phones they move into a ⋮ menu, listed there too and told apart only by their icon. Configure stays.
  * A row without it (userConfigurable off) would open an empty ⋮ menu, so that button goes as well.
  *
+ * Breadcrumb row: on a series, season or episode page KefinTweaks adds a row to the bar's first toolbar, and only
+ * after fetching the item and its parents, so it lands after the page has drawn (scripts/breadcrumbs.js). In the
+ * flow it makes the bar taller, jellyfin's spacer follows (components/OffsetAppBar.tsx), and the whole page drops
+ * by the row's height. On desktop the row hangs below the toolbar, out of the flow, at a fixed height on one line,
+ * and the bar's tint, frost and hairline reach down over it while it shows (src/shell/nav-bar.css): the page starts
+ * at the same place with or without it, and the row fades in. Phones keep it in the flow: the top of their item
+ * page is laid out from the bar's foot, and a row over it would cover the picture.
+ *
  * Breadcrumb dropdown: the season, album and song menu under the breadcrumbs. Its only surface is
  * backdrop-filter: blur(50px), and it mounts inside the app bar, which has a blur of its own, so the bar is
  * its backdrop root: it can't reach the page and paints nothing. It wears the menus' panel instead
@@ -59,6 +67,31 @@ body:has(> #reactRoot > div > main) .section-controls-more-item:has(> :is(.refre
 /* A title still resolving keeps its height, so the row doesn't move when it arrives. */
 #reactRoot > div > main #homeTab .skeleton-text-line {
     visibility: hidden;
+}
+
+/* ── Breadcrumb row ── */
+/* inset-inline and the toolbar's own padding put the trail where it sits in the flow. width: KefinTweaks sets 100%,
+   which with both insets would run past the bar's right edge by the toolbar's padding. */
+.layout-desktop #reactRoot > div > header.MuiAppBar-root .kefinTweaks-breadcrumbs-wrapper {
+    position: absolute;
+    inset: 100% 0 auto;
+    width: auto;
+    padding-inline: inherit;
+    animation: pl-home-fade-in var(--pl-home-fade);
+}
+
+.layout-desktop #reactRoot > div > header.MuiAppBar-root .kefinTweaks-breadcrumbs {
+    display: block;
+    overflow: hidden;
+    padding-block: 0 calc(var(--pl-nav-crumbs) - 20px);
+    line-height: 20px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* KefinTweaks shows and hides the row with an inline display, and keeps it in the bar once built. */
+.layout-desktop #reactRoot > div > header.MuiAppBar-root:has(> .MuiToolbar-root > .kefinTweaks-breadcrumbs-wrapper[style*="block"]) {
+    --pl-nav-below: var(--pl-nav-crumbs);
 }
 
 /* ── Breadcrumb dropdown ── */

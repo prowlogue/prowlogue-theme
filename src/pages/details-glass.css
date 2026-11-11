@@ -98,9 +98,7 @@ body:has(> #reactRoot > div > main > .mainAnimatedPages > #itemDetailPage:not(.h
     display: contents;
 }
 
-/* The poster: its box starts a screen above the page, so sticky holds it from the first frame and it never moves.
-   No start worked out from the bar's height: KefinTweaks' breadcrumbs add a row to the bar on some pages only, so
-   such a start lands low there and the poster rises on the first scroll. */
+/* The poster: its box starts a screen above the page, so sticky holds it from the first frame and it never moves. */
 .layout-desktop #reactRoot > div > main #itemDetailPage .detailPagePrimaryContainer > .detailImageContainer {
     grid-area: 1 / 1 / -1 / 2;
     margin-block-start: -100vh;
