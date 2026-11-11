@@ -57,7 +57,6 @@ If your device can't keep up with the theme or you can't add the script in step 
 
 > [!TIP]
 > **Not the server admin?** Paste in **Settings → Display → Custom CSS code** instead. It applies to you, in that browser. Step 4 needs an admin, so on a slow device use the [potato version](#-potato-mode--slow-devices) instead.
->
 > Tick **Disable server-provided custom CSS code** so the browser doesn't load other themes.
 
 > [!IMPORTANT]
@@ -73,12 +72,12 @@ If your device can't keep up with the theme or you can't add the script in step 
 
 **TV** display mode and the admin dashboard keep the stock Jellyfin look.
 Servers older than 10.11 aren't supported, neither is the **Experimental** display mode on 10.11.
-
-([Let me know](https://discord.gg/e8A3D9P7fk) if there is interest for a TV mode theme)
+[Let me know](https://discord.gg/e8A3D9P7fk) if there is interest for a TV mode theme
 
 ### How to Update
 
-Nothing to do! The themes and potato mode script update automatically when they are added by their addresses.
+Nothing to do!<br>
+The themes and potato mode script update automatically when they are added by their addresses.
 
 ## ✨ Features
 
