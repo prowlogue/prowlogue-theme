@@ -45,24 +45,23 @@
    3. Leave the code box empty and **Requires Authentication** off, then select **Save**.
 5. Reload the page.
 
-That's it. The theme now applies to everyone on your server, and any device that can't keep up with it switches to potato mode on its own.
+That's it.
 
-> [!TIP]
-> **Not the server admin?** Paste the theme's line into **Settings → Display → Custom CSS code** instead. It applies to you, in that browser. Step 4 needs an admin, so on a slow device use the [lite version](#-potato-mode-for-slow-devices) instead.
+### 🥔 Potato mode | Slow devices
 
-> [!IMPORTANT]
-> Keep it as the first line. Browsers ignore an `@import` that comes after any other CSS.
-
-### 🥔 Potato mode for slow devices
-
-If a device stutters with the full theme, or you can't add the script in step 4, use the lite version in place of the theme's line. It's the same theme with [potato mode](#-potato-mode) always on: frosted glass becomes a see-through tint, so scrolling stays smooth.
+If your device can't keep up with the theme or you can't add the script in step 4, use the lite version instead:
 
 ```css
 @import url("https://theme.prowlogue.app/v1/prowlogue-lite.css");
 ```
 
-- **Just you:** paste it at the top of **Settings → Display → Custom CSS code**. It applies in that browser. If your server already loads the full theme, also tick **Disable server-provided custom CSS code** there, so the browser doesn't load both.
-- **Everyone:** put it in **Dashboard → Branding** instead of the theme's line.
+**Just you:** paste it in **Settings → Display → Custom CSS code**. It applies in that browser. Tick **Disable server-provided custom CSS code** so the browser doesn't load other themes.
+
+> [!TIP]
+> **Not the server admin?** Paste the theme's line into **Settings → Display → Custom CSS code** instead. It applies to you, in that browser. Step 4 needs an admin, so on a slow device use the [lite version](#-potato-mode--slow-devices) instead.
+
+> [!IMPORTANT]
+> Keep it as the first line. Browsers ignore an `@import` that comes after any other CSS.
 
 ### Requirements
 
