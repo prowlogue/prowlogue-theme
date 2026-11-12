@@ -108,13 +108,22 @@
     filter: var(--pl-badge-shadow);
 }
 
+/* Each icon takes its button's corners. card.scss makes it a circle, and the corners outside it would belong to
+   the button alone. A row's mouse drag cancels its click only on the element the drag started on
+   (lib/scroller/index.js dragHandler), and the click goes to the nearest element holding both ends of the drag:
+   one that starts on the icon and ends in a corner would click the button. The play button's hover scale moves
+   that edge during a drag. Above 70em the icons have no background, so the corners don't show. */
+#reactRoot > div > main .cardOverlayContainer .cardOverlayButton > :is(.cardOverlayButtonIcon, .MuiSvgIcon-root),
+:where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardOverlayContainer .cardOverlayButton > :is(.cardOverlayButtonIcon, .MuiSvgIcon-root) {
+    border-radius: var(--pl-rounding);
+}
+
 @media (max-width: 70em) {
     /* !important: card.scss sets these icons' background with !important (.cardOverlayButtonIcon-hover
        transparent, .cardOverlayButtonIcon rgba(0, 0, 0, 0.7)). */
     #reactRoot > div > main .cardOverlayContainer .cardOverlayButton > :is(.cardOverlayButtonIcon, .MuiSvgIcon-root),
     :where(:root[data-theme]:not(.layout-tv)) #reactRoot > .skinBody .cardOverlayContainer .cardOverlayButton > :is(.cardOverlayButtonIcon, .MuiSvgIcon-root) {
         background-color: var(--pl-card-button-glass) !important;
-        border-radius: var(--pl-rounding);
     }
 }
 
